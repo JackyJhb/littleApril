@@ -6,6 +6,7 @@
 #include "pro_wrapper.h"
 #include "debug_config.h"
 #include "task_monitor.h"
+#include "default_config.h"
 
 OS_TCB VentilationTaskTCB;
 CPU_STK VENTILATION_TASK_STK[VENTILATION_STK_SIZE];
@@ -49,7 +50,10 @@ void ventilation_task(void *p_arg)
 	OS_MSG_SIZE    msg_size;
 	char * pMsg,isFanWorking=0;
 	float ventilation_volume = 0.0f,cmf_per_minute;
-	uint16_t ventilation_cycle_counter = 0x00F0,ventilation_cycle = 0,fan_numbers,fan_work_seconds,work_timer_counter;
+	uint16_t ventilation_cycle_counter = 0x00F0,ventilation_cycle = 0,fan_work_seconds,work_timer_counter;
+	#ifndef ENABLE_USER_SET
+	uint8_t fan_numbers;
+	#endif
 	CPU_SR_ALLOC();
 	p_arg = p_arg;
 	cpu_clk_freq = BSP_CPU_ClkFreq();
@@ -140,13 +144,13 @@ void ventilation_task(void *p_arg)
 							break;
 					}
 					#else
-					if (dataStore.realtimeData.dayCycle <= 20)
+					if (dataStore.realtimeData.dayCycle < 20)
 					{
-						dataStore.realtimeData.workingVentilators |= 0x0001;
+						dataStore.realtimeData.workingVentilators |= COOL_DOWN_DEFAULT_LEVEL_1;
 					}
 					else
 					{
-						dataStore.realtimeData.workingVentilators |= 0x0006;
+						dataStore.realtimeData.workingVentilators |= COOL_DOWN_DEFAULT_LEVEL_2;
 					}
 					#endif
 					littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
@@ -184,15 +188,14 @@ void ventilation_task(void *p_arg)
 						ventilation_cycle_counter = fan_work_seconds;
 						if (dataStore.realtimeData.dayCycle < 20)
 						{
-							dataStore.realtimeData.workingVentilators &= (~0x0001);
+							dataStore.realtimeData.workingVentilators &= (~COOL_DOWN_DEFAULT_LEVEL_1);
 						}
 						else
 						{
-							dataStore.realtimeData.workingVentilators &= (~0x0006);
+							dataStore.realtimeData.workingVentilators &= (~COOL_DOWN_DEFAULT_LEVEL_2);
 						}
 						littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
 						isFanWorking = false;
-						fan_numbers = 0;
 						#ifdef ENABLE_OUTPUT_LOG
 						printf("Info:ventilation_task.c::ventilation_task ventilators stopped working.\r\n");
 						#endif

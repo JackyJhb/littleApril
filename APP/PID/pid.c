@@ -149,9 +149,6 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 				(temperature_difference < dataStore.ctrlParameter.coolDownGrade[i+1].temperatureDifference))
 			{
 				level = i;
-				#ifdef ENABLE_OUTPUT_LOG
-				printf("Info:pid.c::pidControlTemperature()->Cool down grade is %d,break now!\r\n",level);
-				#endif
 				break;
 			}
 			if (i == (grade_nums-2))
@@ -163,6 +160,9 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 			}
 		}
 		//TODO:Need to remove these part of code after integration side window control function.for_safty 20191229 
+		#ifdef ENABLE_OUTPUT_LOG
+		printf("Info:pid.c::pidControlTemperature()->Calculate cool down grade result is %d!\r\n",level);
+		#endif
 		if (dataStore.realtimeData.dayCycle >= 20)
 		{
 			++level;
@@ -174,7 +174,9 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 			if (level >= 1)
 				level = 0;
 		}
-		
+		#ifdef ENABLE_OUTPUT_LOG
+		printf("Info:pid.c::pidControlTemperature()->Cool down grade is %d\r\n",level);
+		#endif
 		//TODO:According to the different case need to sellect difference side window opened anagle
 		//if ((dataStore.realtimeData.realSideWindowsAngle[0] >= dataStore.realtimeData.targetSideWindowsAngle) &&
 		//	(dataStore.realtimeData.realSideWindowsAngle[1] >= dataStore.realtimeData.targetSideWindowsAngle))
