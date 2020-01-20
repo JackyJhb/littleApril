@@ -1,8 +1,23 @@
 #include "default_config.h"
-
+const SystemOptions systemOptionsDefault = {
+	-0.15,//float startHeatingCondition;
+	0.15,//float stopHeatingCondition;
+	0.15,//float stopColdingCondition;
+	-20,//float barometricPressureCondition;
+	55,//float startHeatingBoilerTemperature;
+	53,//float stopHeatingBoilerTemperature;
+	60,//float startFanShaftTemperature;
+	65,//float stopFanShaftTemperature;
+	60,//float startCirculatingPumpTemperature;
+	55,//float stopCirculatingPumpTemperature;
+	45,//uint16_t sideWindowDefaultAngle;
+};
+const AlarmThresholdStore alarmThresholdOptionsDefault = {
+	1.0,1.0,80.0,40.0,80,48,-20.0
+};
 const CoolDownGrade coolDownGradeDefault[16] = {
 	{0.5,COOL_DOWN_DEFAULT_LEVEL_1,30},
-	{1.0,COOL_DOWN_DEFAULT_LEVEL_2,60},
+	{1.0,COOL_DOWN_DEFAULT_LEVEL_2,15},
 	{1.5,COOL_DOWN_DEFAULT_LEVEL_3,60},
 	{2.0,COOL_DOWN_DEFAULT_LEVEL_4,40},
 	{2.5,COOL_DOWN_DEFAULT_LEVEL_5,50},
@@ -102,7 +117,3 @@ const VentilationCoefficient ventilationCoefficientDefault[50] = {
 };
 #endif
 const uint8_t humidityDefault[50];
-
-const AlarmThresholdStore alarmThresholdStoreDefault = {
-	1.0,1.0,80.0,40.0,80,48,-20.0
-};

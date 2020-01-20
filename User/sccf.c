@@ -45,8 +45,9 @@ uint8_t setControlParametersToDefault(void)
 	memcpy(dataStore.ctrlParameter.illuminationStrength,illuminationStrengthDefault,sizeof(illuminationStrengthDefault));
 	memcpy(dataStore.ctrlParameter.ventilation.ventilationCoefficient,ventilationCoefficientDefault,sizeof(ventilationCoefficientDefault));
 	memcpy(dataStore.ctrlParameter.coolDownGrade,coolDownGradeDefault,sizeof(coolDownGradeDefault));
-	memcpy(&dataStore.ctrlParameter.alarmThresholdStore,&alarmThresholdStoreDefault,sizeof(alarmThresholdStoreDefault));
-	dataStore.ctrlParameter.heatingStartBoilerTemperature = HEATING_START_BOILER_DEFAULT;
+	memcpy(&dataStore.ctrlParameter.alarmThresholdOptions,&alarmThresholdOptionsDefault,sizeof(AlarmThresholdStore));
+	memcpy(&dataStore.ctrlParameter.systemOptions,&systemOptionsDefault,sizeof(SystemOptions));
+	
 	dataStore.ctrlParameter.waterPumpStartTemperatureDifference = WATER_PUMP_START_TEMP_DIFF_DEFAULT;
 	dataStore.ctrlParameter.ventilation.chickNumbers = CHICK_NUMBERS_DEFAULT;
 	dataStore.ctrlParameter.ventilation.fanNumbers = FAN_NUMBERS_DEFAULT;
@@ -83,7 +84,7 @@ void persistConfigFileToDefault(RealDataStore *ptr)
 
 uint8_t sysCtrlConfigFileInit(void)
 {
-	uint8_t reboot_icon = 0x00,err_code = 0;
+	uint8_t err_code = 0;
 	AT24C02_Init();
 	memset(&dataStore.realtimeData,0x00,sizeof(RealDataStore));
 	readCtrlConfigFile(&dataStore.realtimeData.realDataToSave,sizeof(RealDataToSave));

@@ -93,9 +93,9 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 	
 	if (dataStore.realtimeData.isColding==false)
 	{
-		if ((dataStore.ctrlParameter.pidParameter.setTemperature - 0.15) >= actual_temperature)
+		if ((dataStore.ctrlParameter.pidParameter.setTemperature + dataStore.ctrlParameter.systemOptions.startHeatingCondition) >= actual_temperature)
 		{
-			if (is_heating[which_one] && (dataStore.realtimeData.boilerTemperature <= (dataStore.ctrlParameter.heatingStartBoilerTemperature - 5)))
+			if (is_heating[which_one] && (dataStore.realtimeData.boilerTemperature <= dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature))
 			{
 					littleAprilIOCtrl(which_one,Off);
 					is_heating[which_one] = 0;
@@ -103,7 +103,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 					printf("Warning:pid.c::pidControlTemperature()->Boiler's temperature is %.2f,It's lower than setting's value.\r\n",dataStore.realtimeData.boilerTemperature);
 					#endif
 			}
-			if ((is_heating[which_one] == 0) && (dataStore.realtimeData.boilerTemperature >= dataStore.ctrlParameter.heatingStartBoilerTemperature))
+			if ((is_heating[which_one] == 0) && (dataStore.realtimeData.boilerTemperature >= dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature))
 			{
 					littleAprilIOCtrl(which_one,On);
 					is_heating[which_one] = 1;
@@ -115,12 +115,12 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 	}
 	else if (which_one == 2)
 	{
-		if (average_temperature < (dataStore.ctrlParameter.pidParameter.setTemperature + 0.15) && cooding_down_fans)
+		if (average_temperature < (dataStore.ctrlParameter.pidParameter.setTemperature + dataStore.ctrlParameter.systemOptions.stopColdingCondition) && cooding_down_fans)
 		{
 			cooding_down_fans = 0x0000;
 			dataStore.realtimeData.workingVentilators = cooding_down_fans;
 			littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
-			dataStore.realtimeData.targetSideWindowsAngle = 60-15;
+			dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
 			dataStore.realtimeData.isColding = false;
 			#ifdef ENABLE_OUTPUT_LOG
 			printf("Info:pid.c::pidControlTemperature()->Colding down is stopped!workingVentilators is %d\r\n",
@@ -176,9 +176,10 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 				level = 0;
 		}
 		#ifdef ENABLE_OUTPUT_LOG
-		printf("Info:pid.c::pidControlTemperature()->Cool down grade is %d\r\n",level);
+		printf("Info:pid.c::pidControlTemperature()->Cool down grade is %d,set side windows angle to %d\r\n",level,
+						dataStore.ctrlParameter.coolDownGrade[level].sideWindowOpenAngle);
 		#endif
-		dataStore.realtimeData.targetSideWindowsAngle = 60-30;
+		dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.coolDownGrade[level].sideWindowOpenAngle;
 		//TODO:According to the different case need to sellect difference side window opened anagle
 		//if ((dataStore.realtimeData.realSideWindowsAngle[0] <= (dataStore.realtimeData.targetSideWindowsAngle+2)) &&
 			//(dataStore.realtimeData.realSideWindowsAngle[1] <= (dataStore.realtimeData.targetSideWindowsAngle+2)))
@@ -207,7 +208,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 	}
 	else
 	{
-		if (((dataStore.ctrlParameter.pidParameter.setTemperature + 0.15) <= actual_temperature) && is_heating[which_one])
+		if (((dataStore.ctrlParameter.pidParameter.setTemperature + dataStore.ctrlParameter.systemOptions.stopHeatingCondition) <= actual_temperature) && is_heating[which_one])
 		{
 			littleAprilIOCtrl(which_one,Off);
 			is_heating[which_one] = 0;

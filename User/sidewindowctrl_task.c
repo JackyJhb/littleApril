@@ -24,6 +24,11 @@ void sidewindowctrl_task(void *p_arg)
 		Get_ADC_Value();
 		if (last_side_window_angle != dataStore.realtimeData.targetSideWindowsAngle)
 		{
+			#ifdef ENABLE_OUTPUT_LOG
+			printf("Side window's open angle has been changed from %d to %d degree.\r\n",
+							last_side_window_angle,
+							dataStore.realtimeData.targetSideWindowsAngle);
+			#endif
 			dataStore.realtimeData.isSideWindowMotorRunning = 0x03;
 			last_side_window_angle = dataStore.realtimeData.targetSideWindowsAngle;
 		}

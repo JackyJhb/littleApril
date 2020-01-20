@@ -102,32 +102,6 @@ void huimidityCtrl(uint8_t dev_id)
 			case 0x00:
 			case 0x01:
 			case 0x02:
-				if (dataStore.realtimeData.insideTemperature[dev_id][0] != INVIAL)
-				{
-					ave_temperature += dataStore.realtimeData.insideTemperature[dev_id][0];
-					if (dataStore.realtimeData.insideTemperature[dev_id][1] != INVIAL)
-					{
-						ave_temperature += dataStore.realtimeData.insideTemperature[dev_id][1];
-						ave_temperature = ave_temperature/2;
-					}
-				}
-				else if (dataStore.realtimeData.insideTemperature[dev_id][1] != INVIAL)
-				{
-					ave_temperature = dataStore.realtimeData.insideTemperature[dev_id][1];
-				}
-				else
-				{
-					#ifdef ENABLE_OUTPUT_LOG
-					//TODO: Both of DS18B20 don't work anymore!It's a criticl err!
-					printf("Fatal:Dev_id = %d , main.c::EnvParameter_task",dev_id);
-					#endif
-					break;
-				}
-				//TODO:PID calculate
-				if (dataStore.realtimeData.boilerTemperature >= dataStore.ctrlParameter.heatingStartBoilerTemperature)
-				{
-					//TODO:
-				}
 				break;
 			default:
 				break;
@@ -177,7 +151,7 @@ void EnvParameter_task(void *p_arg)
 		while(1);
 	}
 	#endif
-	dataStore.realtimeData.targetSideWindowsAngle = 60-15;
+	dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
 	while(1)
 	{
 		if (((OS_MEM      *)&mymem)->NbrFree > 15)

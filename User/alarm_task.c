@@ -26,8 +26,8 @@ void alarm_task(void *p_arg)
 	{
 		feedWatchDog(ALARM_TASK_WD);
 		average_temperature = (dataStore.realtimeData.insideTemperature[0][0] + dataStore.realtimeData.insideTemperature[0][1])/2;
-		if (average_temperature > (dataStore.realtimeData.currentSetTemperature + dataStore.ctrlParameter.alarmThresholdStore.henhouseTemperatureHighThreshold) || 
-			average_temperature < (dataStore.realtimeData.currentSetTemperature - dataStore.ctrlParameter.alarmThresholdStore.henhouseTemperatureLowThreshold))
+		if (average_temperature > (dataStore.realtimeData.currentSetTemperature + dataStore.ctrlParameter.alarmThresholdOptions.henhouseTemperatureHighThreshold) || 
+			average_temperature < (dataStore.realtimeData.currentSetTemperature - dataStore.ctrlParameter.alarmThresholdOptions.henhouseTemperatureLowThreshold))
 		{
 			alarm_bits |= AREA1_TEMPERATURE_ALARM;
 		}
@@ -37,8 +37,8 @@ void alarm_task(void *p_arg)
 		}
 		
 		average_temperature = (dataStore.realtimeData.insideTemperature[1][0] + dataStore.realtimeData.insideTemperature[1][1])/2;
-		if (average_temperature > (dataStore.realtimeData.currentSetTemperature + dataStore.ctrlParameter.alarmThresholdStore.henhouseTemperatureHighThreshold) || 
-			average_temperature < (dataStore.realtimeData.currentSetTemperature - dataStore.ctrlParameter.alarmThresholdStore.henhouseTemperatureLowThreshold))
+		if (average_temperature > (dataStore.realtimeData.currentSetTemperature + dataStore.ctrlParameter.alarmThresholdOptions.henhouseTemperatureHighThreshold) || 
+			average_temperature < (dataStore.realtimeData.currentSetTemperature - dataStore.ctrlParameter.alarmThresholdOptions.henhouseTemperatureLowThreshold))
 		{
 			alarm_bits |= AREA2_TEMPERATURE_ALARM;
 		}
@@ -48,8 +48,8 @@ void alarm_task(void *p_arg)
 		}
 		
 		average_temperature = (dataStore.realtimeData.insideTemperature[2][0] + dataStore.realtimeData.insideTemperature[2][1])/2;
-		if (average_temperature > (dataStore.realtimeData.currentSetTemperature + dataStore.ctrlParameter.alarmThresholdStore.henhouseTemperatureHighThreshold) || 
-			average_temperature < (dataStore.realtimeData.currentSetTemperature - dataStore.ctrlParameter.alarmThresholdStore.henhouseTemperatureLowThreshold))
+		if (average_temperature > (dataStore.realtimeData.currentSetTemperature + dataStore.ctrlParameter.alarmThresholdOptions.henhouseTemperatureHighThreshold) || 
+			average_temperature < (dataStore.realtimeData.currentSetTemperature - dataStore.ctrlParameter.alarmThresholdOptions.henhouseTemperatureLowThreshold))
 		{
 			alarm_bits |= AREA3_TEMPERATURE_ALARM;
 		}
@@ -58,8 +58,8 @@ void alarm_task(void *p_arg)
 			alarm_bits &= ~AREA3_TEMPERATURE_ALARM;
 		}
 		
-		if ((dataStore.realtimeData.boilerTemperature < dataStore.ctrlParameter.alarmThresholdStore.boilerTemperatureLowThreshold) || 
-			(dataStore.realtimeData.boilerTemperature > dataStore.ctrlParameter.alarmThresholdStore.boilerTemperatureHighThreshold))
+		if ((dataStore.realtimeData.boilerTemperature < dataStore.ctrlParameter.alarmThresholdOptions.boilerTemperatureLowThreshold) || 
+			(dataStore.realtimeData.boilerTemperature > dataStore.ctrlParameter.alarmThresholdOptions.boilerTemperatureHighThreshold))
 		{
 			alarm_bits |= BOILER_TEMPERATURE_ALARM;
 		}
@@ -68,8 +68,8 @@ void alarm_task(void *p_arg)
 			alarm_bits &= ~BOILER_TEMPERATURE_ALARM;
 		}
 		
-		if ((dataStore.realtimeData.humidityInside[1] > dataStore.ctrlParameter.alarmThresholdStore.humidityHighThreshold) ||
-			(dataStore.realtimeData.humidityInside[1] < dataStore.ctrlParameter.alarmThresholdStore.humidityLowThreshold) )
+		if ((dataStore.realtimeData.humidityInside[1] > dataStore.ctrlParameter.alarmThresholdOptions.humidityHighThreshold) ||
+			(dataStore.realtimeData.humidityInside[1] < dataStore.ctrlParameter.alarmThresholdOptions.humidityLowThreshold) )
 		{
 			alarm_bits |= AREA2_HUMIDITY_ALARM;
 		}

@@ -56,6 +56,7 @@ extern const VentilationCoefficient ventilationCoefficientDefault[50] ;
 #endif
 extern const uint8_t humidityDefault[50];
 
-extern const AlarmThresholdStore alarmThresholdStoreDefault;
+extern const AlarmThresholdStore alarmThresholdOptionsDefault;
+extern const SystemOptions systemOptionsDefault;
 
 #endif

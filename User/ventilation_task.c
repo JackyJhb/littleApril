@@ -48,7 +48,7 @@ void ventilation_task(void *p_arg)
 	CPU_TS_TMR     ts_int;
 	CPU_INT32U     cpu_clk_freq;
 	OS_MSG_SIZE    msg_size;
-	char * pMsg,isFanWorking=0;
+	char * pMsg,isFanWorking=0,level;
 	float ventilation_volume = 0.0f,cmf_per_minute;
 	uint16_t ventilation_cycle_counter = 0x00F0,ventilation_cycle = 0,fan_work_seconds,work_timer_counter;
 	#ifndef ENABLE_USER_SET
@@ -145,19 +145,18 @@ void ventilation_task(void *p_arg)
 					#else
 					if (dataStore.realtimeData.dayCycle < 20)
 					{
-						dataStore.realtimeData.workingVentilators |= COOL_DOWN_DEFAULT_LEVEL_1;
-						dataStore.realtimeData.targetSideWindowsAngle = 60-30;
+						level = 0;
 					}
 					else
 					{
-						dataStore.realtimeData.workingVentilators |= COOL_DOWN_DEFAULT_LEVEL_2;
-						dataStore.realtimeData.targetSideWindowsAngle = 60-30;
+						level = 1;
 					}
+					dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.coolDownGrade[level].sideWindowOpenAngle;
 					#endif
 					//if ((dataStore.realtimeData.realSideWindowsAngle[0] <= (dataStore.realtimeData.targetSideWindowsAngle+2)) &&
 					//		(dataStore.realtimeData.realSideWindowsAngle[1] <= (dataStore.realtimeData.targetSideWindowsAngle+2)))
 					{
-						littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
+						littleAprilFanCtrl(dataStore.ctrlParameter.coolDownGrade[level].runningFansBits);
 						isFanWorking = true;
 					}
 				}
@@ -183,7 +182,6 @@ void ventilation_task(void *p_arg)
 						}
 						littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
 						isFanWorking = false;
-						dataStore.realtimeData.targetSideWindowsAngle = 60-15;
 						fan_numbers = 0;
 						#ifdef ENABLE_OUTPUT_LOG
 						printf("Info:ventilation_task.c::ventilation_task ventilators stopped working.\r\n");
@@ -203,6 +201,7 @@ void ventilation_task(void *p_arg)
 						}
 						littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
 						isFanWorking = false;
+						dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
 						#ifdef ENABLE_OUTPUT_LOG
 						printf("Info:ventilation_task.c::ventilation_task ventilators stopped working.\r\n");
 						#endif

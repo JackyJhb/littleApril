@@ -12,7 +12,7 @@ The meaning of sccf is System Control Configuration File.
 #include "debug_config.h"
 
 #define INIT_KEY        0x2345
-#define INIT_KEY_FLASH  0x3456
+#define INIT_KEY_FLASH  0x4567
 
 #define ADDR_SAVE_FILE  0x00
 #define REARING_STARTED 0xA6
@@ -83,7 +83,8 @@ typedef struct {
 	float stopFanShaftTemperature;
 	float startCirculatingPumpTemperature;
 	float stopCirculatingPumpTemperature;
-}StartStopConditions;
+	uint16_t sideWindowDefaultAngle;
+}SystemOptions;
 
 typedef struct{
 	uint32_t keyCtrlParameter;
@@ -93,9 +94,9 @@ typedef struct{
 	Ventilation ventilation;
 	CoolDownGrade coolDownGrade[16];
 	PIDParameter pidParameter;
-	float heatingStartBoilerTemperature;
 	float waterPumpStartTemperatureDifference;
-	AlarmThresholdStore alarmThresholdStore;
+	AlarmThresholdStore alarmThresholdOptions;
+	SystemOptions systemOptions;
 }ControlParameterStore;
 
 typedef struct{
