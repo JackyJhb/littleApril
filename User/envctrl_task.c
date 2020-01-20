@@ -41,7 +41,7 @@ void temperatureCtrl(uint8_t dev_id)
 {
 	float temp=0.0f,set_temperature;
 	uint8_t valid_nums = 0,hours;
-	dataStore.realtimeData.targetSideWindowsAngle = 60;
+
 	if (dataStore.realtimeData.insideTemperature[dev_id][0] != INVIAL)
 	{
 		temp = dataStore.realtimeData.insideTemperature[dev_id][0];
@@ -177,6 +177,7 @@ void EnvParameter_task(void *p_arg)
 		while(1);
 	}
 	#endif
+	dataStore.realtimeData.targetSideWindowsAngle = 60-15;
 	while(1)
 	{
 		if (((OS_MEM      *)&mymem)->NbrFree > 15)

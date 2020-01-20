@@ -120,6 +120,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 			cooding_down_fans = 0x0000;
 			dataStore.realtimeData.workingVentilators = cooding_down_fans;
 			littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
+			dataStore.realtimeData.targetSideWindowsAngle = 60-15;
 			dataStore.realtimeData.isColding = false;
 			#ifdef ENABLE_OUTPUT_LOG
 			printf("Info:pid.c::pidControlTemperature()->Colding down is stopped!workingVentilators is %d\r\n",
@@ -177,9 +178,10 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 		#ifdef ENABLE_OUTPUT_LOG
 		printf("Info:pid.c::pidControlTemperature()->Cool down grade is %d\r\n",level);
 		#endif
+		dataStore.realtimeData.targetSideWindowsAngle = 60-30;
 		//TODO:According to the different case need to sellect difference side window opened anagle
-		//if ((dataStore.realtimeData.realSideWindowsAngle[0] >= dataStore.realtimeData.targetSideWindowsAngle) &&
-		//	(dataStore.realtimeData.realSideWindowsAngle[1] >= dataStore.realtimeData.targetSideWindowsAngle))
+		//if ((dataStore.realtimeData.realSideWindowsAngle[0] <= (dataStore.realtimeData.targetSideWindowsAngle+2)) &&
+			//(dataStore.realtimeData.realSideWindowsAngle[1] <= (dataStore.realtimeData.targetSideWindowsAngle+2)))
 		{
 			#ifdef ENABLE_OUTPUT_LOG
 			printf("Info:pid.c::pidControlTemperature()->Fans working history is %d \r\n",cooding_down_fans);

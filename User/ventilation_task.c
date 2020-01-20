@@ -90,7 +90,6 @@ void ventilation_task(void *p_arg)
 				//TODO: need to set important reference
 				if (isFanWorking == false)
 				{
-					isFanWorking = true;
 					#ifndef ENABLE_USER_SET
 					cmf_per_minute = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle/7].cmfPerMinute;
 					ventilation_volume = dataStore.ctrlParameter.ventilation.chickNumbers * cmf_per_minute * ventilation_cycle/60;
@@ -147,13 +146,20 @@ void ventilation_task(void *p_arg)
 					if (dataStore.realtimeData.dayCycle < 20)
 					{
 						dataStore.realtimeData.workingVentilators |= COOL_DOWN_DEFAULT_LEVEL_1;
+						dataStore.realtimeData.targetSideWindowsAngle = 60-30;
 					}
 					else
 					{
 						dataStore.realtimeData.workingVentilators |= COOL_DOWN_DEFAULT_LEVEL_2;
+						dataStore.realtimeData.targetSideWindowsAngle = 60-30;
 					}
 					#endif
-					littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
+					//if ((dataStore.realtimeData.realSideWindowsAngle[0] <= (dataStore.realtimeData.targetSideWindowsAngle+2)) &&
+					//		(dataStore.realtimeData.realSideWindowsAngle[1] <= (dataStore.realtimeData.targetSideWindowsAngle+2)))
+					{
+						littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
+						isFanWorking = true;
+					}
 				}
 				else
 				{
@@ -177,6 +183,7 @@ void ventilation_task(void *p_arg)
 						}
 						littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
 						isFanWorking = false;
+						dataStore.realtimeData.targetSideWindowsAngle = 60-15;
 						fan_numbers = 0;
 						#ifdef ENABLE_OUTPUT_LOG
 						printf("Info:ventilation_task.c::ventilation_task ventilators stopped working.\r\n");
