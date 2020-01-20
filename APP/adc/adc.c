@@ -80,7 +80,18 @@ void Get_ADC_Value(void)
 	uint16_t adc_value[2] = {0},i;
 	//1.036V opened 3.232V closed
 	float temp;
+	static uint8_t get_angle_once = 0;
 	//TODO:DMA get 5 times ADC values
+	if ((dataStore.realtimeData.isSideWindowMotorRunning & 0x03) == 0x00)
+	{
+		++get_angle_once;
+		if (get_angle_once > 3)
+			return;
+	}
+	else
+	{
+		get_angle_once = 0;
+	}
 	for (i = 0; i<5 ;i++)
 	{
 		while(DMA_GetFlagStatus(RHEOSTAT_ADC_DMA_STREAM,DMA_IT_TCIF0) == RESET)
