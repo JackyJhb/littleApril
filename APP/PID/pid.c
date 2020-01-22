@@ -2,7 +2,8 @@
 #include "pid.h"
 #include "sccf.h"
 #include "bsp_gpio.h"
-
+#include "includes.h"
+#include "task_monitor.h"
 PIDValue pid[3];
 
 void acquireTemperature(int hour,int minute,int second,PIDValue *pid_ptr)
@@ -68,6 +69,7 @@ float incrementPIDRealize(float actual_temperature,uint8_t which_one)
 
 void pidControlTemperature(float set_temperature,float actual_temperature,uint8_t which_one)
 {
+	OS_ERR err;
 	uint8_t i,grade_nums=0,level = 0;
 	static uint8_t is_heating[3]={0};
 	static uint16_t cooding_down_fans = 0x0000;
@@ -120,7 +122,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 			cooding_down_fans = 0x0000;
 			dataStore.realtimeData.workingVentilators = cooding_down_fans;
 			littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
-			dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
+			//dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
 			dataStore.realtimeData.isColding = false;
 			#ifdef ENABLE_OUTPUT_LOG
 			printf("Info:pid.c::pidControlTemperature()->Colding down is stopped!workingVentilators is %d\r\n",
@@ -180,6 +182,14 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 						dataStore.ctrlParameter.coolDownGrade[level].sideWindowOpenAngle);
 		#endif
 		dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.coolDownGrade[level].sideWindowOpenAngle;
+		do
+		{
+			feedWatchDog(ENVCTRL_TASK_WD);
+			OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
+			#ifdef ENABLE_OUTPUT_LOG
+			printf("Info:pid.c::pidControlTemperature()->Waitting for side window opened. \r\n");
+			#endif
+		}while(dataStore.realtimeData.isSideWindowMotorRunning);
 		//TODO:According to the different case need to sellect difference side window opened anagle
 		//if ((dataStore.realtimeData.realSideWindowsAngle[0] <= (dataStore.realtimeData.targetSideWindowsAngle+2)) &&
 			//(dataStore.realtimeData.realSideWindowsAngle[1] <= (dataStore.realtimeData.targetSideWindowsAngle+2)))

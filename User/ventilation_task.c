@@ -153,6 +153,14 @@ void ventilation_task(void *p_arg)
 					}
 					dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.coolDownGrade[level].sideWindowOpenAngle;
 					#endif
+					do
+					{
+						feedWatchDog(VENTILATION_TASK_WD);
+						OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
+						#ifdef ENABLE_OUTPUT_LOG
+						printf("Info:ventilation_task.c::ventilation_task->Waitting for side window opened. \r\n");
+						#endif
+					}while(dataStore.realtimeData.isSideWindowMotorRunning);
 					//if ((dataStore.realtimeData.realSideWindowsAngle[0] <= (dataStore.realtimeData.targetSideWindowsAngle+2)) &&
 					//		(dataStore.realtimeData.realSideWindowsAngle[1] <= (dataStore.realtimeData.targetSideWindowsAngle+2)))
 					{
@@ -201,7 +209,7 @@ void ventilation_task(void *p_arg)
 						}
 						littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
 						isFanWorking = false;
-						dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
+						//dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
 						#ifdef ENABLE_OUTPUT_LOG
 						printf("Info:ventilation_task.c::ventilation_task ventilators stopped working.\r\n");
 						#endif
