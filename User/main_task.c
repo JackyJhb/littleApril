@@ -79,7 +79,7 @@ void start_task(void *p_arg)
 
 	OSTaskCreate((OS_TCB 	* )&USARTTaskTCB,		
 				 (CPU_CHAR	* )"Usart task", 		
-                 (OS_TASK_PTR )Usart_task, 			
+                 (OS_TASK_PTR )usart_task, 			
                  (void		* )0,					
                  (OS_PRIO	  )USART_TASK_PRIO,     
                  (CPU_STK   * )&USART_TASK_STK[0],	

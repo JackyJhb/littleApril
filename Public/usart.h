@@ -4,8 +4,8 @@
 #include "system.h"
 #include "stdio.h"
 
-extern uint8_t RS485_receive_str[128]; 	//接收缓冲,最大512个字节
-extern uint8_t uart_byte_count;   			  //接收到的数据长度
+extern uint8_t RS485_receive_str[128];									//接收缓冲,最大512个字节
+extern uint8_t uart_byte_count,usart_timer;   			  //接收到的数据长度
 
 //模式控制
 #define RS485_TX_EN		PGout(8)	    //485模式控制.0,接收;1,发送.

@@ -7,5 +7,5 @@
 
 extern OS_TCB USARTTaskTCB;
 extern CPU_STK USART_TASK_STK[USART_STK_SIZE];
-extern void Usart_task(void *p_arg);
+extern void usart_task(void *p_arg);
 #endif

@@ -17,6 +17,12 @@ void sidewindowctrl_task(void *p_arg)
 	CPU_SR_ALLOC();
 	cpu_clk_freq = BSP_CPU_ClkFreq();
 	enableWatchDog(SIDE_WINDOW_TASK_WD);
+	
+	littleAprilIOCtrl(Window_RIGHT_CLOSE,Off);
+	littleAprilIOCtrl(Window_RIGHT_OPEN,Off);
+	littleAprilIOCtrl(Window_LEFT_CLOSE,Off);
+	littleAprilIOCtrl(Window_LEFT_OPEN,Off);
+	
 	while (1)
 	{
 		feedWatchDog(SIDE_WINDOW_TASK_WD);
@@ -36,16 +42,16 @@ void sidewindowctrl_task(void *p_arg)
 		{
 			if (dataStore.realtimeData.realSideWindowsAngle[0] <= dataStore.realtimeData.targetSideWindowsAngle - 1)
 			{
-				littleAprilIOCtrl(Window_LEFT_CLOSE,On);
-				littleAprilIOCtrl(Window_LEFT_OPEN,Off);
+				//littleAprilIOCtrl(Window_LEFT_CLOSE,On);
+				//littleAprilIOCtrl(Window_LEFT_OPEN,Off);
 				#ifdef ENABLE_OUTPUT_LOG
 				printf("Left side window is opening.\r\n");
 				#endif
 			}
 			else if (dataStore.realtimeData.realSideWindowsAngle[0] >= dataStore.realtimeData.targetSideWindowsAngle + 1)
 			{
-				littleAprilIOCtrl(Window_LEFT_CLOSE,Off);
-				littleAprilIOCtrl(Window_LEFT_OPEN,On);
+				//littleAprilIOCtrl(Window_LEFT_CLOSE,Off);
+				//littleAprilIOCtrl(Window_LEFT_OPEN,On);
 				#ifdef ENABLE_OUTPUT_LOG
 				printf("Left side window is closing.\r\n");
 				#endif
@@ -64,16 +70,16 @@ void sidewindowctrl_task(void *p_arg)
 		{
 			if (dataStore.realtimeData.realSideWindowsAngle[1] <= dataStore.realtimeData.targetSideWindowsAngle - 1)
 			{
-				littleAprilIOCtrl(Window_RIGHT_CLOSE,Off);
-				littleAprilIOCtrl(Window_RIGHT_OPEN,On);
+				//littleAprilIOCtrl(Window_RIGHT_CLOSE,Off);
+				//littleAprilIOCtrl(Window_RIGHT_OPEN,On);
 				#ifdef ENABLE_OUTPUT_LOG
 				printf("Right side window is opening.\r\n");
 				#endif
 			}
 			else if (dataStore.realtimeData.realSideWindowsAngle[1] >= dataStore.realtimeData.targetSideWindowsAngle + 1)
 			{
-				littleAprilIOCtrl(Window_RIGHT_OPEN,Off);
-				littleAprilIOCtrl(Window_RIGHT_CLOSE,On);
+				//littleAprilIOCtrl(Window_RIGHT_OPEN,Off);
+				//littleAprilIOCtrl(Window_RIGHT_CLOSE,On);
 				#ifdef ENABLE_OUTPUT_LOG
 				printf("Right side window is closing.\r\n");
 				#endif

@@ -1,0 +1,4 @@
+/*
+This text file descriptions the content about data store that storage all of the important datas are used in this project.
+The struct of data store was defined in the file that named sccf.h.
+*/

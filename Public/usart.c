@@ -6,7 +6,7 @@
 //接收缓存区 	
 //接收缓存区 	
 uint8_t RS485_receive_str[128];   //接收缓冲,最大128个字节.
-uint8_t uart_byte_count=0;        //接收到的数据长度
+uint8_t uart_byte_count=0,usart_timer;        //接收到的数据长度
 
 
 int fputc(int ch,FILE *p)  //函数默认的，在使用printf函数时自动调用
@@ -150,17 +150,18 @@ void USART2_IRQHandler(void)
 	OSIntEnter(); 	     //进入中断
 	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)  
 	{
+		usart_timer = 0x00;
 		dat = (uint8_t)USART_ReceiveData(USART2);
-		if (dat == 0xFF)
+		/*if (dat == 0xFF)
 		{
 			uart_byte_count = 0;
-		}
+		}*/
 		RS485_receive_str[uart_byte_count] = dat;
 		//TODO 
 		//We need to write some code according to the real status in here.
 		++uart_byte_count;
 		//从内存分区 mem 获取一个内存块
-		if (uart_byte_count >= 8)
+		/*if (uart_byte_count >= 8)
 		{	
 			p_mem_blk = OSMemGet((OS_MEM      *)&mymem,
 								(OS_ERR      *)&err);
@@ -188,7 +189,7 @@ void USART2_IRQHandler(void)
 			}
 			
 			uart_byte_count = 0;
-		}		
+		}		*/
 	} 
 	OSIntExit();	        //退出中断
 } 

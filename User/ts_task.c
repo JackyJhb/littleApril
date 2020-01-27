@@ -73,7 +73,7 @@ void ts_task(void *p_arg)
 	CPU_INT32U      cpu_clk_freq;
 	uint16_t crc_result,rec_crc,addr_offset,read_len = 0,send_len = 0;
 	p_arg = p_arg;
-	char *pMsg,msg_size,buf_rec[255],i,*header;
+	char *pMsg,msg_size,buf_rec[200],i,*header;
 	static char isFirst = 1;
 	CPU_SR_ALLOC();
 	cpu_clk_freq = BSP_CPU_ClkFreq();
@@ -102,31 +102,33 @@ void ts_task(void *p_arg)
 				switch (*(buf_rec+1))
 				{
 					case 1://Multiple digital output
+						addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);
+						addr_offset = (addr_offset - 1)/8;
 						read_len = (*(buf_rec + 4) * 256 + *(buf_rec + 5))/8;
 						if ((*(buf_rec + 4) * 256 + *(buf_rec + 5))%8 != 0)
 							++read_len;
+						dataStore.realtimeData.workingVentilators = 0x0407;
+						dataStore.realtimeData.heatingColdingStatus = 0x0004;
 						for (i = 0;i < read_len;i++)
 						{
-							*(buf_rec + 3 + i) = *(((uint8_t *) &dataStore.realtimeData.heatingColdingVentilationStatus) + i);
+							*(buf_rec + 3 + i) = *(((uint8_t *) &dataStore.realtimeData.workingVentilators) + i + addr_offset);
 						}
 						*(buf_rec + 2) = read_len;
 						send_len = read_len + 5;
-						crc_result = crc16(buf_rec,(3+read_len));
+						crc_result = crc16(buf_rec,(read_len+3));
 						*(buf_rec+3+read_len) = (uint8_t)(crc_result>>8);
 						*(buf_rec+4+read_len) = (uint8_t)(crc_result & 0x00FF);
 						break;
 					case 2: //Multiple digital input
 						//TODO Set started or stopped status and set alarm time if started was set.
-						//if (start)
 						read_len = (*(buf_rec + 4) * 256 + *(buf_rec + 5))/8;
 						if ((*(buf_rec + 4) * 256 + *(buf_rec + 5))%8 != 0)
 							++read_len;
 						for (i = 0;i < read_len;i++)
 						{
-							*(buf_rec + 3 + i) = *(((uint8_t *) &dataStore.realtimeData.heatingColdingVentilationStatus) + i);
+							*(buf_rec + 3 + i) = *(((uint8_t *) &dataStore.realtimeData.heatingColdingStatus) + i);
 						}
 						send_len = read_len + 5;
-						dataStore.realtimeData.heatingColdingVentilationStatus = ~dataStore.realtimeData.heatingColdingVentilationStatus;
 						break;
 					case 3:		//Multiple analogs input			
 						addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);
@@ -134,11 +136,11 @@ void ts_task(void *p_arg)
 						
 						if (addr_offset <= 0x1B)
 						{
-							header = (uint8_t *)&dataStore.blackBox;
+							header = (int8_t *)&dataStore.blackBox;
 						}
 						else if (addr_offset >= 0x32)
 						{
-							header = (uint8_t *)&dataStore.realtimeData;
+							header = (int8_t *)&dataStore.realtimeData;
 							addr_offset -= 0x32;
 						}
 						
@@ -160,6 +162,58 @@ void ts_task(void *p_arg)
 						*(buf_rec+4+read_len) = (uint8_t)(crc_result & 0x00FF);
 						break;
 					case 4:     //Multiple analogs input
+						addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);						
+						read_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+						header = (int8_t *)(&dataStore.realtimeData);
+						dataStore.realtimeData.dayCycle = 15;
+						dataStore.realtimeData.realDataToSave.cycleDays = 49;
+						dataStore.realtimeData.realSideWindowsAngle[0] = 20;
+						dataStore.realtimeData.realSideWindowsAngle[1] = 22;
+						dataStore.realtimeData.targetSideWindowsAngle = 21;
+						dataStore.realtimeData.humidityInside[0] = 48;
+						dataStore.realtimeData.humidityInside[1] = 49;
+						dataStore.realtimeData.humidityInside[2] = 50;
+						dataStore.realtimeData.insideTemperature[0][0] = 16.6;
+						dataStore.realtimeData.insideTemperature[0][1] = 16.8;
+						dataStore.realtimeData.insideTemperature[1][0] = 17.7;
+						dataStore.realtimeData.insideTemperature[1][1] = 17.9;
+						dataStore.realtimeData.insideTemperature[2][0] = 18.8;
+						dataStore.realtimeData.insideTemperature[2][1] = 19.0;
+						dataStore.realtimeData.outsideTemperature = -22.2;
+						dataStore.realtimeData.boilerTemperature = 55;
+						if (addr_offset == 255)
+						{
+							for (i = 0;i < read_len;i++)
+							{
+								if (i % 2 == 0)
+								{
+									*(buf_rec+3+i) = 0x00;
+								}
+								else
+								{
+									*(buf_rec+3+i) = dataStore.realtimeData.dayCycle & 0x00FF;
+								}
+							}
+						}
+						else
+						{
+							for (i = 0;i < read_len;i++)
+							{
+								if (i % 2 == 0)
+								{
+									*(buf_rec+3+i) = *(header + i + 1);
+								}
+								else
+								{
+									*(buf_rec+3+i) = *(header + i - 1);
+								}
+							}
+						}
+						*(buf_rec + 2) = read_len;
+						send_len = read_len + 5;
+						crc_result = crc16(buf_rec,(3+read_len));
+						*(buf_rec+3+read_len) = (uint8_t)(crc_result>>8);
+						*(buf_rec+4+read_len) = (uint8_t)(crc_result & 0x00FF);
 						break;
 					case 5:		//Signal digital output
 						addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);
