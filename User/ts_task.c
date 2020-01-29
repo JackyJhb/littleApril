@@ -71,7 +71,7 @@ void ts_task(void *p_arg)
 {
 	OS_ERR 			err;
 	CPU_INT32U      cpu_clk_freq;
-	uint16_t crc_result,rec_crc,addr_offset,read_len = 0,send_len = 0;
+	uint16_t crc_result,rec_crc,addr_offset,read_len = 0,write_len = 0,send_len = 0;
 	p_arg = p_arg;
 	char *pMsg,msg_size,buf_rec[200],i,*header;
 	static char isFirst = 1;
@@ -93,31 +93,24 @@ void ts_task(void *p_arg)
 		if ((msg_size > 0) && (*pMsg == ISME_ID) && (err == OS_ERR_NONE))
 		{
 			memcpy(buf_rec,pMsg,msg_size);
-			crc_result = crc16(pMsg,6);
-			rec_crc = *(buf_rec+6)*256 + *(buf_rec+7);
+			crc_result = crc16(pMsg,(msg_size-2));
+			rec_crc = *(buf_rec+msg_size-2)*256 + *(buf_rec+msg_size-1);
 			send_len = 0;
 			if (crc_result == rec_crc)
 			{
 				++dataStore.blackBox.requestTimes;
+				addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);
 				switch (*(buf_rec+1))
 				{
 					case 1://Multiple digital output
-						addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);
 						addr_offset = (addr_offset - 1)/8;
 						read_len = (*(buf_rec + 4) * 256 + *(buf_rec + 5))/8;
 						if ((*(buf_rec + 4) * 256 + *(buf_rec + 5))%8 != 0)
 							++read_len;
-						dataStore.realtimeData.workingVentilators = 0x0407;
-						dataStore.realtimeData.heatingColdingStatus = 0x0004;
 						for (i = 0;i < read_len;i++)
 						{
 							*(buf_rec + 3 + i) = *(((uint8_t *) &dataStore.realtimeData.workingVentilators) + i + addr_offset);
 						}
-						*(buf_rec + 2) = read_len;
-						send_len = read_len + 5;
-						crc_result = crc16(buf_rec,(read_len+3));
-						*(buf_rec+3+read_len) = (uint8_t)(crc_result>>8);
-						*(buf_rec+4+read_len) = (uint8_t)(crc_result & 0x00FF);
 						break;
 					case 2: //Multiple digital input
 						//TODO Set started or stopped status and set alarm time if started was set.
@@ -128,44 +121,40 @@ void ts_task(void *p_arg)
 						{
 							*(buf_rec + 3 + i) = *(((uint8_t *) &dataStore.realtimeData.heatingColdingStatus) + i);
 						}
-						send_len = read_len + 5;
 						break;
 					case 3:		//Multiple analogs input			
-						addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);
 						read_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
-						
 						if (addr_offset <= 0x1B)
 						{
 							header = (int8_t *)&dataStore.blackBox;
 						}
-						else if (addr_offset >= 0x32)
+						else if (addr_offset >= 0x32 && addr_offset < 0x3FF)
 						{
 							header = (int8_t *)&dataStore.realtimeData;
 							addr_offset -= 0x32;
 						}
-						
+						else
+						{
+							header = (int8_t *)&dataStore.ctrlParameter.systemOptions;
+							addr_offset -= 0x3FF;
+						}									
 						for (i = 0;i < read_len;i++)
 						{
-							if (i % 2 == 0)
+							/*if (i % 2 == 0)
 							{
 								*(buf_rec+3+i) = *(header + i + addr_offset*2 + 1);
 							}
 							else
 							{
-								*(buf_rec+3+i) = *(header + i + addr_offset*2 - 1);//+i;
-							}
+								*(buf_rec+3+i) = *(header + i + addr_offset*2 - 1);
+							}*/
+							*(buf_rec+3+i) = *(header+(i/4)*4+(3-i%4));
 						}
-						*(buf_rec + 2) = read_len;
-						send_len = read_len + 5;
-						crc_result = crc16(buf_rec,(3+read_len));
-						*(buf_rec+3+read_len) = (uint8_t)(crc_result>>8);
-						*(buf_rec+4+read_len) = (uint8_t)(crc_result & 0x00FF);
 						break;
 					case 4:     //Multiple analogs input
-						addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);						
+						//addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);						
 						read_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
 						header = (int8_t *)(&dataStore.realtimeData);
-						dataStore.realtimeData.dayCycle = 15;
 						dataStore.realtimeData.realDataToSave.cycleDays = 49;
 						dataStore.realtimeData.realSideWindowsAngle[0] = 20;
 						dataStore.realtimeData.realSideWindowsAngle[1] = 22;
@@ -181,6 +170,7 @@ void ts_task(void *p_arg)
 						dataStore.realtimeData.insideTemperature[2][1] = 19.0;
 						dataStore.realtimeData.outsideTemperature = -22.2;
 						dataStore.realtimeData.boilerTemperature = 55;
+						dataStore.realtimeData.pressureInside = 10;
 						if (addr_offset == 255)
 						{
 							for (i = 0;i < read_len;i++)
@@ -209,14 +199,9 @@ void ts_task(void *p_arg)
 								}
 							}
 						}
-						*(buf_rec + 2) = read_len;
-						send_len = read_len + 5;
-						crc_result = crc16(buf_rec,(3+read_len));
-						*(buf_rec+3+read_len) = (uint8_t)(crc_result>>8);
-						*(buf_rec+4+read_len) = (uint8_t)(crc_result & 0x00FF);
 						break;
 					case 5:		//Signal digital output
-						addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);
+						//addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);
 						if (*(buf_rec + 5) == 0xFF)
 						{
 							dataStore.realtimeData.realDataToSave.isStarted = REARING_STARTED;
@@ -231,7 +216,7 @@ void ts_task(void *p_arg)
 						*(buf_rec+7+read_len) = (uint8_t)(crc_result & 0x00FF);
 						break;
 					case 6:     //Signal analog output
-						addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);
+						//addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);
 						switch (addr_offset)
 						{
 							case 0x11:
@@ -292,25 +277,32 @@ void ts_task(void *p_arg)
 									isFirst = 1;
 								}
 								break;
+							case 0x7FF:
+								break;
 							default:
 								break;
 						}
 						break;
-					case 15:	//Multiple digitals output
-						break;
-					case 16:	//Multiple analogs output
-						break;
-					case 17:
-						//TODO
-						//setControlParametersToDefault();
-						//readControlParameters((uint32_t *)&dataStore.ctrlParameter,sizeof(ControlParameterStore));
+					case 0x10:
+						addr_offset -= 0x3FF;
+						header = (uint8_t *)&dataStore.ctrlParameter.systemOptions + addr_offset*2;
+						write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+						for (i=0;i<write_len;i++)
+						{
+							*(header + i) = *(buf_rec + 6 + write_len - i);
+							*(buf_rec+3+i) = *(buf_rec+6+i);
+						}
+						read_len = write_len;
 						break;
 					default:
 						//TODO:set the system's configure file to default values and write these values to EEPROM forever!
-						//persistConfigFileToDefault(&dataStore.realtimeData);
-						//sysCtrlConfigFileWrite(&dataStore.realtimeData,sizeof(RealDataStore));
 						break;
 				}
+				*(buf_rec + 2) = read_len;
+				send_len = read_len + 5;
+				crc_result = crc16(buf_rec,(read_len+3));
+				*(buf_rec+3+read_len) = (uint8_t)(crc_result>>8);
+				*(buf_rec+4+read_len) = (uint8_t)(crc_result & 0x00FF);
 				RS485_Send_Data(buf_rec,send_len);
 			}
 		}

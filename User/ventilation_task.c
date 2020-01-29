@@ -11,36 +11,6 @@
 OS_TCB VentilationTaskTCB;
 CPU_STK VENTILATION_TASK_STK[VENTILATION_STK_SIZE];
 char buf[20];
-uint8_t createRandomBits(uint16_t *randomBits,uint8_t numbers)
-{
-	OS_ERR err;
-	OS_TICK tick;
-	uint8_t i = 0,rand_result;
-	uint32_t loop_counter = 0x00000000,result;
-	*randomBits = 0x0000;
-	for (;;)
-	{
-		++loop_counter;
-		tick = OSIdleTaskCtr;
-		srand(OSTimeGet(&err));
-		result = rand();
-		rand_result = result%15;
-	/*	if(!((1 << rand_result) & *randomBits))
-		{
-			*randomBits |= (1 << rand_result);
-			++i;
-			if (i >= numbers)
-			{
-				return 0;
-			}
-		}*/
-		++loop_counter;
-		if (loop_counter > 2000)
-		{
-			return 1;
-		}
-	}
-}
 
 void ventilation_task(void *p_arg)
 {

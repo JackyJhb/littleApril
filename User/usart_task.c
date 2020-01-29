@@ -22,10 +22,6 @@ void usart_task(void *p_arg)
 		OSTimeDlyHMSM(0,0,0,5,OS_OPT_TIME_DLY,&err);
 		if (++usart_timer >= 2 && uart_byte_count)
 		{	
-			if (RS485_receive_str[1] != 0x04)
-			{
-				uart_byte_count = uart_byte_count;
-			}
 			p_mem_blk = OSMemGet((OS_MEM      *)&mymem,
 								(OS_ERR      *)&err);
 			if (err == OS_ERR_NONE)

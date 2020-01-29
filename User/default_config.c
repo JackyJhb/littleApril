@@ -4,13 +4,13 @@ const SystemOptions systemOptionsDefault = {
 	0.15,//float stopHeatingCondition;
 	0.15,//float stopColdingCondition;
 	-20,//float barometricPressureCondition;
-	55,//float startHeatingBoilerTemperature;
-	53,//float stopHeatingBoilerTemperature;
+	52,//float startHeatingBoilerTemperature;
+	50,//float stopHeatingBoilerTemperature;
 	60,//float startFanShaftTemperature;
 	65,//float stopFanShaftTemperature;
 	60,//float startCirculatingPumpTemperature;
 	55,//float stopCirculatingPumpTemperature;
-	45,//uint16_t sideWindowDefaultAngle;
+	15,//uint16_t sideWindowDefaultAngle;
 };
 const AlarmThresholdStore alarmThresholdOptionsDefault = {
 	1.0,1.0,80.0,40.0,80,48,-20.0

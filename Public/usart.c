@@ -160,6 +160,10 @@ void USART2_IRQHandler(void)
 		//TODO 
 		//We need to write some code according to the real status in here.
 		++uart_byte_count;
+		if (uart_byte_count > 100)
+		{
+			uart_byte_count = 0;
+		}
 		//从内存分区 mem 获取一个内存块
 		/*if (uart_byte_count >= 8)
 		{	

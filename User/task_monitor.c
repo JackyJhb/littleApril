@@ -18,11 +18,20 @@ void readSTM32UniqueID(void)
 {
 	uint8_t i;
 	vu8 *addr = (vu8*)(0x1ffff7a10);
+	#ifdef ENABLE_OUTPUT_LOG
+	printf("Info:task_monitor.c::readSTM32UniqueID()->\r\n");
+	#endif
 	for (i = 0;i < STM32_UNIQUE_ID_SIZE;i++)
 	{
 		stm32UniqueID[i] = *addr;
 		++addr;
+		#ifdef ENABLE_OUTPUT_LOG
+		printf("%d ",stm32UniqueID[i]);
+		#endif
 	}
+	#ifdef ENABLE_OUTPUT_LOG
+	printf("\r\n");
+	#endif
 }
 
 ResetSourceType getRstSrcType(void)
@@ -90,6 +99,8 @@ ResetSourceType getRstSrcType(void)
 
 void watchDogInit(void)
 {
+	getRstSrcType();
+	readSTM32UniqueID();
 	IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
 	IWDG_SetPrescaler(IWDG_Prescaler_256);
 	IWDG_SetReload(100);

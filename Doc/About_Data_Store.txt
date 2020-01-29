@@ -1,4 +1,49 @@
 /*
-This text file descriptions the content about data store that storage all of the important datas are used in this project.
-The struct of data store was defined in the file that named sccf.h.
+	This text file descriptions the content about data store that storage all of the important 
+datas those are used in this project.
+	The struct of data store was defined in the file that named sccf.h.
+	
+	Storage datas mapped to HMI RAM:
+	
+	dataStore.realtimeData.realDataToSave
+	dataStore.realtimeData.realSideWindowsAngle[2]
+	dataStore.realtimeData.targetSideWindowsAngle
+	dataStore.realtimeData.humidityInside[3]
+	dataStore.realtimeData.insideTemperature[3][2]
+	dataStore.realtimeData.outsideTemperature
+	dataStore.realtimeData.boilerTemperature
+	dataStore.realtimeData.illumination[3]
+	dataStore.realtimeData.pressureInside
+	dataStore.realtimeData.dayCycle
+	dataStore.realtimeData.year
+	dataStore.realtimeData.month
+	dataStore.realtimeData.day
+	dataStore.realtimeData.hour
+	dataStore.realtimeData.minute
+	dataStore.realtimeData.second
+	dataStore.realtimeData.currentSetTemperature
+	dataStore.realtimeData.deltaTemperature
+	dataStore.realtimeData.deltaActionCycle
+	dataStore.realtimeData.deltaActionTimeSpan -> LW0~LW51
+	
+	dataStore.realtimeData.workingVentilators\heatingColdingStatus ---> LB0~LB31
 */
+
+RealDataStore
+--->workingVentilators
+	0~15 16ventilators working status. 0/stopped 1/working
+	
+--->heatingColdingStatus
+	bit 0: Is area 1 heating. 0/stopped 1/heating
+	bit 1: Is area 2 heating.
+	bit 2: Is area 3 heating.
+	bit 3: Is left side window closing.
+	bit 4: Is left side window opening.
+	bit 5: Is right side window closing.
+	bit 6: Is right side widonw opening.
+	bit 7: Is cold down pump working.
+	bit 8: Is circulating pump working.
+	bit 9: Is induced draft fan working.
+	bit 10 ~ bit 15:Reserved
+ Area 1
+	
