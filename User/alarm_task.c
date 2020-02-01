@@ -5,6 +5,7 @@
 #include "sccf.h"
 #include "task_monitor.h"
 #include "rtc.h"
+#include "stm32f4xx.h"                  // Device header
 
 OS_TCB AlarmTaskTCB;
 CPU_STK ALARM_TASK_STK[ALARM_STK_SIZE];

@@ -1,5 +1,6 @@
 #include "24c02.h"
 #include "ds18b20.h"
+#include "SysTick.h"
 #define SDA_IN()  {GPIOB->MODER&=~(3<<18);GPIOB->MODER|=0<<18;}
 #define SDA_OUT() {GPIOB->MODER&=~(3<<18);GPIOB->MODER|=1<<18;}
  

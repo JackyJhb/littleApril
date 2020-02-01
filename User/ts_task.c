@@ -128,10 +128,15 @@ void ts_task(void *p_arg)
 						{
 							header = (int8_t *)&dataStore.blackBox;
 						}
-						else if (addr_offset >= 0x32 && addr_offset < 0x3FF)
+						else if (addr_offset >= 0x32 && addr_offset < 0x1FF)
 						{
 							header = (int8_t *)&dataStore.realtimeData;
 							addr_offset -= 0x32;
+						}
+						else if (addr_offset >= 0x1FF && addr_offset < 0x3FF)
+						{
+							header = (int8_t *)&dataStore.ctrlParameter.alarmThresholdOptions;
+							addr_offset -= 0x1FF;
 						}
 						else
 						{
@@ -140,15 +145,15 @@ void ts_task(void *p_arg)
 						}									
 						for (i = 0;i < read_len;i++)
 						{
-							/*if (i % 2 == 0)
+							if (i % 2 == 0)
 							{
 								*(buf_rec+3+i) = *(header + i + addr_offset*2 + 1);
 							}
 							else
 							{
 								*(buf_rec+3+i) = *(header + i + addr_offset*2 - 1);
-							}*/
-							*(buf_rec+3+i) = *(header+(i/4)*4+(3-i%4));
+							}
+							//*(buf_rec+3+i) = *(header+(i/4)*4+(3-i%4));
 						}
 						break;
 					case 4:     //Multiple analogs input
@@ -159,18 +164,19 @@ void ts_task(void *p_arg)
 						dataStore.realtimeData.realSideWindowsAngle[0] = 20;
 						dataStore.realtimeData.realSideWindowsAngle[1] = 22;
 						dataStore.realtimeData.targetSideWindowsAngle = 21;
-						dataStore.realtimeData.humidityInside[0] = 48;
-						dataStore.realtimeData.humidityInside[1] = 49;
-						dataStore.realtimeData.humidityInside[2] = 50;
-						dataStore.realtimeData.insideTemperature[0][0] = 16.6;
-						dataStore.realtimeData.insideTemperature[0][1] = 16.8;
-						dataStore.realtimeData.insideTemperature[1][0] = 17.7;
-						dataStore.realtimeData.insideTemperature[1][1] = 17.9;
-						dataStore.realtimeData.insideTemperature[2][0] = 18.8;
-						dataStore.realtimeData.insideTemperature[2][1] = 19.0;
+						dataStore.realtimeData.humidityInside[0] = 78;
+						dataStore.realtimeData.humidityInside[1] = 79;
+						dataStore.realtimeData.humidityInside[2] = 80;
+						dataStore.realtimeData.insideTemperature[0][0] = 26.6;
+						dataStore.realtimeData.insideTemperature[0][1] = 26.8;
+						dataStore.realtimeData.insideTemperature[1][0] = 27.7;
+						dataStore.realtimeData.insideTemperature[1][1] = 27.9;
+						dataStore.realtimeData.insideTemperature[2][0] = 28.8;
+						dataStore.realtimeData.insideTemperature[2][1] = 29.0;
 						dataStore.realtimeData.outsideTemperature = -22.2;
 						dataStore.realtimeData.boilerTemperature = 55;
 						dataStore.realtimeData.pressureInside = 10;
+						dataStore.realtimeData.currentSetTemperature = 25.8;
 						if (addr_offset == 255)
 						{
 							for (i = 0;i < read_len;i++)

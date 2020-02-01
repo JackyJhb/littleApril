@@ -1,6 +1,7 @@
 #include "rtc.h"
 #include "rtc_task.h"
 #include "sccf.h"
+#include "SysTick.h"
 
 RTC_TimeTypeDef RTC_TimeStruct;
 RTC_DateTypeDef RTC_DateStruct;
@@ -64,11 +65,11 @@ uint8_t RTC_Configuration(void)
 	}
 	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
 	RCC_RTCCLKCmd(ENABLE);
-    RTC_InitStructure.RTC_AsynchPrediv = 0x7F;
-    RTC_InitStructure.RTC_SynchPrediv  = 0xFF;
-    RTC_InitStructure.RTC_HourFormat   = RTC_HourFormat_24;
-    RTC_Init(&RTC_InitStructure);
-	RTC_SetTimes(20,1,19,20,29,30);
+  RTC_InitStructure.RTC_AsynchPrediv = 0x7F;
+  RTC_InitStructure.RTC_SynchPrediv  = 0xFF;
+  RTC_InitStructure.RTC_HourFormat   = RTC_HourFormat_24;
+  RTC_Init(&RTC_InitStructure);
+	RTC_SetTimes(20,2,1,12,41,30);
 	return 0;
 }
 
@@ -191,7 +192,7 @@ void daysOfMonth(uint8_t *year,uint8_t *month,uint8_t *day)
 		case 8:
 		case 10:
 		case 12:
-			nDmax = 32;
+			nDmax = 31;
 			break;
 		case 2:
 			if ((*year % 400 == 0) || ((*year % 4 == 0) && (*year % 100 != 0)))
@@ -251,7 +252,7 @@ uint16_t calDaysBettweenTwoDate(RTC_DateTypeDef *date,RTC_TimeTypeDef *time)
 		++days;
 	}
 	time->RTC_Seconds += 2;
-	return days;
+	return --days;
 }
 
 uint8_t calHoursInOneDay(RTC_TimeTypeDef *time)

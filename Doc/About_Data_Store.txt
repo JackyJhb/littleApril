@@ -4,7 +4,7 @@ datas those are used in this project.
 	The struct of data store was defined in the file that named sccf.h.
 	
 	Storage datas mapped to HMI RAM:
-	
+	*****************************************************************************
 	dataStore.realtimeData.realDataToSave
 	dataStore.realtimeData.realSideWindowsAngle[2]
 	dataStore.realtimeData.targetSideWindowsAngle
@@ -25,10 +25,23 @@ datas those are used in this project.
 	dataStore.realtimeData.deltaTemperature
 	dataStore.realtimeData.deltaActionCycle
 	dataStore.realtimeData.deltaActionTimeSpan -> LW0~LW51
+	*****************************************************************************
 	
 	dataStore.realtimeData.workingVentilators\heatingColdingStatus ---> LB0~LB31
+
+	*****************************************************************************
+
+	dataStore.ctrlParameter.systemOptions --->COM1 [ModBus_Rect]4x1024 ~ [ModBus_Rect]4x1024
+
+	*****************************************************************************
+
+	dataStore.ctrlParameter.alarmThresholdOptions --->COM1 [ModBus_Rect]4x512~[ModBus_Rect]4x524
+
+	*****************************************************************************
+	
 */
 
+-------------------------------------------------------------------------------
 RealDataStore
 --->workingVentilators
 	0~15 16ventilators working status. 0/stopped 1/working
@@ -45,5 +58,6 @@ RealDataStore
 	bit 8: Is circulating pump working.
 	bit 9: Is induced draft fan working.
 	bit 10 ~ bit 15:Reserved
+-------------------------------------------------------------------------------
  Area 1
 	

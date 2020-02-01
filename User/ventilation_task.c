@@ -7,6 +7,7 @@
 #include "debug_config.h"
 #include "task_monitor.h"
 #include "default_config.h"
+#include "rtc.h"
 
 OS_TCB VentilationTaskTCB;
 CPU_STK VENTILATION_TASK_STK[VENTILATION_STK_SIZE];

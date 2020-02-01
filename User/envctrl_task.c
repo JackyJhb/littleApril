@@ -59,7 +59,7 @@ void temperatureCtrl(uint8_t dev_id)
 		if (dataStore.realtimeData.realDataToSave.isStarted == REARING_STARTED)
 		{
 			hours = calHoursInOneDay(&dataStore.realtimeData.realDataToSave.rtcTimeStart);
-			if (dataStore.realtimeData.dayCycle > 1)
+			if (dataStore.realtimeData.dayCycle > 0)
 			{
 					set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle - 1] - dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle];
 					set_temperature = (set_temperature/24) * hours;
@@ -161,10 +161,19 @@ void EnvParameter_task(void *p_arg)
 		if (ask_dev_id == 0x03)
 		{
 			#ifdef ENABLE_OUTPUT_LOG
-			printf("Info:main.c::20%d.%d.%d--->",
+			printf("Info:envctrl_task.c::20%d.%d.%d--->",
 			RTC_DateStruct.RTC_Year,RTC_DateStruct.RTC_Month,RTC_DateStruct.RTC_Date);
 			printf("%d:%d:%d\r\n",
 			RTC_TimeStruct.RTC_Hours,RTC_TimeStruct.RTC_Minutes,RTC_TimeStruct.RTC_Seconds);
+			printf("Info:envctrl_task.c::System start date:%d year %d month %d day\r\n",
+				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Year,
+				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Month,
+				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Date);
+			printf("Info:envctrl_task.c::System start time:%d hour %d minute %d second\r\n",
+				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours,
+				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,
+				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds);
+			printf("Info:envctrl_task.c::System days of cycle:%d\r\n",dataStore.realtimeData.dayCycle);
 			#endif
 			OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
 			ask_dev_id = 0x00;

@@ -35,14 +35,14 @@ const CoolDownGrade coolDownGradeDefault[16] = {
 };
 
 const float ambientTemperatureDefault[50] = {
-	35.0,
 	35.0,34.3,33.6,32.9,32.2,31.5,30.8,
 	30.0,29.8,29.6,29.4,29.2,29.0,28.8,
 	28.6,28.3,28.0,27.7,27.4,27.1,26.8,
 	26.6,26.3,26.0,25.7,25.4,25.1,24.8,
 	24.5,24.2,23.9,23.6,23.3,23.0,22.7,
 	22.4,22.1,21.8,21.5,21.4,21.0,21.0,
-	21.0,21.0,21.0,21.0,21.0,21.0,21.0
+	21.0,21.0,21.0,21.0,21.0,21.0,21.0,
+	21.0
 };
 const float illuminationStrengthDefault[50] = {
 	288,289,290,291,292,288,289,290,291,292,
@@ -64,7 +64,6 @@ const VentilationCoefficient ventilationCoefficientDefault[8] = {
 }
 #else
 const VentilationCoefficient ventilationCoefficientDefault[50] = {
-	{0,180},//
 	{0,300},//0  1
 	{10,300},//10
 	{15,300},//15
@@ -113,7 +112,8 @@ const VentilationCoefficient ventilationCoefficientDefault[50] = {
 	{45,180},//45
 	{45,180},//45
 	{45,180},//45
-	{45,180} //45
+	{45,180},//45
+	{45,180}//
 };
 #endif
 const uint8_t humidityDefault[50];

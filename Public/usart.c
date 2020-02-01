@@ -72,18 +72,7 @@ void USART1_IRQHandler(void)                	//串口1中断服务程序
 	OSIntEnter(); 	     //进入中断
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)  
 	{
-		//从内存分区 mem 获取一个内存块
-		//p_mem_blk = OSMemGet((OS_MEM      *)&mymem,
-		//				(OS_ERR      *)&err);
 		dat = USART_ReceiveData(USART1);
-		//*p_mem_blk=USART_ReceiveData(USART1);//(USART1->DR);	//读取接收到的数据
-		//发布任务消息到任务 USARTTaskTCB 
-		//OSTaskQPost ((OS_TCB      *)&USARTTaskTCB,      //目标任务的控制块
-			//		(void        *)p_mem_blk,             //消息内容的首地址
-			//		(OS_MSG_SIZE  )1,                     //消息长度
-			//		(OS_OPT       )OS_OPT_POST_FIFO,      //发布到任务消息队列的入口端
-			//		(OS_ERR      *)&err);                 //返回错误类型
-		
 	} 
 	OSIntExit();	        //退出中断
 } 	
@@ -148,52 +137,16 @@ void USART2_IRQHandler(void)
 	char *   p_mem_blk,dat;
 	
 	OSIntEnter(); 	     //进入中断
-	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)  
+	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
 	{
 		usart_timer = 0x00;
 		dat = (uint8_t)USART_ReceiveData(USART2);
-		/*if (dat == 0xFF)
-		{
-			uart_byte_count = 0;
-		}*/
 		RS485_receive_str[uart_byte_count] = dat;
-		//TODO 
-		//We need to write some code according to the real status in here.
 		++uart_byte_count;
 		if (uart_byte_count > 100)
 		{
 			uart_byte_count = 0;
 		}
-		//从内存分区 mem 获取一个内存块
-		/*if (uart_byte_count >= 8)
-		{	
-			p_mem_blk = OSMemGet((OS_MEM      *)&mymem,
-								(OS_ERR      *)&err);
-			if (err == OS_ERR_NONE)
-			{
-				//发布任务消息到任务 USARTTaskTCB 
-				memcpy(p_mem_blk,RS485_receive_str,uart_byte_count);
-				OSTaskQPost ((OS_TCB      *)&TSTaskTCB,           //目标任务的控制块
-							(void        *)p_mem_blk,             //消息内容的首地址
-							(OS_MSG_SIZE  )uart_byte_count,       //消息长度
-							(OS_OPT       )OS_OPT_POST_FIFO,      //发布到任务消息队列的入口端
-							(OS_ERR      *)&err);                 //返回错误类型
-				if (err != OS_ERR_NONE)
-				{
-					OSMemPut ((OS_MEM  *)&mymem,                            //指向内存管理对象
-							(void    *)p_mem_blk,                                               //内存块的首地址
-							(OS_ERR  *)&err);	                                      //返回错误类型
-				}
-			}
-			else
-			{
-				OSMemPut ((OS_MEM  *)&mymem,                            //指向内存管理对象
-							(void    *)p_mem_blk,                                               //内存块的首地址
-							(OS_ERR  *)&err);	                                      //返回错误类型
-			}
-			
-			uart_byte_count = 0;
-		}		*/
 	} 
 	OSIntExit();	        //退出中断
 } 
