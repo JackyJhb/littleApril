@@ -1,7 +1,8 @@
 #include "rtc.h"
 #include "rtc_task.h"
 #include "sccf.h"
-#include "SysTick.h"
+//#include "SysTick.h"
+#include "ds18b20.h"
 
 RTC_TimeTypeDef RTC_TimeStruct;
 RTC_DateTypeDef RTC_DateStruct;
@@ -53,13 +54,17 @@ void RTC_GetTimes(uint32_t RTC_Format)
 
 uint8_t RTC_Configuration(void)
 {
-	uint16_t wait=0;
+	uint16_t wait=0,i;
 	RTC_InitTypeDef RTC_InitStructure;
 	RCC_LSEConfig(RCC_LSE_ON);
 	while (RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET)
 	{
 		wait++;
-		delay_ms(5);
+		//delay_ms(5);
+		for (i = 0;i < 5;i++)
+		{
+			delays_us(1000);
+		}
 		if(wait>=500)
 			return 1;
 	}

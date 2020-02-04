@@ -3,6 +3,7 @@
 #include "sccf.h"
 #include "rtc.h"
 #include "stm32_flash.h"
+#include "24c02.h"
 
 #define HMI_ID  0x07
 #define ISME_ID 0xFF
@@ -250,10 +251,20 @@ void ts_task(void *p_arg)
 							case 0x15:
 								//Dec temperature
 								dataStore.realtimeData.deltaTemperature -= 0.05;
+								//OS_CRITICAL_ENTER();
+								i = 0x89;
+								AT24C02_Write(250,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+								AT24C02_Write(254,(uint8_t *)&i,sizeof(uint8_t));
+								//OS_CRITICAL_ENTER();
 								break;
 							case 0x16:
 								//Inc temperature
 								dataStore.realtimeData.deltaTemperature += 0.05;
+								//OS_CRITICAL_ENTER();
+								i = 0x89;
+								AT24C02_Write(250,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+								AT24C02_Write(254,(uint8_t *)&i,sizeof(uint8_t));
+								//OS_CRITICAL_ENTER();
 								break;
 							case 0x17:
 								--dataStore.realtimeData.deltaActionCycle;
@@ -299,6 +310,12 @@ void ts_task(void *p_arg)
 							*(buf_rec+3+i) = *(buf_rec+6+i);
 						}
 						read_len = write_len;
+						//OS_CRITICAL_ENTER();
+						i = 0x89;
+						dataStore.realtimeData.deltaTemperature = 1.99;
+						AT24C02_Write(250,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+						AT24C02_Write(254,(uint8_t *)&i,sizeof(uint8_t));
+						//OS_CRITICAL_EXIT();
 						break;
 					default:
 						//TODO:set the system's configure file to default values and write these values to EEPROM forever!

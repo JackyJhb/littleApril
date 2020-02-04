@@ -1,6 +1,7 @@
 #include "24c02.h"
 #include "ds18b20.h"
-#include "SysTick.h"
+#include "includes.h"
+#include "sccf.h"
 #define SDA_IN()  {GPIOB->MODER&=~(3<<18);GPIOB->MODER|=0<<18;}
 #define SDA_OUT() {GPIOB->MODER&=~(3<<18);GPIOB->MODER|=1<<18;}
  
@@ -17,13 +18,9 @@ void MCU_Send_Ack(void);					  //IIC发送ACK信号
 void MCU_NOAck(void);				  //IIC不发送ACK信号
 void IIC_write_OneByte(uint8_t Senddata);
 uint8_t IIC_Read_OneByte(uint8_t ack);
-	
-//EEPROM24c02相关函数
-uint8_t AT24C02_ReadByte(uint8_t ReadAddr);							     //指定地址读取一个字节
-void AT24C02_WriteByte(uint8_t WriteAddr,uint8_t DataToWrite);		//指定地址写入一个字节
-u32 Buf_4Byte(uint8_t *pBuffer,u32 Date_4Byte,uint8_t Byte_num,uint8_t mode);
 
-//IIC对应IO口的初始化
+uint8_t AT24C02_ReadByte(uint16_t ReadAddr);							     //指定地址读取一个字节
+
 void IIC_Init(void)
 {			
   GPIO_InitTypeDef  GPIO_InitStructure;
@@ -38,10 +35,7 @@ void IIC_Init(void)
 	IIC_SCL=1;
 	IIC_SDAOUT=1;
 }
-/*******************************************************************************
-*************************以下为IO口模拟IIC通信**********************************
-*******************************************************************************/
-//IIC起始信号
+
 void IIC_Start(void)
 {
 	SDA_OUT();     //配置SDA线为输出
@@ -65,13 +59,6 @@ void IIC_Stop(void)
 	IIC_SDAOUT=1; //发送I2C总线结束信号				   	
 }
 
-/****************************************************************************
-* 名    称: uint8_t MCU_Wait_Ack(void)
-* 功    能：MCU等待从设备应答信号到来
-* 入口参数：无
-* 返回参数：1:接收应答失败  0:接收应答成功
-* 说    明：  
-****************************************************************************/
 uint8_t MCU_Wait_Ack(void)
 {
 	uint8_t WaitTime=0;
@@ -93,13 +80,6 @@ uint8_t MCU_Wait_Ack(void)
 	return 0;  
 }
 
-/****************************************************************************
-* 名    称: uint8_t void MCU_Send_Ack(void)
-* 功    能：MCU产生ACK应答,告知24cxx
-* 入口参数：无
-* 返回参数：
-* 说    明：  
-****************************************************************************/
 void MCU_Send_Ack(void)
 {
 	IIC_SCL=0;
@@ -110,14 +90,7 @@ void MCU_Send_Ack(void)
 	delays_us(2);
 	IIC_SCL=0;
 }
-
-/****************************************************************************
-* 名    称: uint8_t void MCU_Send_Ack(void)
-* 功    能：MCU不产生ACK应答	
-* 入口参数：无
-* 返回参数：
-* 说    明：  
-****************************************************************************/  
+  
 void MCU_NOAck(void)
 {
 	IIC_SCL=0;
@@ -129,37 +102,23 @@ void MCU_NOAck(void)
 	IIC_SCL=0;
 }	
 
-/****************************************************************************
-* 名    称: void IIC_write_OneByte(uint8_t Senddata)
-* 功    能：IIC写一个字节到EEPROM	
-* 入口参数：Senddata:写入的8位数据
-* 返回参数：
-* 说    明：  
-****************************************************************************/	  
 void IIC_write_OneByte(uint8_t Senddata)
 {                        
-    uint8_t t;   
-	  SDA_OUT(); 	    
-    IIC_SCL=0;    //拉低时钟开始数据传输
-    for(t=0;t<8;t++)
-    {              
-        IIC_SDAOUT=(Senddata&0x80)>>7;
-        Senddata<<=1; 	  
+	uint8_t t;   
+	SDA_OUT(); 	    
+	IIC_SCL=0;    //拉低时钟开始数据传输
+	for(t=0;t<8;t++)
+	{              
+		IIC_SDAOUT=(Senddata&0x80)>>7;
+		Senddata<<=1; 	  
 		delays_us(2);   
 		IIC_SCL=1;
 		delays_us(2); 
 		IIC_SCL=0;	
 		delays_us(2);
-    }	 
+	}	 
 } 
 
-/****************************************************************************
-* 名    称: void IIC_Read_OneByte(uint8_t Senddata)
-* 功    能：IIC读取一个字节
-* 入口参数：ack=1，发送ACK，ack=0，发送nACK 
-* 返回参数：读到的8位数据
-* 说    明：  
-****************************************************************************/	  
 uint8_t IIC_Read_OneByte(uint8_t ack)
 {
 	uint8_t i,receivedata=0;
@@ -179,34 +138,25 @@ uint8_t IIC_Read_OneByte(uint8_t ack)
         MCU_Send_Ack(); //发送ACK   
     return receivedata;
 }
-/*******************************IO口模拟IIC*************************************
-*******************************************************************************/
 
-
-/*******************************************************************************
-*************************以下为EEPROM24C02读写操作******************************
-*******************************************************************************/
 //初始化24c02的IIC接口
 void AT24C02_Init(void)
 {
 	IIC_Init();  //IIC初始化
 }
 
-/****************************************************************************
-* 名    称: uint8_t AT24C02_ReadByte(uint8_t ReadAddr)
-* 功    能：在AT24C02指定地址读出一个数据
-* 入口参数：ReadAddr：要读取数据所在的地址
-* 返回参数：读到的8位数据
-* 说    明：  
-****************************************************************************/
-uint8_t AT24C02_ReadByte(uint8_t ReadAddr)
+uint8_t AT24C02_ReadByte(uint16_t ReadAddr)
 {				  
 	uint8_t receivedata=0;		  	    																 
   
 	IIC_Start();  
 	IIC_write_OneByte(0XA0);           //发送器件地址0XA0
 	MCU_Wait_Ack();
-  IIC_write_OneByte(ReadAddr);       //发送低地址
+	#ifdef AT24C128
+	IIC_write_OneByte(ReadAddr/0x100);       //发送高地址
+	MCU_Wait_Ack();
+	#endif
+	IIC_write_OneByte(ReadAddr%0x100); 
 	MCU_Wait_Ack();	    
 	IIC_Start();  	 	   
 	IIC_write_OneByte(0XA1);           //进入接收模式			   
@@ -218,82 +168,6 @@ uint8_t AT24C02_ReadByte(uint8_t ReadAddr)
 }
 
 /****************************************************************************
-* 名    称: uint8_t AT24C02_WriteByte(uint8_t WriteAddr,uint8_t WriteData)
-* 功    能：在AT24C02指定地址写入一个数据
-* 入口参数：WriteAddr：要写入数据所在的地址
-            WriteData: 要写入的数据
-* 返回参数： 
-* 说    明：  
-****************************************************************************/
-void AT24C02_WriteByte(uint8_t WriteAddr,uint8_t WriteData)
-{				
-  IIC_Start();  
-	IIC_write_OneByte(0XA0);       //发送0XA0,写数据 	 
-	MCU_Wait_Ack();	   
-  IIC_write_OneByte(WriteAddr);  //发送低地址
-	MCU_Wait_Ack(); 	 										  		   
-	IIC_write_OneByte(WriteData);  //发送字节							   
-	MCU_Wait_Ack();  		    	   
-  IIC_Stop();                    //产生一个停止条件 
-	delay_ms(10);	 
-}
-
-/****************************************************************************
-* 名    称: uint8_t AT24C02_Test(void)
-* 功    能：测试AT24C02是否正常
-* 入口参数：无
-* 返回参数：返回1:检测失败
-            返回0:检测成功 
-* 说    明：  
-****************************************************************************/
-uint8_t AT24C02_Test(void)
-{
-	uint8_t Testdata;
-	Testdata=AT24C02_ReadByte(255); //如果开机测试，已有值无需再次写入	   
-	if(Testdata==0XAB)return 0;		   
-	else                             
-	{
-		AT24C02_WriteByte(255,0XAB);
-	  Testdata=AT24C02_ReadByte(255);	  
-		if(Testdata==0XAB)return 0;
-	}
-	return 1;											  
-}
-
-/****************************************************************************
-* 名    称: u32 Buf_4Byte(uint8_t *pBuffer,u32 Date_4Byte,uint8_t Byte_num,uint8_t mode)
-* 功    能：多位数与字节互转
-* 入口参数：mode：1:多位数转分成字节   0:字节合并成一个多位数
-            Byte_num：需要转化的字节数
-            *pBuffer：字节接收数组或字节所在数组
-            Date_4Byte：多位数数
-* 返回参数：mode为0时，返回多位数
-* 说    明：Byte_num最大为4个字节，该函数在后面的触摸屏校正时存取校正值所用到
-****************************************************************************/
-u32 Buf_4Byte(uint8_t *pBuffer,u32 Date_4Byte,uint8_t Byte_num,uint8_t mode)
-{
-   uint8_t i; u32 middata=0;
-	if(mode)    //多位数转分成字节
-	 {
-	   for(i=0;i<Byte_num;i++)
-	     {
-	       *pBuffer++ =(Date_4Byte>>(8*i))&0xff;
-	     }
-			return 0; 
-	 } 
-	 else       //字节合并成一个多位数
-	 {
-	    Date_4Byte=0;
-		  pBuffer+=(Byte_num-1);
-		  for(i=0;i<Byte_num;i++)
-	      { 		
-		      middata<<=8;
-		      middata+= *pBuffer--;			   
-	      }
-			return middata;	
-	 }
-}
-/****************************************************************************
 * 名    称: void AT24C02_Read(uint8_t ReadAddr,uint8_t *pBuffer,uint8_t ReadNum)
 * 功    能：从AT24C02里面的指定地址开始读出指定个数的数据
 * 入口参数：ReadAddr :开始读出的地址  0~255
@@ -302,7 +176,7 @@ u32 Buf_4Byte(uint8_t *pBuffer,u32 Date_4Byte,uint8_t Byte_num,uint8_t mode)
 * 返回参数：
 * 说    明：  
 ****************************************************************************/
-void AT24C02_Read(uint8_t ReadAddr,uint8_t *pBuffer,uint8_t ReadNum)
+void AT24C02_Read(uint16_t ReadAddr,uint8_t *pBuffer,uint16_t ReadNum)
 {
 	while(ReadNum--)
 	{
@@ -311,7 +185,8 @@ void AT24C02_Read(uint8_t ReadAddr,uint8_t *pBuffer,uint8_t ReadNum)
 } 
 
 /****************************************************************************
-* 名    称: void AT24C02_Write(uint8_t WriteAddr,uint8_t *pBuffer,uint8_t WriteNum)
+* 名    称: void AT24C02_Write(uint16_t WriteAddr,uint8_t *pBuffer,
+*                              uint16_t WriteNum)
 * 功    能：从AT24C02里面的指定地址开始写入指定个数的数据
 * 入口参数：WriteAddr :开始写入的地址  0~255
             pBuffer  :数据数组首地址
@@ -319,20 +194,50 @@ void AT24C02_Read(uint8_t ReadAddr,uint8_t *pBuffer,uint8_t ReadNum)
 * 返回参数：
 * 说    明：  
 ****************************************************************************/
-void AT24C02_Write(uint8_t WriteAddr,uint8_t *pBuffer,uint8_t WriteNum)
+void AT24C02_Write(uint16_t WriteAddr,uint8_t *pBuffer,uint16_t WriteNum)
 {
-	while(WriteNum--)
+	uint16_t i,len,addr=WriteAddr;
+	/*while(WriteNum--)
 	{
 		AT24C02_WriteByte(WriteAddr,*pBuffer);
 		WriteAddr++;
 		pBuffer++;
+	}*/
+	IIC_Start();  
+	IIC_write_OneByte(0XA0);       //发送0XA0,写数据 	 
+	MCU_Wait_Ack();	   
+	#ifdef AT24C128
+	IIC_write_OneByte(addr/0x100);       //发送高地址
+	MCU_Wait_Ack();
+	#endif
+	IIC_write_OneByte(addr%0x100); 
+	MCU_Wait_Ack();
+	for (len = 0;len < WriteNum;len++)
+	{
+		IIC_write_OneByte(*(pBuffer+len));  //发送字节					   
+		MCU_Wait_Ack();
+		++addr;
+		if (addr%64 == 0)
+		{
+			IIC_Stop();                    //产生一个停止条件
+			for (i = 0;i < 10;i++)
+			{
+				delays_us(1000);
+			}
+			IIC_Start();  
+			IIC_write_OneByte(0XA0);       //发送0XA0,写数据 	 
+			MCU_Wait_Ack();	   
+			#ifdef AT24C128
+			IIC_write_OneByte(addr/0x100);       //发送高地址
+			MCU_Wait_Ack();
+			#endif
+			IIC_write_OneByte(addr%0x100); 
+			MCU_Wait_Ack();
+		}
+	}
+  IIC_Stop();                    //产生一个停止条件
+	for (i = 0;i < 10;i++)
+	{
+		delays_us(1000);
 	}
 }
-
-
-
-
-
-
-
-

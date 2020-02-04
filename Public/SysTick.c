@@ -18,7 +18,7 @@ void SysTick_Init(void)
 //延时nus
 //nus为要延时的us数.	
 //注意:nus的值,不要大于798915us(最大值即2^24/fac_us@fac_us=21)
-void delay_us(u32 nus)
+/*void delay_us(u32 nus)
 {		
 	u32 temp;	    	 
 	SysTick->LOAD=nus*fac_us; 				//时间加载	  		 
@@ -30,7 +30,7 @@ void delay_us(u32 nus)
 	}while((temp&0x01)&&!(temp&(1<<16)));	//等待时间到达   
 	SysTick->CTRL&=~0x01; //关闭计数器
 	SysTick->VAL =0X00;       				//清空计数器 
-}
+}*/
 //延时nms
 //注意nms的范围
 //SysTick->LOAD为24位寄存器,所以,最大延时为:
@@ -52,7 +52,7 @@ void delay_nms(uint16_t nms)
 } 
 //延时nms 
 //nms:0~65535
-void delay_ms(uint16_t nms)
+/*void delay_ms(uint16_t nms)
 {	 	 
 	uint8_t repeat=nms/540;						//这里用540,是考虑到某些客户可能超频使用,
 											//比如超频到248M的时候,delay_nms最大只能延时541ms左右了
@@ -63,6 +63,6 @@ void delay_ms(uint16_t nms)
 		repeat--;
 	}
 	if(remain)delay_nms(remain);
-} 
+}*/ 
 
 

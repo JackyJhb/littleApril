@@ -4,7 +4,7 @@
 #include "system.h"
 
 void SysTick_Init(void);
-void delay_ms(u16 nms);
+//void delay_ms(u16 nms);
 //void delays_us(u32 nus);
 
 

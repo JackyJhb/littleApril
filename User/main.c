@@ -21,7 +21,7 @@ int main()
 {  	
 	OS_ERR err;
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-	SysTick_Init();
+	//SysTick_Init();
 	LED_Init();
 	BEEP_Init();
 	RS485_Init(115200);
