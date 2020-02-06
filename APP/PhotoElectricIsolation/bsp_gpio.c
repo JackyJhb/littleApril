@@ -87,12 +87,18 @@ GPIO_Index_Struct littleAprilOutputGPIO[8] = {
 	{GPIOG,GPIO_Pin_3},{GPIOG,GPIO_Pin_4},{GPIOB,GPIO_Pin_12},{GPIOB,GPIO_Pin_13},
 	{GPIOC,GPIO_Pin_8},{GPIOC,GPIO_Pin_9},{GPIOC,GPIO_Pin_11},{GPIOC,GPIO_Pin_13},
 };
+#ifdef NEW_CIRCURIT_BOARD
+GPIO_Index_Struct littleAprilFanOutputGPIOCS[5] = {
+	{GPIOG,GPIO_Pin_5},{GPIOF,GPIO_Pin_6},{GPIOF,GPIO_Pin_7},{GPIOC,GPIO_Pin_0},{GPIOC,GPIO_Pin_2}
+};
+#else
 GPIO_Index_Struct littleAprilFanOutputGPIO[16] = {
 	{GPIOG,GPIO_Pin_5},{GPIOF,GPIO_Pin_6},{GPIOF,GPIO_Pin_7},{GPIOE,GPIO_Pin_5}/*E*/,
 	{GPIOE,GPIO_Pin_6}/*E*/,{GPIOC,GPIO_Pin_0},{GPIOC,GPIO_Pin_2},{GPIOC,GPIO_Pin_3},
 	{GPIOF,GPIO_Pin_4}/*E*/,{GPIOC,GPIO_Pin_5},{GPIOC,GPIO_Pin_6},{GPIOC,GPIO_Pin_7},
 	{GPIOB,GPIO_Pin_5},{GPIOB,GPIO_Pin_1},{GPIOE,GPIO_Pin_15},{GPIOF,GPIO_Pin_9},
 };
+#endif
 
 void littleAprilIOInit(void)
 {
