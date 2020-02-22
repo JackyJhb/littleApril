@@ -242,6 +242,10 @@ void ts_task(void *p_arg)
 									printf("Error:ts_task.c::ts_task -> Rearing started,write config files to AT24C02 failed.\r\n");
 									#endif
 								}
+								dataStore.realtimeData.deltaTemperature = 0.0f;
+								i = 0x89;
+								AT24C02_Write(250,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+								AT24C02_Write(254,(uint8_t *)&i,sizeof(uint8_t));
 								break;
 							case 0x13:
 								dataStore.realtimeData.realDataToSave.isStarted = REARING_STOPPED;
