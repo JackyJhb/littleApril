@@ -17,12 +17,12 @@ u8 receive_str[UART4_REC_NUM];     																			//接收缓存数组,最大USART_R
 u8 uart_bytes_count=0;
 u8 APP_mode=0;          																								//APP控制模式  0：命令控制区  1：接收发送区
 
-unsigned char MODE[]			="AT+CWMODE=3\r\n";
-unsigned char Router[]			="AT+CWSAP=\"littleApril_wifi\",\"15940146108\",11,4\r\n";  //配置成路由器 名字为littleApril_wifi 密码15940146108
-unsigned char RST[]				="AT+RST\r\n";
+unsigned char MODE[]		="AT+CWMODE=3\r\n";
+unsigned char Router[]	="AT+CWSAP=\"littleApril_wifi\",\"15940146108\",11,4\r\n";  //配置成路由器 名字为littleApril_wifi 密码15940146108
+unsigned char RST[]			="AT+RST\r\n";
 unsigned char M_Connection[]="AT+CIPMUX=1\r\n";
-unsigned char SERVER[]		="AT+CIPSERVER=1,5000\r\n";											//端口号5000
-unsigned char SEND[]			="AT+CIPSEND=\r\n";														//AT+CIPSEND= 发送数据
+unsigned char SERVER[]			="AT+CIPSERVER=1,5000\r\n";											//端口号5000
+unsigned char SEND[]				="AT+CIPSEND=\r\n";														//AT+CIPSEND= 发送数据
 
 /****************************************************************************
 * 名    称: void uart4_init(u32 bound)

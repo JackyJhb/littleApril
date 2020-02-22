@@ -274,7 +274,7 @@ void EnvParameter_task(void *p_arg)
 						huimidityCtrl(((DataPackage *)pMsg)->dev_id);
 						
 						#ifdef ENABLE_OUTPUT_LOG
-						printf("Info:main.c::EnvParameter_task->CAN receive data::");
+						printf("Info:envctrl_task.c::EnvParameter_task->CAN receive data::");
 						printf("dev_id = %d,tempCH0 = %f,tempCH1 = %f,humidity = %d",((DataPackage *)pMsg)->dev_id,
 								dataStore.realtimeData.insideTemperature[((DataPackage *)pMsg)->dev_id][0],
 								dataStore.realtimeData.insideTemperature[((DataPackage *)pMsg)->dev_id][1],
