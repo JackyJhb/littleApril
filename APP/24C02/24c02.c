@@ -152,10 +152,8 @@ uint8_t AT24C02_ReadByte(uint16_t ReadAddr)
 	IIC_Start();  
 	IIC_write_OneByte(0XA0);           //发送器件地址0XA0
 	MCU_Wait_Ack();
-	#ifdef AT24C128
 	IIC_write_OneByte(ReadAddr/0x100);       //发送高地址
 	MCU_Wait_Ack();
-	#endif
 	IIC_write_OneByte(ReadAddr%0x100); 
 	MCU_Wait_Ack();	    
 	IIC_Start();  	 	   
@@ -197,19 +195,11 @@ void AT24C02_Read(uint16_t ReadAddr,uint8_t *pBuffer,uint16_t ReadNum)
 void AT24C02_Write(uint16_t WriteAddr,uint8_t *pBuffer,uint16_t WriteNum)
 {
 	uint16_t i,len,addr=WriteAddr;
-	/*while(WriteNum--)
-	{
-		AT24C02_WriteByte(WriteAddr,*pBuffer);
-		WriteAddr++;
-		pBuffer++;
-	}*/
 	IIC_Start();  
 	IIC_write_OneByte(0XA0);       //发送0XA0,写数据 	 
 	MCU_Wait_Ack();	   
-	#ifdef AT24C128
 	IIC_write_OneByte(addr/0x100);       //发送高地址
 	MCU_Wait_Ack();
-	#endif
 	IIC_write_OneByte(addr%0x100); 
 	MCU_Wait_Ack();
 	for (len = 0;len < WriteNum;len++)
@@ -227,10 +217,8 @@ void AT24C02_Write(uint16_t WriteAddr,uint8_t *pBuffer,uint16_t WriteNum)
 			IIC_Start();  
 			IIC_write_OneByte(0XA0);       //发送0XA0,写数据 	 
 			MCU_Wait_Ack();	   
-			#ifdef AT24C128
 			IIC_write_OneByte(addr/0x100);       //发送高地址
 			MCU_Wait_Ack();
-			#endif
 			IIC_write_OneByte(addr%0x100); 
 			MCU_Wait_Ack();
 		}

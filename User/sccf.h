@@ -11,7 +11,6 @@ The meaning of sccf is System Control Configuration File.
 #include "24c02.h"
 #include "debug_config.h"
 
-#define AT24C128
 #define INIT_KEY        0x2345
 #define INIT_KEY_FLASH  0x2345
 

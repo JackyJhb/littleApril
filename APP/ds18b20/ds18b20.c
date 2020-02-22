@@ -202,6 +202,11 @@ uint8_t ReadTemperature(float *temperature,uint16_t whichOne)
     data <<=  8;
     data += TempL;
     temper = (float)data*0.625/10.0;
+		
+		if ((temper == 85.00) || (temper >=100))
+		{
+			return 1;
+		}
     if(fg)
 	{
 		*temperature = temper;
