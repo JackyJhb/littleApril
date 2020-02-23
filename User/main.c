@@ -50,6 +50,11 @@ int main()
 		dataStore.realtimeData.deltaActionCycle = 0;
 		dataStore.realtimeData.deltaActionTimeSpan = 0;
 		#ifdef ENABLE_OUTPUT_LOG
+		printf("#############################################################\r\n");
+		printf("#                      littleApril core                     #\r\n");
+		printf("#Branch:alpha                                               #\r\n");
+		printf("#Version:V1.0.0                                             #\r\n");
+		printf("#############################################################\r\n");
 		printf("Info:main.c::System start date:%d year %d month %d day\r\n",
 				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Year,
 				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Month,
@@ -59,6 +64,7 @@ int main()
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds);
 		printf("Info:main.c::System days of cycle:%d\r\n",dataStore.realtimeData.dayCycle);
+		printf("#############################################################\r\n");
 		#endif
 	}
 	//TODO: Need to add some initilizate code in here to do some necessary jobs for ADC devices and Ds18B20 sensors.
