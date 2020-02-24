@@ -50,6 +50,11 @@ int main()
 		dataStore.realtimeData.deltaActionCycle = 0;
 		dataStore.realtimeData.deltaActionTimeSpan = 0;
 		#ifdef ENABLE_OUTPUT_LOG
+		printf("##########################################################\r\n");
+		printf("#                    littleApril core                    #\r\n");
+		printf("#Branch:dragon                                           #\r\n");
+		printf("#Version:V1.0.0                                          #\r\n");
+		printf("##########################################################\r\n");
 		printf("Info:main.c::System start date:%d year %d month %d day\r\n",
 				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Year,
 				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Month,
