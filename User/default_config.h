@@ -29,8 +29,7 @@ The meaning of sccf is System Control Configuration File.
 #define COOL_DOWN_DEFAULT_LEVEL_15    0x2FF7E//0B010 1111 1111 0111 1110
 #define COOL_DOWN_DEFAULT_LEVEL_16    0x7FFFF//0B111 1111 1111 1111 1111
 
-#define HEATING_START_BOILER_DEFAULT        53.0
-#define WATER_PUMP_START_TEMP_DIFF_DEFAULT  2.0
+#define WATER_PUMP_START_TEMP_DIFF_DEFAULT  3.0
 #define CHICK_NUMBERS_DEFAULT               30000
 #define FAN_NUMBERS_DEFAULT                 19
 #define HEN_HOUSE_VOLUME_DEFAULT            (84*16*(3.2+5.9))
@@ -40,11 +39,11 @@ The meaning of sccf is System Control Configuration File.
 #define CYCLE_DAYS_DEFAULT                  49
 #define START_RTC_YEAR_DEFAULT           		20
 #define START_RTC_MONTH_DEFAULT             2
-#define START_RTC_DATE_DEFAULT              22
-#define START_RTC_WEEKDAY_DEFAULT           6
-#define START_RTC_HOURS_DEFAULT             16
-#define START_RTC_MINUTES_DEFAULT           44
-#define START_RTC_SECONDS_DEFAULT           45
+#define START_RTC_DATE_DEFAULT              25
+#define START_RTC_WEEKDAY_DEFAULT           2
+#define START_RTC_HOURS_DEFAULT             9
+#define START_RTC_MINUTES_DEFAULT           55
+#define START_RTC_SECONDS_DEFAULT           30
 
 extern const CoolDownGrade coolDownGradeDefault[16];
 extern const float ambientTemperatureDefault[50];

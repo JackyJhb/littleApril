@@ -54,6 +54,7 @@ int main()
 		printf("#                      littleApril core                     #\r\n");
 		printf("#Branch:alpha                                               #\r\n");
 		printf("#Version:V1.0.0                                             #\r\n");
+		printf("#Change date:2020/02/24                                     #\r\n");
 		printf("#############################################################\r\n");
 		printf("Info:main.c::System start date:%d year %d month %d day\r\n",
 				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Year,

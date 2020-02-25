@@ -159,7 +159,7 @@ void ts_task(void *p_arg)
 						break;
 					case 4:     //Multiple analogs input
 						//addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);						
-						read_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+						/*read_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
 						header = (int8_t *)(&dataStore.realtimeData);
 						dataStore.realtimeData.realDataToSave.cycleDays = 49;
 						dataStore.realtimeData.realSideWindowsAngle[0] = 20;
@@ -205,11 +205,11 @@ void ts_task(void *p_arg)
 									*(buf_rec+3+i) = *(header + i - 1);
 								}
 							}
-						}
+						}*/
 						break;
 					case 5:		//Signal digital output
 						//addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);
-						if (*(buf_rec + 5) == 0xFF)
+						/*if (*(buf_rec + 5) == 0xFF)
 						{
 							dataStore.realtimeData.realDataToSave.isStarted = REARING_STARTED;
 						}
@@ -220,7 +220,7 @@ void ts_task(void *p_arg)
 						send_len = 8;
 						crc_result = crc16(buf_rec,6);
 						*(buf_rec+6+read_len) = (uint8_t)(crc_result>>8);
-						*(buf_rec+7+read_len) = (uint8_t)(crc_result & 0x00FF);
+						*(buf_rec+7+read_len) = (uint8_t)(crc_result & 0x00FF);*/
 						break;
 					case 6:     //Signal analog output
 						//addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);
@@ -243,9 +243,21 @@ void ts_task(void *p_arg)
 									#endif
 								}
 								dataStore.realtimeData.deltaTemperature = 0.0f;
+								OS_CRITICAL_ENTER();
+								AT24C02_Init();
 								i = 0x89;
-								AT24C02_Write(250,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								AT24C02_Write(254,(uint8_t *)&i,sizeof(uint8_t));
+								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+								#ifdef ENABLE_OUTPUT_LOG
+								printf("Info:ts_task.c::ts_task ->Init deltaTemperature to %.2f.\r\n",
+											dataStore.realtimeData.deltaTemperature);
+								#endif
+								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
+								AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+								#ifdef ENABLE_OUTPUT_LOG
+								printf("Info:ts_task.c::ts_task -> Init deltaTemperature real value is %.2f.\r\n",
+											dataStore.realtimeData.deltaTemperature);
+								#endif
+								OS_CRITICAL_EXIT();
 								break;
 							case 0x13:
 								dataStore.realtimeData.realDataToSave.isStarted = REARING_STOPPED;
@@ -255,20 +267,40 @@ void ts_task(void *p_arg)
 							case 0x15:
 								//Dec temperature
 								dataStore.realtimeData.deltaTemperature -= 0.05;
-								//OS_CRITICAL_ENTER();
+								OS_CRITICAL_ENTER();
+								AT24C02_Init();
 								i = 0x89;
-								AT24C02_Write(250,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								AT24C02_Write(254,(uint8_t *)&i,sizeof(uint8_t));
-								//OS_CRITICAL_ENTER();
+								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+								#ifdef ENABLE_OUTPUT_LOG
+								printf("Info:ts_task.c::ts_task ->Dec change deltaTemperature to %.2f.\r\n",
+											dataStore.realtimeData.deltaTemperature);
+								#endif
+								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
+								AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+								#ifdef ENABLE_OUTPUT_LOG
+								printf("Info:ts_task.c::ts_task -> deltaTemperature real value is %.2f.\r\n",
+											dataStore.realtimeData.deltaTemperature);
+								#endif
+								OS_CRITICAL_EXIT();
 								break;
 							case 0x16:
 								//Inc temperature
 								dataStore.realtimeData.deltaTemperature += 0.05;
-								//OS_CRITICAL_ENTER();
+								OS_CRITICAL_ENTER();
+								AT24C02_Init();
 								i = 0x89;
-								AT24C02_Write(250,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								AT24C02_Write(254,(uint8_t *)&i,sizeof(uint8_t));
-								//OS_CRITICAL_ENTER();
+								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+								#ifdef ENABLE_OUTPUT_LOG
+								printf("Info:ts_task.c::ts_task ->Inc change deltaTemperature to %.2f.\r\n",
+											dataStore.realtimeData.deltaTemperature);
+								#endif
+								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
+								AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+								#ifdef ENABLE_OUTPUT_LOG
+								printf("Info:ts_task.c::ts_task -> deltaTemperature real value is %.2f.\r\n",
+											dataStore.realtimeData.deltaTemperature);
+								#endif
+								OS_CRITICAL_EXIT();
 								break;
 							case 0x17:
 								--dataStore.realtimeData.deltaActionCycle;
@@ -305,7 +337,7 @@ void ts_task(void *p_arg)
 						}
 						break;
 					case 0x10:
-						addr_offset -= 0x3FF;
+						/*addr_offset -= 0x3FF;
 						header = (uint8_t *)&dataStore.ctrlParameter.systemOptions + addr_offset*2;
 						write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
 						for (i=0;i<write_len;i++)
@@ -313,13 +345,15 @@ void ts_task(void *p_arg)
 							*(header + i) = *(buf_rec + 6 + write_len - i);
 							*(buf_rec+3+i) = *(buf_rec+6+i);
 						}
-						read_len = write_len;
-						//OS_CRITICAL_ENTER();
-						i = 0x89;
-						dataStore.realtimeData.deltaTemperature = 1.99;
-						AT24C02_Write(250,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-						AT24C02_Write(254,(uint8_t *)&i,sizeof(uint8_t));
-						//OS_CRITICAL_EXIT();
+						read_len = write_len;*/
+						dataStore.realtimeData.deltaTemperature = 88.0;
+						OS_CRITICAL_ENTER();
+								AT24C02_Init();
+								i = 0x89;
+								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
+								AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+								OS_CRITICAL_EXIT();
 						break;
 					default:
 						//TODO:set the system's configure file to default values and write these values to EEPROM forever!

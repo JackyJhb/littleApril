@@ -3,6 +3,9 @@
 #include "24c02.h"
 #include "stm32_flash.h"
 #include "default_config.h"
+#include "stm32f4xx.h"
+#include "stdlib.h"
+#include "stdio.h"
 //86x8x(3.2+5.9) = 6260.8m^3
 //10.56m^3 ��ֻ����
 //������ȫ����19ֻ����ȫ������30s���
@@ -71,16 +74,22 @@ uint8_t writeCtrlConfigFile(void * ptr,unsigned int size)
 uint8_t readCtrlConfigFile(void *ptr,unsigned int size)
 {
 	uint8_t temp;
-	
 	AT24C02_Read(ADDR_RTD_FILE,(u8 *)ptr,size);
 	//*
-	AT24C02_Read(254,&temp,sizeof(uint8_t));
+	AT24C02_Read(104,&temp,sizeof(uint8_t));
 	if (temp == 0x89)
 	{
-		AT24C02_Read(250,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+		AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+		#ifdef ENABLE_OUTPUT_LOG
+		printf("Info:sccf.c::readCtrlConfigFile -> deltaTemperature real value is %.2f.\r\n",
+						dataStore.realtimeData.deltaTemperature);
+		#endif
 	}
 	else
 	{
+		#ifdef ENABLE_OUTPUT_LOG
+		printf("Info:sccf.c::readCtrlConfigFile -> deltaTemperature real value is 0.0.\r\n");
+		#endif
 		dataStore.realtimeData.deltaTemperature = 0.0f;
 	}
 	//*

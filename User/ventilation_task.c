@@ -57,30 +57,11 @@ void ventilation_task(void *p_arg)
 			++ventilation_cycle_counter;
 			if (ventilation_cycle_counter >= ventilation_cycle)
 			{
-				//OS_CRITICAL_ENTER();
-				//TODO: need to set important reference
 				if (isFanWorking == false)
 				{
-					#ifndef ENABLE_USER_SET
-					cmf_per_minute = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle/7].cmfPerMinute;
-					ventilation_volume = dataStore.ctrlParameter.ventilation.chickNumbers * cmf_per_minute * ventilation_cycle/60;
-					fan_work_seconds = ventilation_volume/dataStore.ctrlParameter.ventilation.sterePerSecondOfFanRate;
-						#ifdef ENABLE_OUTPUT_LOG
-						printf("############Auto control ventilation###########\r\n");
-						printf("Info:ventilation_task.c::ventilation_task :\r\n");
-						printf("dayCycle = %d\r\n",dataStore.realtimeData.dayCycle);
-						printf("cmf_per_minute = %f\r\n",cmf_per_minute);
-						printf("chickNumbers = %d\r\n",dataStore.ctrlParameter.ventilation.chickNumbers);
-						printf("ventilation_cycle = %d\r\n",ventilation_cycle);
-						printf("ventilation_volum = %f-->\(dataStore.ctrlParameter.ventilation.chickNumbers * cmf_per_minute * ventilation_cycle * 1.2\)\r\n",ventilation_volume);
-						printf("sterePerSecondOfFanRate = %f\r\n",dataStore.ctrlParameter.ventilation.sterePerSecondOfFanRate);
-						printf("fan_work_seconds = %d --> \(ventilation_volume /dataStore.ctrlParameter.ventilation.sterePerSecondOfFanRate\)\r\n",fan_work_seconds);
-						printf("###############################################\r\n");
-						#endif
-					#else
 					fan_work_seconds = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle].runningTime +
 										dataStore.realtimeData.deltaActionTimeSpan;
-						#ifdef ENABLE_OUTPUT_LOG
+					#ifdef ENABLE_OUTPUT_LOG
 						printf("############Manual control ventilation###########\r\n");
 						printf("Info:ventilation_task.c::ventilation_task :\r\n");
 						printf("dayCycle = %d\r\n",dataStore.realtimeData.dayCycle);
@@ -88,32 +69,9 @@ void ventilation_task(void *p_arg)
 						printf("ventilation_cycle = %d\r\n",ventilation_cycle);
 						printf("deltaActionTimeSpan = %d\r\n",dataStore.realtimeData.deltaActionTimeSpan);
 						printf("###############################################\r\n");
-						#endif
 					#endif
 					
 					work_timer_counter = 0x00;
-					
-					#ifndef ENABLE_USER_SET
-					fan_numbers = (fan_work_seconds+dataStore.realtimeData.deltaActionTimeSpan)/ventilation_cycle;
-					if (fan_work_seconds%ventilation_cycle)
-					{
-						++fan_numbers;
-					}
-					switch (fan_numbers)
-					{
-						case 1:
-							dataStore.realtimeData.workingVentilators |= 0x0001;
-							break;
-						case 2:
-							dataStore.realtimeData.workingVentilators |= 0x0003;
-							break;
-						case 3:
-							dataStore.realtimeData.workingVentilators |= 0x0007;
-							break;
-						default:
-							break;
-					}
-					#else
 					if (dataStore.realtimeData.dayCycle < 20)
 					{
 						level = 0;
@@ -123,17 +81,7 @@ void ventilation_task(void *p_arg)
 						level = 1;
 					}
 					dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.coolDownGrade[level].sideWindowOpenAngle;
-					#endif
-					/*do
-					{
-						feedWatchDog(VENTILATION_TASK_WD);
-						OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
-						#ifdef ENABLE_OUTPUT_LOG
-						printf("Info:ventilation_task.c::ventilation_task->Waitting for side window opened. \r\n");
-						#endif
-					}while(dataStore.realtimeData.isSideWindowMotorRunning);*/
-					//if ((dataStore.realtimeData.realSideWindowsAngle[0] <= (dataStore.realtimeData.targetSideWindowsAngle+2)) &&
-					//		(dataStore.realtimeData.realSideWindowsAngle[1] <= (dataStore.realtimeData.targetSideWindowsAngle+2)))
+					if (fan_work_seconds > 0)
 					{
 						littleAprilFanCtrl(dataStore.ctrlParameter.coolDownGrade[level].runningFansBits);
 						isFanWorking = true;
@@ -141,32 +89,6 @@ void ventilation_task(void *p_arg)
 				}
 				else
 				{
-					#ifndef ENABLE_USER_SET
-					if (++work_timer_counter >= fan_work_seconds%ventilation_cycle)
-					{
-						ventilation_cycle_counter = fan_work_seconds%ventilation_cycle;
-						switch (fan_numbers)
-						{
-							case 1:
-								dataStore.realtimeData.workingVentilators &= (~0x0001);
-								break;
-							case 2:
-								dataStore.realtimeData.workingVentilators &= (~0x003);//000 1000 0000 0100 0001 
-								break;
-							case 3:
-								dataStore.realtimeData.workingVentilators &= (~0x007);
-								break;
-							default:
-								break;
-						}
-						littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
-						isFanWorking = false;
-						fan_numbers = 0;
-						#ifdef ENABLE_OUTPUT_LOG
-						printf("Info:ventilation_task.c::ventilation_task ventilators stopped working.\r\n");
-						#endif
-					}
-					#else
 					if (++work_timer_counter >= fan_work_seconds)
 					{
 						ventilation_cycle_counter = fan_work_seconds;
@@ -185,7 +107,6 @@ void ventilation_task(void *p_arg)
 						printf("Info:ventilation_task.c::ventilation_task ventilators stopped working.\r\n");
 						#endif
 					}
-					#endif
 				}
 			}
 		}
