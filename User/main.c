@@ -45,16 +45,13 @@ int main()
 					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours,
 					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,
 					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds);
-		
-		dataStore.realtimeData.deltaTemperature = 0.0;
-		dataStore.realtimeData.deltaActionCycle = 0;
-		dataStore.realtimeData.deltaActionTimeSpan = 0;
-		#ifdef ENABLE_OUTPUT_LOG
+		#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
 		printf("#############################################################\r\n");
 		printf("#                      littleApril core                     #\r\n");
 		printf("#Branch:alpha                                               #\r\n");
-		printf("#Version:V1.0.0                                             #\r\n");
-		printf("#Change date:2020/02/24                                     #\r\n");
+		printf("#Version:V1.1.05 (0226E)                                    #\r\n");
+		printf("#Change date:2020/02/26                                     #\r\n");
+		printf("#HMI protocal adjust.                                       #\r\n");
 		printf("#############################################################\r\n");
 		printf("Info:main.c::System start date:%d year %d month %d day\r\n",
 				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Year,

@@ -123,7 +123,10 @@ void ts_task(void *p_arg)
 							*(buf_rec + 3 + i) = *(((uint8_t *) &dataStore.realtimeData.heatingColdingStatus) + i);
 						}
 						break;
-					case 3:		//Multiple analogs input			
+					case 3:		//Multiple analogs input	
+						#ifdef ENABLE_OUTPUT_LOG
+						printf("#$$#case 3!!!\r\n");
+						#endif
 						read_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
 						if (addr_offset <= 0x1B)
 						{
@@ -138,6 +141,25 @@ void ts_task(void *p_arg)
 						{
 							header = (int8_t *)&dataStore.ctrlParameter.alarmThresholdOptions;
 							addr_offset -= 0x1FF;
+						}
+						else if (addr_offset >= 0x7FF && addr_offset < 0x8FF)
+						{
+							header = (int8_t *)&dataStore.realtimeData.deltaTemperature;
+							*(buf_rec+3) = *(header + 3);
+							*(buf_rec+4) = *(header + 2);
+							*(buf_rec+5) = *(header + 1);
+							*(buf_rec+6) = *(header + 0);
+							header = (int8_t *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature;
+							*(buf_rec+7) = *(header + 3);
+							*(buf_rec+8) = *(header + 2);
+							*(buf_rec+9) = *(header + 1);
+							*(buf_rec+10) = *(header + 0);
+							header = (int8_t *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature;
+							*(buf_rec+11) = *(header + 3);
+							*(buf_rec+12) = *(header + 2);
+							*(buf_rec+13) = *(header + 1);
+							*(buf_rec+14) = *(header + 0);
+							break;
 						}
 						else
 						{
@@ -157,11 +179,10 @@ void ts_task(void *p_arg)
 							//*(buf_rec+3+i) = *(header+(i/4)*4+(3-i%4));
 						}
 						break;
-					case 4:     //Multiple analogs input
-						//addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);						
-						/*read_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+					case 4:     //Multiple analogs input				
+						read_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
 						header = (int8_t *)(&dataStore.realtimeData);
-						dataStore.realtimeData.realDataToSave.cycleDays = 49;
+						/*dataStore.realtimeData.realDataToSave.cycleDays = 49;
 						dataStore.realtimeData.realSideWindowsAngle[0] = 20;
 						dataStore.realtimeData.realSideWindowsAngle[1] = 22;
 						dataStore.realtimeData.targetSideWindowsAngle = 21;
@@ -178,6 +199,8 @@ void ts_task(void *p_arg)
 						dataStore.realtimeData.boilerTemperature = 55;
 						dataStore.realtimeData.pressureInside = 10;
 						dataStore.realtimeData.currentSetTemperature = 25.8;
+						dataStore.realtimeData.workingVentilators = 0x0007;
+						dataStore.realtimeData.heatingColdingStatus = 0x0007;*/
 						if (addr_offset == 255)
 						{
 							for (i = 0;i < read_len;i++)
@@ -205,7 +228,7 @@ void ts_task(void *p_arg)
 									*(buf_rec+3+i) = *(header + i - 1);
 								}
 							}
-						}*/
+						}
 						break;
 					case 5:		//Signal digital output
 						//addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);
@@ -223,7 +246,6 @@ void ts_task(void *p_arg)
 						*(buf_rec+7+read_len) = (uint8_t)(crc_result & 0x00FF);*/
 						break;
 					case 6:     //Signal analog output
-						//addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);
 						switch (addr_offset)
 						{
 							case 0x11:
@@ -243,8 +265,7 @@ void ts_task(void *p_arg)
 									#endif
 								}
 								dataStore.realtimeData.deltaTemperature = 0.0f;
-								OS_CRITICAL_ENTER();
-								AT24C02_Init();
+								//OS_CRITICAL_ENTER();
 								i = 0x89;
 								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
 								#ifdef ENABLE_OUTPUT_LOG
@@ -252,12 +273,7 @@ void ts_task(void *p_arg)
 											dataStore.realtimeData.deltaTemperature);
 								#endif
 								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
-								AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								#ifdef ENABLE_OUTPUT_LOG
-								printf("Info:ts_task.c::ts_task -> Init deltaTemperature real value is %.2f.\r\n",
-											dataStore.realtimeData.deltaTemperature);
-								#endif
-								OS_CRITICAL_EXIT();
+								//OS_CRITICAL_EXIT();
 								break;
 							case 0x13:
 								dataStore.realtimeData.realDataToSave.isStarted = REARING_STOPPED;
@@ -267,40 +283,25 @@ void ts_task(void *p_arg)
 							case 0x15:
 								//Dec temperature
 								dataStore.realtimeData.deltaTemperature -= 0.05;
-								OS_CRITICAL_ENTER();
-								AT24C02_Init();
 								i = 0x89;
 								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								#ifdef ENABLE_OUTPUT_LOG
+								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
 								printf("Info:ts_task.c::ts_task ->Dec change deltaTemperature to %.2f.\r\n",
 											dataStore.realtimeData.deltaTemperature);
 								#endif
 								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
 								AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								#ifdef ENABLE_OUTPUT_LOG
-								printf("Info:ts_task.c::ts_task -> deltaTemperature real value is %.2f.\r\n",
-											dataStore.realtimeData.deltaTemperature);
-								#endif
-								OS_CRITICAL_EXIT();
 								break;
 							case 0x16:
 								//Inc temperature
 								dataStore.realtimeData.deltaTemperature += 0.05;
-								OS_CRITICAL_ENTER();
-								AT24C02_Init();
 								i = 0x89;
 								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								#ifdef ENABLE_OUTPUT_LOG
+								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
 								printf("Info:ts_task.c::ts_task ->Inc change deltaTemperature to %.2f.\r\n",
 											dataStore.realtimeData.deltaTemperature);
 								#endif
 								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
-								AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								#ifdef ENABLE_OUTPUT_LOG
-								printf("Info:ts_task.c::ts_task -> deltaTemperature real value is %.2f.\r\n",
-											dataStore.realtimeData.deltaTemperature);
-								#endif
-								OS_CRITICAL_EXIT();
 								break;
 							case 0x17:
 								--dataStore.realtimeData.deltaActionCycle;
@@ -337,34 +338,85 @@ void ts_task(void *p_arg)
 						}
 						break;
 					case 0x10:
-						/*addr_offset -= 0x3FF;
-						header = (uint8_t *)&dataStore.ctrlParameter.systemOptions + addr_offset*2;
+						/*header = (uint8_t *)&dataStore.ctrlParameter.systemOptions + addr_offset*2;
 						write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
 						for (i=0;i<write_len;i++)
 						{
 							*(header + i) = *(buf_rec + 6 + write_len - i);
 							*(buf_rec+3+i) = *(buf_rec+6+i);
+						}*/
+						if (addr_offset == 0x801)
+						{
+							header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature;
+							write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+							for (i=0;i<write_len;i++)
+							{
+								*(header + i) = *(buf_rec + 6 + write_len - i);
+								*(buf_rec+3+i) = *(buf_rec+6+i);
+							}
+							i = 0x89;
+							AT24C02_Write(90,(uint8_t *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature,sizeof(float));
+							#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
+							printf("Info:ts_task.c::ts_task ->Change startHeatingBoilerTemperature to %.2f.\r\n",
+											dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature);
+							#endif
+							AT24C02_Write(94,(uint8_t *)&i,sizeof(uint8_t));
+							read_len = write_len;
 						}
-						read_len = write_len;*/
-						dataStore.realtimeData.deltaTemperature = 88.0;
-						OS_CRITICAL_ENTER();
-								AT24C02_Init();
-								i = 0x89;
-								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
-								AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								OS_CRITICAL_EXIT();
+						else if (addr_offset == 0x803)
+						{
+							header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature;
+							write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+							for (i=0;i<write_len;i++)
+							{
+								*(header + i) = *(buf_rec + 6 + write_len - i);
+								*(buf_rec+3+i) = *(buf_rec+6+i);
+							}
+							i = 0x89;
+							AT24C02_Write(80,(uint8_t *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature,sizeof(float));
+							#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
+							printf("Info:ts_task.c::ts_task ->Change stopHeatingBoilerTemperature to %.2f.\r\n",
+											dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature);
+							#endif
+							AT24C02_Write(84,(uint8_t *)&i,sizeof(uint8_t));
+							read_len = write_len;
+						}
+						else if (addr_offset == 0x7FF)
+						{
+							header = (uint8_t *)&dataStore.realtimeData.deltaTemperature;
+							write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+							for (i=0;i<write_len;i++)
+							{
+								*(header + i) = *(buf_rec + 6 + write_len - i);
+								*(buf_rec+3+i) = *(buf_rec+6+i);
+							}
+							i = 0x89;
+							AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+							#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
+							printf("Info:ts_task.c::ts_task ->Inc change deltaTemperature to %.2f.\r\n",
+											dataStore.realtimeData.deltaTemperature);
+							#endif
+							AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
+					
+							read_len = write_len;
+						}
 						break;
 					default:
+						#ifdef ENABLE_OUTPUT_LOG
+						printf("#$$#\r\n");
+						#endif
 						//TODO:set the system's configure file to default values and write these values to EEPROM forever!
 						break;
 				}
-				*(buf_rec + 2) = read_len;
-				send_len = read_len + 5;
-				crc_result = crc16(buf_rec,(read_len+3));
-				*(buf_rec+3+read_len) = (uint8_t)(crc_result>>8);
-				*(buf_rec+4+read_len) = (uint8_t)(crc_result & 0x00FF);
-				RS485_Send_Data(buf_rec,send_len);
+				if (read_len > 0)
+				{
+					*(buf_rec + 2) = read_len;
+					send_len = read_len + 5;
+					crc_result = crc16(buf_rec,(read_len+3));
+					*(buf_rec+3+read_len) = (uint8_t)(crc_result>>8);
+					*(buf_rec+4+read_len) = (uint8_t)(crc_result & 0x00FF);
+					RS485_Send_Data(buf_rec,send_len);
+				}
 			}
 		}
 		OSMemPut ((OS_MEM  *)&mymem,

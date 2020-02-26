@@ -75,24 +75,22 @@ uint8_t readCtrlConfigFile(void *ptr,unsigned int size)
 {
 	uint8_t temp;
 	AT24C02_Read(ADDR_RTD_FILE,(u8 *)ptr,size);
-	//*
 	AT24C02_Read(104,&temp,sizeof(uint8_t));
 	if (temp == 0x89)
 	{
 		AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-		#ifdef ENABLE_OUTPUT_LOG
+		#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
 		printf("Info:sccf.c::readCtrlConfigFile -> deltaTemperature real value is %.2f.\r\n",
 						dataStore.realtimeData.deltaTemperature);
 		#endif
 	}
 	else
 	{
-		#ifdef ENABLE_OUTPUT_LOG
+		#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
 		printf("Info:sccf.c::readCtrlConfigFile -> deltaTemperature real value is 0.0.\r\n");
 		#endif
 		dataStore.realtimeData.deltaTemperature = 0.0f;
 	}
-	//*
 	return 0;
 }
 
@@ -128,11 +126,33 @@ uint8_t sysCtrlConfigFileInit(void)
 	#else
 	AT24C02_Read(ADDR_CFG_FILE,(u8 *)&dataStore.ctrlParameter,sizeof(dataStore.ctrlParameter));
 	#endif
+	
 	if (dataStore.ctrlParameter.keyCtrlParameter != INIT_KEY_FLASH)
 	{
 		memset(&dataStore.ctrlParameter,0x00,sizeof(ControlParameterStore));
 		err_code = setControlParametersToDefault();
 	}
+
+	AT24C02_Read(94,&err_code,sizeof(uint8_t));
+	if (err_code == 0x89)
+	{
+		AT24C02_Read(90,(uint8_t *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature,sizeof(float));
+		#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
+		printf("Info:sccf.c::sysCtrlConfigFileInit -> startHeatingBoilerTemperature real value is %.2f.\r\n",
+						dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature);
+		#endif
+	}
+
+	AT24C02_Read(84,&err_code,sizeof(uint8_t));
+	if (err_code == 0x89)
+	{
+		AT24C02_Read(80,(uint8_t *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature,sizeof(float));
+		#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
+		printf("Info:sccf.c::sysCtrlConfigFileInit -> stopHeatingBoilerTemperature real value is %.2f.\r\n",
+						dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature);
+		#endif
+	}
+	err_code = 0;
 	return err_code;
 }
 

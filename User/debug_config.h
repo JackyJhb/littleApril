@@ -2,6 +2,7 @@
 #define DEBUG_CONFIG_H
 
 #define ENABLE_OUTPUT_LOG
+//#define ENABLE_BASE_LOG
 #define ENABLE_BLACK_BOX
 #define ENABLE_USER_SET
 

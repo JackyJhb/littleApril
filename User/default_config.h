@@ -43,7 +43,7 @@ The meaning of sccf is System Control Configuration File.
 #define START_RTC_WEEKDAY_DEFAULT           2
 #define START_RTC_HOURS_DEFAULT             9
 #define START_RTC_MINUTES_DEFAULT           55
-#define START_RTC_SECONDS_DEFAULT           30
+#define START_RTC_SECONDS_DEFAULT           35
 
 extern const CoolDownGrade coolDownGradeDefault[16];
 extern const float ambientTemperatureDefault[50];

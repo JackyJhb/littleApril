@@ -160,7 +160,7 @@ void EnvParameter_task(void *p_arg)
 		}
 		if (ask_dev_id == 0x03)
 		{
-			#ifdef ENABLE_OUTPUT_LOG
+			#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
 			printf("Info:envctrl_task.c::20%d.%d.%d--->",
 			RTC_DateStruct.RTC_Year,RTC_DateStruct.RTC_Month,RTC_DateStruct.RTC_Date);
 			printf("%d:%d:%d\r\n",
@@ -273,7 +273,7 @@ void EnvParameter_task(void *p_arg)
 						}
 						huimidityCtrl(((DataPackage *)pMsg)->dev_id);
 						
-						#ifdef ENABLE_OUTPUT_LOG
+						#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
 						printf("Info:main.c::EnvParameter_task->CAN receive data::");
 						printf("dev_id = %d,tempCH0 = %f,tempCH1 = %f,humidity = %d",((DataPackage *)pMsg)->dev_id,
 								dataStore.realtimeData.insideTemperature[((DataPackage *)pMsg)->dev_id][0],
@@ -318,5 +318,28 @@ void EnvParameter_task(void *p_arg)
 			}
 			#endif
 		}
+		/*else
+		{
+			dataStore.realtimeData.realDataToSave.cycleDays = 49;
+						dataStore.realtimeData.realSideWindowsAngle[0] = 20;
+						dataStore.realtimeData.realSideWindowsAngle[1] = 22;
+						dataStore.realtimeData.targetSideWindowsAngle = 21;
+						dataStore.realtimeData.humidityInside[0] = 78;
+						dataStore.realtimeData.humidityInside[1] = 79;
+						dataStore.realtimeData.humidityInside[2] = 80;
+						dataStore.realtimeData.insideTemperature[0][0] = 26.6;
+						dataStore.realtimeData.insideTemperature[0][1] = 26.8;
+						dataStore.realtimeData.insideTemperature[1][0] = 27.7;
+						dataStore.realtimeData.insideTemperature[1][1] = 27.9;
+						dataStore.realtimeData.insideTemperature[2][0] = 28.8;
+						dataStore.realtimeData.insideTemperature[2][1] = 29.0;
+						dataStore.realtimeData.outsideTemperature = -22.2;
+						dataStore.realtimeData.boilerTemperature = 59;
+						dataStore.realtimeData.pressureInside = 10;
+						dataStore.realtimeData.currentSetTemperature = 25.8;
+						//dataStore.realtimeData.workingVentilators = 0x0007;
+						//dataStore.realtimeData.heatingColdingStatus = 0x0007;
+						temperatureCtrl(1);
+		}*/
 	}
 }
