@@ -90,7 +90,7 @@ void alarm_task(void *p_arg)
 		{
 			if (beep_status)
 			{
-				//GPIO_ResetBits(BEEP_Port,BEEP_Pin);
+				GPIO_ResetBits(BEEP_Port,BEEP_Pin);
 				#ifdef ENABLE_OUTPUT_LOG
 				printf("Info:alarm_task.c::alarm_task!Alarm code = %d\r\n",beep_status);
 				#endif
@@ -98,7 +98,7 @@ void alarm_task(void *p_arg)
 			}
 			else
 			{
-				//GPIO_SetBits(BEEP_Port,BEEP_Pin);
+				GPIO_SetBits(BEEP_Port,BEEP_Pin);
 				beep_status = 0x01;
 			}
 		}

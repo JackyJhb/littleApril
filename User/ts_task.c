@@ -182,25 +182,6 @@ void ts_task(void *p_arg)
 					case 4:     //Multiple analogs input				
 						read_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
 						header = (int8_t *)(&dataStore.realtimeData);
-						/*dataStore.realtimeData.realDataToSave.cycleDays = 49;
-						dataStore.realtimeData.realSideWindowsAngle[0] = 20;
-						dataStore.realtimeData.realSideWindowsAngle[1] = 22;
-						dataStore.realtimeData.targetSideWindowsAngle = 21;
-						dataStore.realtimeData.humidityInside[0] = 78;
-						dataStore.realtimeData.humidityInside[1] = 79;
-						dataStore.realtimeData.humidityInside[2] = 80;
-						dataStore.realtimeData.insideTemperature[0][0] = 26.6;
-						dataStore.realtimeData.insideTemperature[0][1] = 26.8;
-						dataStore.realtimeData.insideTemperature[1][0] = 27.7;
-						dataStore.realtimeData.insideTemperature[1][1] = 27.9;
-						dataStore.realtimeData.insideTemperature[2][0] = 28.8;
-						dataStore.realtimeData.insideTemperature[2][1] = 29.0;
-						dataStore.realtimeData.outsideTemperature = -22.2;
-						dataStore.realtimeData.boilerTemperature = 55;
-						dataStore.realtimeData.pressureInside = 10;
-						dataStore.realtimeData.currentSetTemperature = 25.8;
-						dataStore.realtimeData.workingVentilators = 0x0007;
-						dataStore.realtimeData.heatingColdingStatus = 0x0007;*/
 						if (addr_offset == 255)
 						{
 							for (i = 0;i < read_len;i++)

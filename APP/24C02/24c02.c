@@ -174,6 +174,41 @@ void AT24C02_Read(uint16_t ReadAddr,uint8_t *pBuffer,uint16_t ReadNum)
 void AT24C02_Write(uint16_t WriteAddr,uint8_t *pBuffer,uint16_t WriteNum)
 {
 	uint16_t i,len,addr=WriteAddr;
+	#ifdef  AT24C128
+	IIC_Start();  
+	IIC_write_OneByte(0XA0);       //发送0XA0,写数据 	 
+	MCU_Wait_Ack();	   
+	IIC_write_OneByte(addr/0x100);       //发送高地址
+	MCU_Wait_Ack();
+	IIC_write_OneByte(addr%0x100); 
+	MCU_Wait_Ack();
+	for (len = 0;len < WriteNum;len++)
+	{
+		IIC_write_OneByte(*(pBuffer+len));  //发送字节					   
+		MCU_Wait_Ack();
+		++addr;
+		if (addr%64 == 0)
+		{
+			IIC_Stop();                    //产生一个停止条件
+			for (i = 0;i < 10;i++)
+			{
+				delays_us(1000);
+			}
+			IIC_Start();  
+			IIC_write_OneByte(0XA0);       //发送0XA0,写数据 	 
+			MCU_Wait_Ack();	   
+			IIC_write_OneByte(addr/0x100);       //发送高地址
+			MCU_Wait_Ack();
+			IIC_write_OneByte(addr%0x100); 
+			MCU_Wait_Ack();
+		}
+	}
+  IIC_Stop();                    //产生一个停止条件
+	for (i = 0;i < 10;i++)
+	{
+		delays_us(1000);
+	}
+	#else
 	for (len = 0;len < WriteNum;len++)
 	{
 		IIC_Start();
@@ -190,4 +225,5 @@ void AT24C02_Write(uint16_t WriteAddr,uint8_t *pBuffer,uint16_t WriteNum)
 			delays_us(1000);
 		}
 	}
+	#endif
 }

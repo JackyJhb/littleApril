@@ -45,7 +45,7 @@ void sidewindowctrl_task(void *p_arg)
 				//littleAprilIOCtrl(Window_LEFT_CLOSE,On);
 				//littleAprilIOCtrl(Window_LEFT_OPEN,Off);
 				#ifdef ENABLE_OUTPUT_LOG
-				printf("Left side window is opening.\r\n");
+				//printf("Left side window is opening.\r\n");
 				#endif
 			}
 			else if (dataStore.realtimeData.realSideWindowsAngle[0] >= dataStore.realtimeData.targetSideWindowsAngle + 1)
@@ -53,7 +53,7 @@ void sidewindowctrl_task(void *p_arg)
 				//littleAprilIOCtrl(Window_LEFT_CLOSE,Off);
 				//littleAprilIOCtrl(Window_LEFT_OPEN,On);
 				#ifdef ENABLE_OUTPUT_LOG
-				printf("Left side window is closing.\r\n");
+				//printf("Left side window is closing.\r\n");
 				#endif
 			}
 			else
@@ -62,7 +62,7 @@ void sidewindowctrl_task(void *p_arg)
 				littleAprilIOCtrl(Window_LEFT_CLOSE,Off);
 				littleAprilIOCtrl(Window_LEFT_OPEN,Off);
 				#ifdef ENABLE_OUTPUT_LOG
-				printf("Left side window is stopped.\r\n");
+				//printf("Left side window is stopped.\r\n");
 				#endif
 			}
 		}
@@ -73,7 +73,7 @@ void sidewindowctrl_task(void *p_arg)
 				//littleAprilIOCtrl(Window_RIGHT_CLOSE,Off);
 				//littleAprilIOCtrl(Window_RIGHT_OPEN,On);
 				#ifdef ENABLE_OUTPUT_LOG
-				printf("Right side window is opening.\r\n");
+				//printf("Right side window is opening.\r\n");
 				#endif
 			}
 			else if (dataStore.realtimeData.realSideWindowsAngle[1] >= dataStore.realtimeData.targetSideWindowsAngle + 1)
@@ -81,7 +81,7 @@ void sidewindowctrl_task(void *p_arg)
 				//littleAprilIOCtrl(Window_RIGHT_OPEN,Off);
 				//littleAprilIOCtrl(Window_RIGHT_CLOSE,On);
 				#ifdef ENABLE_OUTPUT_LOG
-				printf("Right side window is closing.\r\n");
+				//printf("Right side window is closing.\r\n");
 				#endif
 			}
 			else
@@ -90,7 +90,7 @@ void sidewindowctrl_task(void *p_arg)
 				littleAprilIOCtrl(Window_RIGHT_CLOSE,Off);
 				littleAprilIOCtrl(Window_RIGHT_OPEN,Off);
 				#ifdef ENABLE_OUTPUT_LOG
-				printf("Right side window is stopped.\r\n");
+				//printf("Right side window is stopped.\r\n");
 				#endif
 			}
 		}
