@@ -84,20 +84,20 @@ void RS485_Init(u32 bound)
 	USART_InitTypeDef USART_InitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
 	
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE); 		//使能GPIOA时钟
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD,ENABLE); 		//使能GPIOD时钟
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2,ENABLE);		//使能USART2时钟
 
 	//串口2引脚复用映射
-	GPIO_PinAFConfig(GPIOA,GPIO_PinSource2,GPIO_AF_USART2);		//GPIOA2复用为USART2
-	GPIO_PinAFConfig(GPIOA,GPIO_PinSource3,GPIO_AF_USART2);		//GPIOA3复用为USART2
+	GPIO_PinAFConfig(GPIOD,GPIO_PinSource5,GPIO_AF_USART2);		//GPIOD5复用为USART2
+	GPIO_PinAFConfig(GPIOD,GPIO_PinSource6,GPIO_AF_USART2);		//GPIOD6复用为USART2
 	
 	//USART2    
-	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_2 | GPIO_Pin_3;	//GPIOA2与GPIOA3
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_5 | GPIO_Pin_6;	//GPIOD5与GPIOD6
 	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;				//复用功能
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;			//速度100MHz
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;				//推挽复用输出
 	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;				//上拉
-	GPIO_Init(GPIOA,&GPIO_InitStructure);						//初始化PA2，PA3
+	GPIO_Init(GPIOD,&GPIO_InitStructure);						//初始化PA2，PA3
 	
 	//PG8推挽输出，485模式控制  
 	GPIO_InitStructure.GPIO_Pin	  = GPIO_Pin_8;					//GPIO8(普中)GPIOG6(极智)
