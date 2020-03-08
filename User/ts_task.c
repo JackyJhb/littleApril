@@ -182,8 +182,6 @@ void ts_task(void *p_arg)
 					case 4:     //Multiple analogs input				
 						read_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
 						header = (int8_t *)(&dataStore.realtimeData);
-						dataStore.realtimeData.boilerTemperature = 88.88;
-						dataStore.realtimeData.heatingColdingStatus = 0x06;
 						if (addr_offset == 255)
 						{
 							for (i = 0;i < read_len;i++)
