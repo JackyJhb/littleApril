@@ -49,7 +49,7 @@ int main()
 		printf("#############################################################\r\n");
 		printf("#                      littleApril core                     #\r\n");
 		printf("#Branch:alpha                                               #\r\n");
-		printf("#Version:V1.1.09 (0308E)                                    #\r\n");
+		printf("#Version:V1.1.10 (0308E)                                    #\r\n");
 		printf("#Change date:2020/03/08                                     #\r\n");
 		printf("#Ventilation cycle changed.                                 #\r\n");
 		printf("#############################################################\r\n");
