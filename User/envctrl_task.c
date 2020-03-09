@@ -245,7 +245,6 @@ void EnvParameter_task(void *p_arg)
 							#ifdef ENABLE_BLACK_BOX
 							++dataStore.blackBox.sensorErrTimes[((DataPackage *)pMsg)->dev_id][0];
 							#endif
-							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0] = INVIAL;
 						}
 						if (((((DataPackage *)pMsg)->err & DS18B20_RIGHT_ERR) != DS18B20_RIGHT_ERR) && 
 							((float)((DataPackage *)pMsg)->rightTemperature/100 > -20.0) &&
@@ -257,9 +256,7 @@ void EnvParameter_task(void *p_arg)
 						{
 							#ifdef ENABLE_BLACK_BOX
 							++dataStore.blackBox.sensorErrTimes[((DataPackage *)pMsg)->dev_id][1];
-							#endif
-							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][1] = INVIAL;
-							
+							#endif	
 						}
 						temperatureCtrl(((DataPackage *)pMsg)->dev_id);
 								
