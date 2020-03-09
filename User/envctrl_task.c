@@ -235,8 +235,8 @@ void EnvParameter_task(void *p_arg)
 						#endif
 						dataStore.realtimeData.sensorErrStatus = ((DataPackage *)pMsg)->err;
 						if (((((DataPackage *)pMsg)->err & DS18B20_LEFT_ERR) != DS18B20_LEFT_ERR) && 
-							((float)((DataPackage *)pMsg)->leftTemperature/100 > -20.0) &&
-							((float)((DataPackage *)pMsg)->leftTemperature/100 < 50.0))
+							((float)((DataPackage *)pMsg)->leftTemperature/100 > -10.0) &&
+							((float)((DataPackage *)pMsg)->leftTemperature/100 < 35.0))
 						{
 							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0] = (float)((DataPackage *)pMsg)->leftTemperature/100;
 						}
@@ -245,10 +245,11 @@ void EnvParameter_task(void *p_arg)
 							#ifdef ENABLE_BLACK_BOX
 							++dataStore.blackBox.sensorErrTimes[((DataPackage *)pMsg)->dev_id][0];
 							#endif
+							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0] = INVIAL;
 						}
 						if (((((DataPackage *)pMsg)->err & DS18B20_RIGHT_ERR) != DS18B20_RIGHT_ERR) && 
 							((float)((DataPackage *)pMsg)->rightTemperature/100 > -20.0) &&
-							((float)((DataPackage *)pMsg)->rightTemperature/100 < 50.0))
+							((float)((DataPackage *)pMsg)->rightTemperature/100 < 35.0))
 						{
 							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][1] = (float)((DataPackage *)pMsg)->rightTemperature/100;
 						}
@@ -257,6 +258,8 @@ void EnvParameter_task(void *p_arg)
 							#ifdef ENABLE_BLACK_BOX
 							++dataStore.blackBox.sensorErrTimes[((DataPackage *)pMsg)->dev_id][1];
 							#endif
+							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][1] = INVIAL;
+							
 						}
 						temperatureCtrl(((DataPackage *)pMsg)->dev_id);
 								

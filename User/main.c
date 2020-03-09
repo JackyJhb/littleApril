@@ -49,8 +49,8 @@ int main()
 		printf("#############################################################\r\n");
 		printf("#                      littleApril core                     #\r\n");
 		printf("#Branch:alpha                                               #\r\n");
-		printf("#Version:V1.1.10 (0308E)                                    #\r\n");
-		printf("#Change date:2020/03/08                                     #\r\n");
+		printf("#Version:V1.1.11 (0309E)                                    #\r\n");
+		printf("#Change date:2020/03/09                                     #\r\n");
 		printf("#Ventilation cycle changed.                                 #\r\n");
 		printf("#############################################################\r\n");
 		printf("Info:main.c::System start date:%d year %d month %d day\r\n",
