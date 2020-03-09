@@ -48,7 +48,7 @@ int main()
 		#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
 		printf("#############################################################\r\n");
 		printf("#                      littleApril core                     #\r\n");
-		printf("#Branch:alpha                                               #\r\n");
+		printf("#Branch:beta                                                #\r\n");
 		printf("#Version:V1.1.10 (0308E)                                    #\r\n");
 		printf("#Change date:2020/03/08                                     #\r\n");
 		printf("#Ventilation cycle changed.                                 #\r\n");
