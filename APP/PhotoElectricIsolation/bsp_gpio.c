@@ -87,56 +87,39 @@ GPIO_Index_Struct littleAprilOutputGPIO[8] = {
 	{GPIOG,GPIO_Pin_3},{GPIOG,GPIO_Pin_4},{GPIOB,GPIO_Pin_12},{GPIOB,GPIO_Pin_13},
 	{GPIOC,GPIO_Pin_8},{GPIOC,GPIO_Pin_9},{GPIOC,GPIO_Pin_11},{GPIOC,GPIO_Pin_13},
 };
-#ifdef NEW_CIRCURIT_BOARD
+
 GPIO_Index_Struct littleAprilFanOutputGPIOCS[5] = {
 	{GPIOG,GPIO_Pin_5},{GPIOF,GPIO_Pin_6},{GPIOF,GPIO_Pin_7},{GPIOC,GPIO_Pin_0},{GPIOC,GPIO_Pin_2}
 };
-#else
-GPIO_Index_Struct littleAprilFanOutputGPIO[16] = {
-	{GPIOG,GPIO_Pin_5},{GPIOF,GPIO_Pin_6},{GPIOF,GPIO_Pin_7},{GPIOF,GPIO_Pin_9},
-	{GPIOE,GPIO_Pin_6}/*E*/,{GPIOC,GPIO_Pin_0},{GPIOC,GPIO_Pin_2},{GPIOC,GPIO_Pin_3},
-	{GPIOF,GPIO_Pin_4}/*E*/,{GPIOC,GPIO_Pin_5},{GPIOC,GPIO_Pin_6},{GPIOC,GPIO_Pin_7},
-	{GPIOB,GPIO_Pin_5},{GPIOB,GPIO_Pin_1},{GPIOE,GPIO_Pin_15},{GPIOE,GPIO_Pin_5}/*E*/,
-};
-#endif
 
 void littleAprilIOInit(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC,ENABLE);
-	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_OUT;
-	GPIO_InitStructure.GPIO_Pin=GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | 
-								GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_13;
-	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_100MHz;
-	GPIO_InitStructure.GPIO_OType=GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd=GPIO_PuPd_UP;
-	GPIO_Init(GPIOC,&GPIO_InitStructure);
-	GPIO_ResetBits(GPIOC,GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | 
-				   GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_13);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOG,ENABLE);
 	
 	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_OUT;
-	GPIO_InitStructure.GPIO_Pin=GPIO_Pin_1 | GPIO_Pin_5 | GPIO_Pin_12 | GPIO_Pin_13;
+	GPIO_InitStructure.GPIO_Pin= GPIO_Pin_12 | GPIO_Pin_13;
 	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_100MHz;
 	GPIO_InitStructure.GPIO_OType=GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd=GPIO_PuPd_UP;
 	GPIO_Init(GPIOB,&GPIO_InitStructure);
-	GPIO_ResetBits(GPIOB,GPIO_Pin_1 | GPIO_Pin_5 | GPIO_Pin_12 | GPIO_Pin_13);
+	GPIO_ResetBits(GPIOB,GPIO_Pin_12 | GPIO_Pin_13);
 	
 	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_OUT;
-	GPIO_InitStructure.GPIO_Pin=GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_15;
+	GPIO_InitStructure.GPIO_Pin=GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_13;
 	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_100MHz;
 	GPIO_InitStructure.GPIO_OType=GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd=GPIO_PuPd_UP;
-	GPIO_Init(GPIOE,&GPIO_InitStructure);
-	GPIO_ResetBits(GPIOE,GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_15);
+	GPIO_Init(GPIOC,&GPIO_InitStructure);
+	GPIO_ResetBits(GPIOC,GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_13);
 	
 	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_OUT;
-	GPIO_InitStructure.GPIO_Pin=GPIO_Pin_4 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_9;
+	GPIO_InitStructure.GPIO_Pin=GPIO_Pin_6 | GPIO_Pin_7;
 	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_100MHz;
 	GPIO_InitStructure.GPIO_OType=GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd=GPIO_PuPd_UP;
 	GPIO_Init(GPIOF,&GPIO_InitStructure);
-	GPIO_ResetBits(GPIOF,GPIO_Pin_4 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_9);
+	GPIO_ResetBits(GPIOF,GPIO_Pin_6 | GPIO_Pin_7);
 	
 	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_Pin=GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5;
@@ -174,11 +157,11 @@ void littleAprilFanCtrl(uint32_t relayCtrlGroup)
 		temp = (1 << i);
 		if (relayCtrlGroup & temp)
 		{
-			GPIO_SetBits(littleAprilFanOutputGPIO[i].GPIOx,littleAprilFanOutputGPIO[i].GPIO_Pin);
+			//GPIO_SetBits(littleAprilFanOutputGPIO[i].GPIOx,littleAprilFanOutputGPIO[i].GPIO_Pin);
 		}
 		else
 		{	
-			GPIO_ResetBits(littleAprilFanOutputGPIO[i].GPIOx,littleAprilFanOutputGPIO[i].GPIO_Pin);
+			//GPIO_ResetBits(littleAprilFanOutputGPIO[i].GPIOx,littleAprilFanOutputGPIO[i].GPIO_Pin);
 		}
 	}
 }
