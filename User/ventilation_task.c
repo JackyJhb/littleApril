@@ -72,7 +72,7 @@ void ventilation_task(void *p_arg)
 					#endif
 					
 					work_timer_counter = 0x00;
-					if (dataStore.realtimeData.dayCycle <= 25)
+					if (dataStore.realtimeData.dayCycle < 19)
 					{
 						level = 0;
 					}
@@ -92,7 +92,7 @@ void ventilation_task(void *p_arg)
 					if (++work_timer_counter >= fan_work_seconds)
 					{
 						ventilation_cycle_counter = fan_work_seconds;
-						if (dataStore.realtimeData.dayCycle <= 25)
+						if (dataStore.realtimeData.dayCycle < 19)
 						{
 							dataStore.realtimeData.workingVentilators &= (~COOL_DOWN_DEFAULT_LEVEL_1);
 						}

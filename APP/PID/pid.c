@@ -192,7 +192,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 		#ifdef ENABLE_OUTPUT_LOG
 		printf("Info:pid.c::pidControlTemperature()->Calculate cool down grade result is %d!\r\n",level);
 		#endif
-		if (dataStore.realtimeData.dayCycle > 25)
+		if (dataStore.realtimeData.dayCycle >= 19)
 		{
 			++level;
 			if (level >= 1)
