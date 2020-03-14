@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>.\User;.\Libraries\CMSIS;.\Libraries\STM32F4xx_StdPeriph_Driver\inc;.\APP\USART;.\APP\CAN;.\APP\PhotoElectricIsolation;.\APP\led;.\Public;.\APP\beep;.\APP\key;.\APP\exti;.\APP\time;.\APP\Keyboard;.\APP\pwm;.\UCOSIII\uC-BSP;.\UCOSIII\uC-CONFIG;.\UCOSIII\uC-CPU;.\UCOSIII\uC-LIB;.\UCOSIII\uCOS-III;.\UCOSIII\uC-CPU\ARM-Cortex-M4\RealView;.\UCOSIII\uC-LIB\Ports\ARM-Cortex-M4\RealView;.\UCOSIII\uCOS-III\Source;.\UCOSIII\uCOS-III\Ports\ARM-Cortex-M4\Generic\RealView;.\APP\Protocol;.\APP\PID;.\APP\stm32_flash;.\APP\24C02;.\APP\RTC;.\APP\usart4_wifi;.\APP\LCD;.\APP\led;.\APP\beep;.\APP\adc;.\APP\ds18b20</IncludePath>
+              <IncludePath>.\User;.\Libraries\CMSIS;.\Libraries\STM32F4xx_StdPeriph_Driver\inc;.\APP\USART;.\APP\CAN;.\APP\PhotoElectricIsolation;.\APP\led;.\Public;.\APP\beep;.\APP\key;.\APP\exti;.\APP\time;.\APP\Keyboard;.\APP\pwm;.\UCOSIII\uC-BSP;.\UCOSIII\uC-CONFIG;.\UCOSIII\uC-CPU;.\UCOSIII\uC-LIB;.\UCOSIII\uCOS-III;.\UCOSIII\uC-CPU\ARM-Cortex-M4\RealView;.\UCOSIII\uC-LIB\Ports\ARM-Cortex-M4\RealView;.\UCOSIII\uCOS-III\Source;.\UCOSIII\uCOS-III\Ports\ARM-Cortex-M4\Generic\RealView;.\APP\Protocol;.\APP\PID;.\APP\stm32_flash;.\APP\24C02;.\APP\RTC;.\APP\usart4_wifi;.\APP\LCD;.\APP\led;.\APP\beep;.\APP\adc;.\APP\ds18b20;.\APP\wifi</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -640,11 +640,6 @@
               <FilePath>.\APP\RTC\rtc.c</FilePath>
             </File>
             <File>
-              <FileName>usart4_wifi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\APP\usart4_wifi\usart4_wifi.c</FilePath>
-            </File>
-            <File>
               <FileName>adc.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\APP\adc\adc.c</FilePath>
@@ -653,6 +648,11 @@
               <FileName>ds18b20.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\APP\ds18b20\ds18b20.c</FilePath>
+            </File>
+            <File>
+              <FileName>wifi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APP\wifi\wifi.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -1,5 +1,5 @@
 #include "wifi_task.h"
-#include "usart4_wifi.h"
+#include "wifi.h"
 #include "24c02.h"
 
 OS_TCB WIFITaskTCB;

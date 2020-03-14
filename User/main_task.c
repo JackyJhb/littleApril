@@ -133,7 +133,7 @@ void start_task(void *p_arg)
                  (OS_OPT      )OS_OPT_TASK_STK_CHK|OS_OPT_TASK_STK_CLR,
                  (OS_ERR 	* )&err);
 				 
-	/*OSTaskCreate((OS_TCB 	* )&WIFITaskTCB,		
+	OSTaskCreate((OS_TCB 	* )&WIFITaskTCB,		
 				 (CPU_CHAR	* )"Wifi task", 		
                  (OS_TASK_PTR )WIFI_task, 			
                  (void		* )0,					
@@ -145,7 +145,8 @@ void start_task(void *p_arg)
                  (OS_TICK	  )0,					
                  (void   	* )0,					
                  (OS_OPT      )OS_OPT_TASK_STK_CHK|OS_OPT_TASK_STK_CLR,
-                 (OS_ERR 	* )&err);*/
+                 (OS_ERR 	* )&err);
+								 
 	OSTaskCreate((OS_TCB 	* )&AlarmTaskTCB,		
 				 (CPU_CHAR	* )"alarm task", 		
                  (OS_TASK_PTR )alarm_task, 			

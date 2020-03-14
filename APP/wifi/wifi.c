@@ -1,5 +1,5 @@
 
-#include "usart4_wifi.h"
+#include "wifi.h"
 #include "string.h"
 #include "stdlib.h"  
 #include "led.h" 
@@ -24,108 +24,93 @@ unsigned char M_Connection[]="AT+CIPMUX=1\r\n";
 unsigned char SERVER[]		="AT+CIPSERVER=1,5000\r\n";											//端口号5000
 unsigned char SEND[]			="AT+CIPSEND=\r\n";														//AT+CIPSEND= 发送数据
 
-/****************************************************************************
-* 名    称: void uart4_init(u32 bound)
-* 功    能：LTE_uart4初始化
-* 入口参数：bound：波特率   
-* 返回参数：无
-* 说    明： 
-****************************************************************************/
-void uart4_init(u32 bound)
+void usartWifiInit(u32 bound)
 {   
 	GPIO_InitTypeDef GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
 	
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);										//使能GPIOA时钟
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4,ENABLE);										//使能USART4时钟 
-	USART_DeInit(UART4);																										//复位串口4
-	GPIO_PinAFConfig(GPIOA,GPIO_PinSource0,GPIO_AF_UART4);										//GPIOA0复用为USART4
-	GPIO_PinAFConfig(GPIOA,GPIO_PinSource1,GPIO_AF_UART4);										//GPIOA1复用为USART4
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1;												//GPIOA0与GPIOA1
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;															//复用功能
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;													//速度50MHz
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;														//推挽复用输出
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;															//上拉
-	GPIO_Init(GPIOA,&GPIO_InitStructure);																			//初始化PA9，PA10
-	USART_InitStructure.USART_BaudRate = bound;																//波特率设置
-	USART_InitStructure.USART_WordLength = USART_WordLength_8b;									//字长为8位数据格式
-	USART_InitStructure.USART_StopBits = USART_StopBits_1;												//一个停止位
-	USART_InitStructure.USART_Parity = USART_Parity_No;													//无奇偶校验位
-	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;	//无硬件数据流控制
-	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;						//收发模式
-	USART_Init(UART4, &USART_InitStructure);																		//初始化串口1	
-	USART_Cmd(UART4, ENABLE);																						//使能串口4 
-	USART_ClearFlag(UART4, USART_FLAG_TC);
-	USART_ITConfig(UART4, USART_IT_RXNE, ENABLE);														//开启相关中断
-	NVIC_InitStructure.NVIC_IRQChannel = UART4_IRQn;														//串口4中断通道
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3;													//抢占优先级3
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority =3;															//子优先级3
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;														//IRQ通道使能
-	NVIC_Init(&NVIC_InitStructure);																							//根据指定的参数初始化VIC寄存器、
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC,ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB2Periph_USART6,ENABLE);
+	USART_DeInit(USART6);
+	GPIO_PinAFConfig(GPIOC,GPIO_PinSource6,GPIO_AF_USART6);
+	GPIO_PinAFConfig(GPIOC,GPIO_PinSource7,GPIO_AF_USART6);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_Init(GPIOC,&GPIO_InitStructure);
+	USART_InitStructure.USART_BaudRate = bound;
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;
+	USART_InitStructure.USART_Parity = USART_Parity_No;
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+	USART_Init(USART6, &USART_InitStructure);
+	USART_Cmd(USART6, ENABLE);
+	USART_ClearFlag(USART6, USART_FLAG_TC);
+	USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);
+	NVIC_InitStructure.NVIC_IRQChannel = USART6_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority =3;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
 }
 
 //使能ESP8266 就是置CH_PD为高
 void ESP8266_init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC,ENABLE);
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;			//普通输出模式
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;			//推挽输出
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;		//100MHz
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;				//上拉
-	GPIO_Init(GPIOA,&GPIO_InitStructure);
-	GPIO_SetBits(GPIOC, GPIO_Pin_1);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD,ENABLE);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_Init(GPIOD,&GPIO_InitStructure);
+	GPIO_SetBits(GPIOD, GPIO_Pin_8);
 }
 
-//串口1发送一个字符
-void uart4SendChar(u8 ch)
+void sendChar(u8 ch)
 {      
-	while((UART4->SR&0x40)==0);  
-    UART4->DR = (u8) ch;      
+	while((USART6->SR&0x40)==0);  
+    USART6->DR = (u8) ch;      
 }
-/****************************************************************************
-* 名    称: void uart1SendChars(u8 *str, u16 strlen)
-* 功    能：串口1发送一字符串
-* 入口参数：*str：发送的字符串
-            strlen：字符串长度
-* 返回参数：无
-* 说    明： 
-****************************************************************************/
-void uart4SendChars(u8 *str, u16 strlen)
+
+void sendChars(u8 *str, u16 strlen)
 { 
 	u16 k= 0 ; 
 	do
 	{
-		uart4SendChar(*(str + k));
+		sendChar(*(str + k));
 		k++;
-	}   //循环发送,直到发送完毕   
+	}
 	while (k < strlen);
 } 
 
 void WIFI_Server_Init(void)
 {
 	OS_ERR err;
-	uart4_init(115200);																	//串口初始化波特率为115200  wifi模块出厂配置的波特率为115200
-	uart4SendChars(MODE,sizeof(MODE));   
-	OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);				//延时1s
-	uart4SendChars(Router,sizeof(Router));										//配置wifi模块成路由器 相应的路由名字跟密码
-	OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);				//到这步手机或者电脑就可以搜到名字为qiming_wifi的wifi
-	uart4SendChars(RST,sizeof(RST));											//重启模块
-	OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);				//延时1s
-	uart4SendChars(M_Connection,sizeof(M_Connection));				//开启多连接
-	OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);				//延时1s
-	uart4SendChars(SERVER,sizeof(SERVER));								//配置成服务器 与 设置端口号5000  
-	OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);				//到这步打开手机APP输入设置的IP跟端口号就可以连接了  wifi模块的IP一般固定为192.168.4.1
+	usartWifiInit(115200);
+	sendChars(MODE,sizeof(MODE));   
+	OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
+	sendChars(Router,sizeof(Router));
+	OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
+	sendChars(RST,sizeof(RST));
+	OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
+	sendChars(M_Connection,sizeof(M_Connection));
+	OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
+	sendChars(SERVER,sizeof(SERVER));
+	OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
 }
-//串口1中断服务程序
-void UART4_IRQHandler(void)  
+
+void USART6_IRQHandler(void)  
 {
 	u8 rec_data;
-	if(USART_GetITStatus(UART4, USART_IT_RXNE) != RESET)		//接收中断 
+	if(USART_GetITStatus(USART6, USART_IT_RXNE) != RESET)		//接收中断 
 		{
-				rec_data =(u8)USART_ReceiveData(UART4);         		//(USART1->DR) 读取接收到的数据
+				rec_data =(u8)USART_ReceiveData(USART6);         		//(USART1->DR) 读取接收到的数据
 
       /*  if(rec_data=='S')		  	                         //如果是S，表示是命令信息的起始位
 				{
