@@ -74,7 +74,7 @@ uint8_t RTC_Configuration(void)
   RTC_InitStructure.RTC_SynchPrediv  = 0xFF;
   RTC_InitStructure.RTC_HourFormat   = RTC_HourFormat_24;
   RTC_Init(&RTC_InitStructure);
-	RTC_SetTimes(20,3,8,20,57,30);
+	RTC_SetTimes(20,3,15,00,17,30);
 	return 0;
 }
 
@@ -83,12 +83,12 @@ uint8_t RTC_InitConfig(void)
 	uint8_t i=0;
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
-	if(RTC_ReadBackupRegister(RTC_BKP_DR0)!=0x0505)
+	if(RTC_ReadBackupRegister(RTC_BKP_DR0)!=0x5050)
 	{
 		i=RTC_Configuration();
 		if(i==1)
 			return 1;
-		RTC_WriteBackupRegister(RTC_BKP_DR0,0x0505);
+		RTC_WriteBackupRegister(RTC_BKP_DR0,0x5050);
 	}
 	RTC_SetWakeUp(RTC_WakeUpClock_CK_SPRE_16bits,0);
 	return 0;

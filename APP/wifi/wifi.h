@@ -7,9 +7,9 @@
 
 extern u8 APP_mode;
 
-#define UART4_REC_NUM  			200  	//定义最大接收字节数 200
-extern u8 uart_bytes_count;          //uart_byte_count要小于USART_REC_LEN
-extern u8 receive_str[UART4_REC_NUM]; 
+#define UART4_REC_NUM  			1024
+extern uint8_t receiveBuf[UART4_REC_NUM];
+extern uint8_t usartTimer,uartBytesCount;
 
 void ESP8266_init(void);
 void uart4_init(u32 bound);
