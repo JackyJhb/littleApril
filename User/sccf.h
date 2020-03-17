@@ -21,8 +21,29 @@ The meaning of sccf is System Control Configuration File.
 #define REARING_STARTED 0xA6
 #define REARING_STOPPED 0xA8
 #define HEATING_STARTED 0x68
+#define WIFI_REF_SET    0x18
 
 //#pragma pack(1)
+typedef enum{
+	NotFoundESP8266,
+	SettingCWMODE,
+	Reseting,
+	FoundRouter,
+	ConnectingToRouter,
+	RouterError,
+	PasswdError,
+	ConnectingToServer,
+	ServerConnected,
+	ServerDisconnected
+}NetWorkStatus;
+
+typedef struct {
+	char setByUser;
+	char routerName[21];
+	char routerPasswd[21];
+	char serverIP[21];
+	char serverPort[7];
+}ESP8266Options;
 
 typedef struct{
 	float temperatureDifference;
@@ -100,6 +121,7 @@ typedef struct{
 	float waterPumpStartTemperatureDifference;
 	AlarmThresholdStore alarmThresholdOptions;
 	SystemOptions systemOptions;
+	ESP8266Options esp8266Options;
 }ControlParameterStore;
 
 typedef struct{
@@ -137,6 +159,9 @@ typedef struct{
 	uint16_t isSideWindowMotorRunning;
 	uint32_t sensorErrStatus;
 	uint16_t isColding;
+	
+	NetWorkStatus netWorkStatus;
+	uint8_t ip[21];
 }RealDataStore;
 
 #ifdef ENABLE_BLACK_BOX

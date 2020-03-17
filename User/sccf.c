@@ -57,12 +57,8 @@ uint8_t setControlParametersToDefault(void)
 	dataStore.ctrlParameter.ventilation.henhouseVolume = HEN_HOUSE_VOLUME_DEFAULT;
 	dataStore.ctrlParameter.ventilation.sterePerSecondOfFanRate = STERE_PER_SECOND_DEFAULT;
 	dataStore.ctrlParameter.keyCtrlParameter = INIT_KEY_FLASH;
-	#ifndef AT24C128
-	return saveControlParameters((uint32_t *)&dataStore.ctrlParameter,sizeof(dataStore.ctrlParameter)/4);
-	#else
 	AT24C02_Write(ADDR_CFG_FILE,(u8 *)&dataStore.ctrlParameter,sizeof(dataStore.ctrlParameter));
 	return 0;
-	#endif
 }
 
 uint8_t writeCtrlConfigFile(void * ptr,unsigned int size)
@@ -120,13 +116,7 @@ uint8_t sysCtrlConfigFileInit(void)
 		err_code = sysCtrlConfigFileWrite(&dataStore.realtimeData.realDataToSave,sizeof(RealDataToSave));
 	}
 	dataStore.realtimeData.isColding = false;
-
-	#ifndef AT24C128
-	readControlParameters((uint32_t *)&dataStore.ctrlParameter,sizeof(ControlParameterStore)/4);
-	#else
 	AT24C02_Read(ADDR_CFG_FILE,(u8 *)&dataStore.ctrlParameter,sizeof(dataStore.ctrlParameter));
-	#endif
-	
 	if (dataStore.ctrlParameter.keyCtrlParameter != INIT_KEY_FLASH)
 	{
 		memset(&dataStore.ctrlParameter,0x00,sizeof(ControlParameterStore));

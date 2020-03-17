@@ -2,7 +2,7 @@
 #define WIFI_TASK_H
 #include "includes.h"
 
-#define WIFI_TASK_PRIO		12
+#define WIFI_TASK_PRIO		17
 #define WIFI_STK_SIZE 		512
 
 extern OS_TCB WIFITaskTCB;	
