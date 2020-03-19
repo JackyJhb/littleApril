@@ -23,6 +23,14 @@ typedef enum{
 }OnOrOff;
 
 typedef enum{
+	Group0,
+	Group1,
+	Group2,
+	Group3,
+	Group4
+}WhichGroup;
+
+typedef enum{
 	Heating_NO1        = 0x00,// GPIO_Pin_6       //C6
 	Heating_NO2        = 0x01,//GPIO_Pin_0       //C0
 	Heating_NO3 	   = 0x02,//GPIO_Pin_2       //C2
@@ -35,6 +43,8 @@ typedef enum{
 }WhichRelay;
 
 extern void littleAprilIOInit(void);
+extern void clearOutput(void);
+extern void littleAprilGroupOutput(WhichGroup whichGroup,uint8_t outputData);
 extern void littleAprilIOCtrl(WhichRelay whichOne,OnOrOff onOrOff);
 extern void littleAprilFanCtrl(uint32_t relayCtrlGroup);
 

@@ -6,6 +6,7 @@
 #include "includes.h"
 #include "sccf.h"
 #include "protocol.h"
+#include "mqtt.h"
 
 char receiveBuf[UART4_REC_NUM];
 char bufSplit[10][100];

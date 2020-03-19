@@ -91,6 +91,9 @@ GPIO_Index_Struct littleAprilOutputGPIO[8] = {
 GPIO_Index_Struct littleAprilFanOutputGPIOCS[5] = {
 	{GPIOG,GPIO_Pin_5},{GPIOF,GPIO_Pin_6},{GPIOF,GPIO_Pin_7},{GPIOC,GPIO_Pin_0},{GPIOC,GPIO_Pin_2}
 };
+void littleAprilIOInit(void);
+void clearOutput(void);
+void littleAprilGroupOutput(WhichGroup whichGroup,uint8_t outputData);
 
 void littleAprilIOInit(void)
 {
@@ -128,11 +131,53 @@ void littleAprilIOInit(void)
 	GPIO_InitStructure.GPIO_PuPd=GPIO_PuPd_UP;
 	GPIO_Init(GPIOG,&GPIO_InitStructure);
 	GPIO_ResetBits(GPIOG,GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5);
+	clearOutput();
+}
+void clearOutput(void)
+{
+	uint8_t i;
+	for (i = 0;i < 5;i++)
+	{
+		GPIO_SetBits(littleAprilFanOutputGPIOCS[i].GPIOx,
+								 littleAprilFanOutputGPIOCS[i].GPIO_Pin);
+	}
+	for (i = 0;i < 8;i++)
+	{
+		GPIO_ResetBits(littleAprilOutputGPIO[i].GPIOx,littleAprilOutputGPIO[i].GPIO_Pin);
+	}
+	for (i = 0;i < 5;i++)
+	{
+		GPIO_ResetBits(littleAprilFanOutputGPIOCS[i].GPIOx,
+								 littleAprilFanOutputGPIOCS[i].GPIO_Pin);
+	}
+}
+void littleAprilGroupOutput(WhichGroup whichGroup,uint8_t outputData)
+{
+	uint8_t i,temp;
+	#ifdef ENABLE_OUTPUT_LOG
+	printf("Info:bsp_gpio.c::littleAprilGroupOutput()->%d is %d\r\n",whichGroup,outputData);
+	#endif
+	GPIO_SetBits(littleAprilFanOutputGPIOCS[whichGroup].GPIOx,
+								 littleAprilFanOutputGPIOCS[whichGroup].GPIO_Pin);
+	for (i = 0;i < 8;i++)
+	{
+		temp = (1<<i);
+		if (outputData & temp)
+		{
+			GPIO_SetBits(littleAprilOutputGPIO[i].GPIOx,littleAprilOutputGPIO[i].GPIO_Pin);
+		}
+		else
+		{
+			GPIO_ResetBits(littleAprilOutputGPIO[i].GPIOx,littleAprilOutputGPIO[i].GPIO_Pin);
+		}
+	}
+	GPIO_ResetBits(littleAprilFanOutputGPIOCS[whichGroup].GPIOx,
+								 littleAprilFanOutputGPIOCS[whichGroup].GPIO_Pin);
 }
 
 void littleAprilIOCtrl(WhichRelay whichOne,OnOrOff onOrOff)
 {
-	#ifdef ENABLE_OUTPUT_LOG
+	/*#ifdef ENABLE_OUTPUT_LOG
 	printf("Info:bsp_gpio.c::littleAprilIOCtrl()->%d is %d\r\n",whichOne,onOrOff);
 	#endif
 	if (onOrOff == On)
@@ -142,12 +187,12 @@ void littleAprilIOCtrl(WhichRelay whichOne,OnOrOff onOrOff)
 	else
 	{
 		GPIO_ResetBits(littleAprilOutputGPIO[whichOne].GPIOx,littleAprilOutputGPIO[whichOne].GPIO_Pin);
-	}
+	}*/
 }
 
 void littleAprilFanCtrl(uint32_t relayCtrlGroup)
 {
-	char i;
+	/*char i;
 	uint32_t temp;
 	#ifdef ENABLE_OUTPUT_LOG
 	printf("Info:bsp_gpio.c::littleAprilFanCtrl()->relayCtrlGroup is %d\r\n",relayCtrlGroup);
@@ -163,7 +208,7 @@ void littleAprilFanCtrl(uint32_t relayCtrlGroup)
 		{	
 			//GPIO_ResetBits(littleAprilFanOutputGPIO[i].GPIOx,littleAprilFanOutputGPIO[i].GPIO_Pin);
 		}
-	}
+	}*/
 }
 
 /*//////////////////////////////////�ӿں���//////////////////////////////////////////////////
