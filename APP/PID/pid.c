@@ -142,7 +142,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 		#endif
 	}
 
-	if (dataStore.realtimeData.isColding == true)
+	if ((dataStore.realtimeData.isColding == true) && (which_one == 2))
 	{
 		if ((average_temperature < (dataStore.ctrlParameter.pidParameter.setTemperature + dataStore.ctrlParameter.systemOptions.stopColdingCondition)) && 
 			cooding_down_fans)
@@ -153,7 +153,9 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 			//dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
 			dataStore.realtimeData.isColding = false;
 			#ifdef ENABLE_OUTPUT_LOG
-			printf("Info:pid.c::pidControlTemperature()->Colding down is stopped!\r\n");
+			printf("Info:pid.c::pidControlTemperature()->Colding down is stopped!average_temperature = %.2f,stopTemperature = %.2f\r\n",
+						average_temperature,
+						(dataStore.ctrlParameter.pidParameter.setTemperature + dataStore.ctrlParameter.systemOptions.stopColdingCondition));
 			#endif
 		}
 	}
