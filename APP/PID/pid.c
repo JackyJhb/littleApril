@@ -71,7 +71,6 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 {
 	OS_ERR err;
 	uint8_t i,grade_nums=0,level = 0;
-	//static uint8_t is_heating[3]={0};
 	static uint16_t cooding_down_fans = 0x0000;
 	float temperature_difference,average_temperature;
 	if (which_one == 2)
@@ -93,49 +92,57 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 	printf("Info:pid.c::pidControlTemperature()->Real time temperature is %.2f\r\n",actual_temperature);
 	#endif
 	
-	//If the cooling process is not carried out,it's necessary to determine whether the heating operation is required.
-	if (dataStore.realtimeData.isColding==false)
+	if ((dataStore.ctrlParameter.pidParameter.setTemperature + dataStore.ctrlParameter.systemOptions.startHeatingCondition) >= actual_temperature)
 	{
-		if ((dataStore.ctrlParameter.pidParameter.setTemperature + dataStore.ctrlParameter.systemOptions.startHeatingCondition) >= actual_temperature)
+		#ifdef ENABLE_OUTPUT_LOG
+		printf("Warning:pid.c::pidControlTemperature()->%d's area's temperature is lower than setting,need to heating.\r\n",which_one);
+		printf("Warning:pid.c::pidControlTemperature()->dataStore.realtimeData.boilerTemperature=%.2f.\r\n",dataStore.realtimeData.boilerTemperature);
+		printf("Warning:pid.c::pidControlTemperature()->dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature=%.2f.\r\n",dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature);
+		#endif
+		if ((dataStore.realtimeData.heatingColdingStatus & (1<<which_one)) &&
+			(dataStore.realtimeData.boilerTemperature <= dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature))
 		{
+				littleAprilIOCtrl(which_one,Off);
+				dataStore.realtimeData.heatingColdingStatus &= ~(1<<which_one);
+				#ifdef ENABLE_OUTPUT_LOG
+				printf("Warning:pid.c::pidControlTemperature()->Boiler's temperature is %.2f,It's lower than setting's value %.2f.Heating paused.\r\n",
+				         dataStore.realtimeData.boilerTemperature,
+						  dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature);
+				#endif
+		}
+		if (((dataStore.realtimeData.heatingColdingStatus & (1<<which_one)) == 0) &&
+			(dataStore.realtimeData.boilerTemperature >= dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature))
+		{
+				littleAprilIOCtrl(which_one,On);
+				//is_heating[which_one] = 1;
+				dataStore.realtimeData.heatingColdingStatus |= (1<<which_one);
+				#ifdef ENABLE_OUTPUT_LOG
+				printf("Info:pid.c::pidControlTemperature()->Area %d is heating!\r\n",which_one);
+				#endif
+		}
+	}
+		
+	if ((dataStore.realtimeData.heatingColdingStatus & 0x0007) != 0)
+	{
+		if (((dataStore.ctrlParameter.pidParameter.setTemperature + dataStore.ctrlParameter.systemOptions.stopHeatingCondition) <= actual_temperature) &&
+			(dataStore.realtimeData.heatingColdingStatus & (1<<which_one)))
+		{
+			littleAprilIOCtrl(which_one,Off);
+			dataStore.realtimeData.heatingColdingStatus &= ~(1<<which_one);
+			littleAprilIOCtrl(Colding,Off);
 			#ifdef ENABLE_OUTPUT_LOG
-			printf("Warning:pid.c::pidControlTemperature()->%d's area's temperature is lower than setting,need to heating.\r\n",which_one);
-			printf("Warning:pid.c::pidControlTemperature()->dataStore.realtimeData.boilerTemperature=%.2f.\r\n",dataStore.realtimeData.boilerTemperature);
-			printf("Warning:pid.c::pidControlTemperature()->dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature=%.2f.\r\n",dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature);
+			printf("Info:pid.c::pidControlTemperature()->Fine tuning.Area %d heating stopped.\r\n",which_one);
 			#endif
-			//if (is_heating[which_one] &&
-			if ((dataStore.realtimeData.heatingColdingStatus & (1<<which_one)) &&
-				(dataStore.realtimeData.boilerTemperature <= dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature))
-			{
-					littleAprilIOCtrl(which_one,Off);
-					//is_heating[which_one] = 0;
-					dataStore.realtimeData.heatingColdingStatus &= ~(1<<which_one);
-					#ifdef ENABLE_OUTPUT_LOG
-					printf("Warning:pid.c::pidControlTemperature()->Boiler's temperature is %.2f,It's lower than setting's value %.2f.Heating paused.\r\n",
-				           dataStore.realtimeData.boilerTemperature,
-						   dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature);
-					#endif
-			}
-			//if ((is_heating[which_one] == 0) &&
-			if (((dataStore.realtimeData.heatingColdingStatus & (1<<which_one)) == 0) &&
-				(dataStore.realtimeData.boilerTemperature >= dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature))
-			{
-					littleAprilIOCtrl(which_one,On);
-					//is_heating[which_one] = 1;
-					dataStore.realtimeData.heatingColdingStatus |= (1<<which_one);
-					#ifdef ENABLE_OUTPUT_LOG
-					printf("Info:pid.c::pidControlTemperature()->Area %d is heating!\r\n",which_one);
-					#endif
-			}
 		}
 		#ifdef ENABLE_OUTPUT_LOG
-		printf("Info:pid.c::pidControlTemperature()->which_one = %d,dataStore.realtimeData.heatingColdingStatus=%d!dataStore.ctrlParameter.systemOptions.startHeatingCondition = %.2f\r\n",
+		printf("Info:pid.c::pidControlTemperature()->which_one = %d,dataStore.realtimeData.heatingColdingStatus=%d!dataStore.ctrlParameter.systemOptions.stopHeatingCondition = %.2f\r\n",
 				which_one,
 				dataStore.realtimeData.heatingColdingStatus,
-				dataStore.ctrlParameter.systemOptions.startHeatingCondition);
+				dataStore.ctrlParameter.systemOptions.stopHeatingCondition);
 		#endif
 	}
-	else if (which_one == 2)
+
+	if ((dataStore.realtimeData.isColding == true) && (which_one == 2))
 	{
 		if ((average_temperature < (dataStore.ctrlParameter.pidParameter.setTemperature + dataStore.ctrlParameter.systemOptions.stopColdingCondition)) && 
 			cooding_down_fans)
@@ -146,13 +153,13 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 			//dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
 			dataStore.realtimeData.isColding = false;
 			#ifdef ENABLE_OUTPUT_LOG
-			printf("Info:pid.c::pidControlTemperature()->Colding down is stopped!\r\n");
+			printf("Info:pid.c::pidControlTemperature()->Colding down is stopped!average_temperature = %.2f,stopTemperature = %.2f\r\n",
+						average_temperature,
+						(dataStore.ctrlParameter.pidParameter.setTemperature + dataStore.ctrlParameter.systemOptions.stopColdingCondition));
 			#endif
 		}
 	}
-	
-	//if ((is_heating[0]==0) && (is_heating[1] == 0) && (is_heating[2] == 0))
-	if ((dataStore.realtimeData.heatingColdingStatus & 0x0007) == 0)
+	else
 	{
 		if (which_one != 2)
 			return;
@@ -187,7 +194,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 		#ifdef ENABLE_OUTPUT_LOG
 		printf("Info:pid.c::pidControlTemperature()->Calculate cool down grade result is %d!\r\n",level);
 		#endif
-		if (dataStore.realtimeData.dayCycle >= 20)
+		if (dataStore.realtimeData.dayCycle >= 19)
 		{
 			++level;
 			if (level >= 1)
@@ -227,26 +234,5 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 			#endif
 			dataStore.realtimeData.isColding = true;
 		}
-	}
-	else
-	{
-		if (((dataStore.ctrlParameter.pidParameter.setTemperature + dataStore.ctrlParameter.systemOptions.stopHeatingCondition) <= actual_temperature) &&
-			(dataStore.realtimeData.heatingColdingStatus & (1<<which_one)))
-				//is_heating[which_one])
-		{
-			littleAprilIOCtrl(which_one,Off);
-			//is_heating[which_one] = 0;
-			dataStore.realtimeData.heatingColdingStatus &= ~(1<<which_one);
-			littleAprilIOCtrl(Colding,Off);
-			#ifdef ENABLE_OUTPUT_LOG
-			printf("Info:pid.c::pidControlTemperature()->Fine tuning.Area %d heating stopped.\r\n",which_one);
-			#endif
-		}
-		#ifdef ENABLE_OUTPUT_LOG
-		printf("Info:pid.c::pidControlTemperature()->which_one = %d,dataStore.realtimeData.heatingColdingStatus=%d!dataStore.ctrlParameter.systemOptions.stopHeatingCondition = %.2f\r\n",
-				which_one,
-				dataStore.realtimeData.heatingColdingStatus,
-				dataStore.ctrlParameter.systemOptions.stopHeatingCondition);
-		#endif
 	}
 }

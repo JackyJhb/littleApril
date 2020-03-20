@@ -43,7 +43,9 @@ void ventilation_task(void *p_arg)
 			#ifndef ENABLE_USER_SET
 			ventilation_cycle = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle/7].ventilationCycle;
 			#else
-			ventilation_cycle = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle].ventilationCycle;
+			//ventilation_cycle = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle].ventilationCycle;
+			ventilation_cycle = dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate +
+													dataStore.ctrlParameter.systemOptions.stoppedTimeOfVentilate;
 			#endif
 			OS_CRITICAL_EXIT();
 			if (dataStore.realtimeData.isColding == true)
@@ -59,8 +61,9 @@ void ventilation_task(void *p_arg)
 			{
 				if (isFanWorking == false)
 				{
-					fan_work_seconds = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle].runningTime +
-										dataStore.realtimeData.deltaActionTimeSpan;
+					//fan_work_seconds = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle].runningTime +
+										//dataStore.realtimeData.deltaActionTimeSpan;
+					fan_work_seconds = dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate;
 					#ifdef ENABLE_OUTPUT_LOG
 						printf("############Manual control ventilation###########\r\n");
 						printf("Info:ventilation_task.c::ventilation_task :\r\n");
@@ -72,7 +75,7 @@ void ventilation_task(void *p_arg)
 					#endif
 					
 					work_timer_counter = 0x00;
-					if (dataStore.realtimeData.dayCycle < 20)
+					if (dataStore.realtimeData.dayCycle < 19)
 					{
 						level = 0;
 					}
@@ -92,7 +95,7 @@ void ventilation_task(void *p_arg)
 					if (++work_timer_counter >= fan_work_seconds)
 					{
 						ventilation_cycle_counter = fan_work_seconds;
-						if (dataStore.realtimeData.dayCycle < 20)
+						if (dataStore.realtimeData.dayCycle < 19)
 						{
 							dataStore.realtimeData.workingVentilators &= (~COOL_DOWN_DEFAULT_LEVEL_1);
 						}

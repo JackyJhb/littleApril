@@ -107,6 +107,8 @@ typedef struct {
 	float stopFanShaftTemperature;
 	float startCirculatingPumpTemperature;
 	float stopCirculatingPumpTemperature;
+	float runningTimeOfVentilate;
+	float stoppedTimeOfVentilate;
 	uint16_t sideWindowDefaultAngle;
 }SystemOptions;
 

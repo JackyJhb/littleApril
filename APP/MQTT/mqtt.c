@@ -3,11 +3,11 @@
 #include "mqtt.h"
 
 unsigned char getDataFixedHead(unsigned char mesType,unsigned char dupFlag,unsigned char qosLevel,unsigned char retain);
-void getDataPublish(unsigned char *buff,unsigned char dup, unsigned char qos,unsigned char retain,const char *topic ,const char *msg);		 	
-void getDataSubscribe(unsigned char *buff,const char *dat,unsigned int num,unsigned char requestedQoS);
-void getDataDisconnect(unsigned char *buff);
-void getDataConnect(unsigned char *buff);
-void getDataPingRespond(unsigned char *buff);
+unsigned int getDataPublish(unsigned char *buff,unsigned char dup, unsigned char qos,unsigned char retain,const char *topic ,const char *msg);		 	
+unsigned int getDataSubscribe(unsigned char *buff,const char *dat,unsigned int num,unsigned char requestedQoS);
+unsigned int getDataDisconnect(unsigned char *buff);
+unsigned int getDataConnect(unsigned char *buff);
+unsigned int getDataPingRespond(unsigned char *buff);
 
 unsigned char getDataFixedHead(unsigned char mesType,unsigned char dupFlag,unsigned char qosLevel,unsigned char retain)
 {
@@ -19,7 +19,7 @@ unsigned char getDataFixedHead(unsigned char mesType,unsigned char dupFlag,unsig
 	return dat;
 }
 
-void getDataPublish(unsigned char *buff,unsigned char dup, unsigned char qos,unsigned char retain,const char *topic ,const char *msg)
+unsigned int getDataPublish(unsigned char *buff,unsigned char dup, unsigned char qos,unsigned char retain,const char *topic ,const char *msg)
 {
 	unsigned int i,len=0,lennum=0;
 	buff[0] = getDataFixedHead(MQTT_TypePUBLISH,dup,qos,retain);
@@ -37,16 +37,18 @@ void getDataPublish(unsigned char *buff,unsigned char dup, unsigned char qos,uns
 		buff[4+i+lennum] = msg[i];
 	}
 	lennum += len;
-	buff[1] = lennum + 2;   
+	buff[1] = lennum + 2;
+	return (lennum+1);
 }
 
-void getDataDisconnect(unsigned char *buff)
+unsigned int getDataDisconnect(unsigned char *buff)
 {
 	buff[0] = 0xe0;
 	buff[1] = 0;
+	return 2;
 }
 
-void getDataConnect(unsigned char *buff)
+unsigned int getDataConnect(unsigned char *buff)
 {
 	unsigned int i,len,lennum = 0;
 	unsigned char *msg;
@@ -123,11 +125,12 @@ void getDataConnect(unsigned char *buff)
 		lennum += len;
 	}
 	buff[1] = 13 + lennum - 1;
+	return (buff[1]+2);
 }
 
-void getDataSubscribe(unsigned char *buff,const char *dat,unsigned int num,unsigned char requestedQoS)
+unsigned int getDataSubscribe(unsigned char *buff,const char *dat,unsigned int num,unsigned char requestedQoS)
 {
-    unsigned int i,len = 0,lennum = 0; 
+	unsigned int i,len = 0,lennum = 0; 
 	buff[0] = 0x82;
 	len = strlen(dat);
 	buff[2] = num>>8;
@@ -141,10 +144,12 @@ void getDataSubscribe(unsigned char *buff,const char *dat,unsigned int num,unsig
 	lennum = len;
 	buff[6 + lennum ] = requestedQoS;
 	buff[1] = lennum + 5;
+	return buff[1]+2;
 }
 
-void getDataPingRespond(unsigned char *buff)
+unsigned int getDataPingRespond(unsigned char *buff)
 {
-    buff[0] = 0xc0;
+	buff[0] = 0xc0;
 	buff[1] = 0;
+	return 2;
 }

@@ -1,7 +1,7 @@
 #ifndef MQTT_H
 #define MQTT_H
 
-#include "string.h"
+#include <string.h>
 #define		MQTT_TypeCONNECT           1
 #define		MQTT_TypeCONNACK           2 
 #define		MQTT_TypePUBLISH           3
@@ -31,10 +31,10 @@
 #define		MQTT_Password               "password"
  
 extern unsigned char getDataFixedHead(unsigned char mesType,unsigned char dupFlag,unsigned char qosLevel,unsigned char retain);
-extern void getDataPublish(unsigned char *buff,unsigned char dup, unsigned char qos,unsigned char retain,const char *topic ,const char *msg);		 	
-extern void getDataSubscribe(unsigned char *buff,const char *dat,unsigned int num,unsigned char requestedQoS);
-extern void getDataDisconnect(unsigned char *buff);
-extern void getDataConnect(unsigned char *buff);
-extern void getDataPingRespond(unsigned char *buff);
+extern unsigned int getDataPublish(unsigned char *buff,unsigned char dup, unsigned char qos,unsigned char retain,const char *topic ,const char *msg);		 	
+extern unsigned int getDataSubscribe(unsigned char *buff,const char *dat,unsigned int num,unsigned char requestedQoS);
+extern unsigned int getDataDisconnect(unsigned char *buff);
+extern unsigned int getDataConnect(unsigned char *buff);
+extern unsigned int getDataPingRespond(unsigned char *buff);
 
 #endif
