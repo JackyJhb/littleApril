@@ -159,6 +159,16 @@ void ts_task(void *p_arg)
 							*(buf_rec+12) = *(header + 2);
 							*(buf_rec+13) = *(header + 1);
 							*(buf_rec+14) = *(header + 0);
+							header = (int8_t *)&dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate;
+							*(buf_rec+15) = *(header + 3);
+							*(buf_rec+16) = *(header + 2);
+							*(buf_rec+17) = *(header + 1);
+							*(buf_rec+18) = *(header + 0);
+							header = (int8_t *)&dataStore.ctrlParameter.systemOptions.stoppedTimeOfVentilate;
+							*(buf_rec+19) = *(header + 3);
+							*(buf_rec+20) = *(header + 2);
+							*(buf_rec+21) = *(header + 1);
+							*(buf_rec+22) = *(header + 0);
 							break;
 						}
 						else
@@ -326,60 +336,95 @@ void ts_task(void *p_arg)
 							*(header + i) = *(buf_rec + 6 + write_len - i);
 							*(buf_rec+3+i) = *(buf_rec+6+i);
 						}*/
-						if (addr_offset == 0x801)
+						switch (addr_offset)
 						{
-							header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature;
-							write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
-							for (i=0;i<write_len;i++)
-							{
-								*(header + i) = *(buf_rec + 6 + write_len - i);
-								*(buf_rec+3+i) = *(buf_rec+6+i);
-							}
-							i = 0x89;
-							AT24C02_Write(90,(uint8_t *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature,sizeof(float));
-							#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-							printf("Info:ts_task.c::ts_task ->Change startHeatingBoilerTemperature to %.2f.\r\n",
+							case 0x801:
+								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature;
+								write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+								for (i=0;i<write_len;i++)
+								{
+									*(header + i) = *(buf_rec + 6 + write_len - i);
+									*(buf_rec+3+i) = *(buf_rec+6+i);
+								}
+								i = 0x89;
+								AT24C02_Write(90,(uint8_t *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature,sizeof(float));
+								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
+								printf("Info:ts_task.c::ts_task ->Change startHeatingBoilerTemperature to %.2f.\r\n",
 											dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature);
-							#endif
-							AT24C02_Write(94,(uint8_t *)&i,sizeof(uint8_t));
-							read_len = write_len;
-						}
-						else if (addr_offset == 0x803)
-						{
-							header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature;
-							write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
-							for (i=0;i<write_len;i++)
-							{
-								*(header + i) = *(buf_rec + 6 + write_len - i);
-								*(buf_rec+3+i) = *(buf_rec+6+i);
-							}
-							i = 0x89;
-							AT24C02_Write(80,(uint8_t *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature,sizeof(float));
-							#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-							printf("Info:ts_task.c::ts_task ->Change stopHeatingBoilerTemperature to %.2f.\r\n",
+								#endif
+								AT24C02_Write(94,(uint8_t *)&i,sizeof(uint8_t));
+								read_len = write_len;
+								break;
+							case 0x803:
+								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature;
+								write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+								for (i=0;i<write_len;i++)
+								{
+									*(header + i) = *(buf_rec + 6 + write_len - i);
+									*(buf_rec+3+i) = *(buf_rec+6+i);
+								}
+								i = 0x89;
+								AT24C02_Write(80,(uint8_t *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature,sizeof(float));
+								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
+								printf("Info:ts_task.c::ts_task ->Change stopHeatingBoilerTemperature to %.2f.\r\n",
 											dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature);
-							#endif
-							AT24C02_Write(84,(uint8_t *)&i,sizeof(uint8_t));
-							read_len = write_len;
-						}
-						else if (addr_offset == 0x7FF)
-						{
-							header = (uint8_t *)&dataStore.realtimeData.deltaTemperature;
-							write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
-							for (i=0;i<write_len;i++)
-							{
-								*(header + i) = *(buf_rec + 6 + write_len - i);
-								*(buf_rec+3+i) = *(buf_rec+6+i);
-							}
-							i = 0x89;
-							AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-							#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-							printf("Info:ts_task.c::ts_task ->Inc change deltaTemperature to %.2f.\r\n",
+								#endif
+								AT24C02_Write(84,(uint8_t *)&i,sizeof(uint8_t));
+								read_len = write_len;
+								break;
+							case 0x805:
+								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate;
+								write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+								for (i=0;i<write_len;i++)
+								{
+									*(header + i) = *(buf_rec + 6 + write_len - i);
+									*(buf_rec+3+i) = *(buf_rec+6+i);
+								}
+								i = 0x89;
+								AT24C02_Write(60,(uint8_t *)&dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate,sizeof(float));
+								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
+								printf("Info:ts_task.c::ts_task ->Change runningTimeOfVentilate to %.2f.\r\n",
+											dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate);
+								#endif
+								AT24C02_Write(64,(uint8_t *)&i,sizeof(uint8_t));
+								read_len = write_len;
+								break;
+							case 0x807:
+								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.stoppedTimeOfVentilate;
+								write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+								for (i=0;i<write_len;i++)
+								{
+									*(header + i) = *(buf_rec + 6 + write_len - i);
+									*(buf_rec+3+i) = *(buf_rec+6+i);
+								}
+								i = 0x89;
+								AT24C02_Write(70,(uint8_t *)&dataStore.ctrlParameter.systemOptions.stoppedTimeOfVentilate,sizeof(float));
+								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
+								printf("Info:ts_task.c::ts_task ->Change stoppedTimeOfVentilate to %.2f.\r\n",
+											dataStore.ctrlParameter.systemOptions.stoppedTimeOfVentilate);
+								#endif
+								AT24C02_Write(74,(uint8_t *)&i,sizeof(uint8_t));
+								read_len = write_len;
+								break;
+							case 0x7FF:
+								header = (uint8_t *)&dataStore.realtimeData.deltaTemperature;
+								write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+								for (i=0;i<write_len;i++)
+								{
+									*(header + i) = *(buf_rec + 6 + write_len - i);
+									*(buf_rec+3+i) = *(buf_rec+6+i);
+								}
+								i = 0x89;
+								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
+								printf("Info:ts_task.c::ts_task ->Inc change deltaTemperature to %.2f.\r\n",
 											dataStore.realtimeData.deltaTemperature);
-							#endif
-							AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
-					
-							read_len = write_len;
+								#endif
+								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
+								read_len = write_len;
+								break;
+							default:
+								break;
 						}
 						break;
 					default:
