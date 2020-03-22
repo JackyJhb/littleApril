@@ -72,9 +72,10 @@ void ts_task(void *p_arg)
 {
 	OS_ERR 			err;
 	CPU_INT32U      cpu_clk_freq;
-	uint16_t crc_result,rec_crc,addr_offset,read_len = 0,write_len = 0,send_len = 0;
+	uint16_t crc_result,rec_crc,addr_offset,read_len = 0,write_len = 0,send_len = 0,eeprom_addr;
 	p_arg = p_arg;
-	char *pMsg,msg_size,buf_rec[200],i,*header;
+	char *pMsg,msg_size,buf_rec[200],i;
+	uint8_t *store,*header;
 	static char isFirst = 1;
 	CPU_SR_ALLOC();
 	cpu_clk_freq = BSP_CPU_ClkFreq();
@@ -169,6 +170,16 @@ void ts_task(void *p_arg)
 							*(buf_rec+20) = *(header + 2);
 							*(buf_rec+21) = *(header + 1);
 							*(buf_rec+22) = *(header + 0);
+							header = (int8_t *)&dataStore.ctrlParameter.coolDownGrade[0].temperatureDifference;
+							*(buf_rec+23) = *(header + 3);
+							*(buf_rec+24) = *(header + 2);
+							*(buf_rec+25) = *(header + 1);
+							*(buf_rec+26) = *(header + 0);
+							header = (int8_t *)&dataStore.ctrlParameter.coolDownGrade[1].temperatureDifference;
+							*(buf_rec+27) = *(header + 3);
+							*(buf_rec+28) = *(header + 2);
+							*(buf_rec+29) = *(header + 1);
+							*(buf_rec+30) = *(header + 0);
 							break;
 						}
 						else
@@ -329,81 +340,58 @@ void ts_task(void *p_arg)
 						}
 						break;
 					case 0x10:
-						/*header = (uint8_t *)&dataStore.ctrlParameter.systemOptions + addr_offset*2;
-						write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
-						for (i=0;i<write_len;i++)
-						{
-							*(header + i) = *(buf_rec + 6 + write_len - i);
-							*(buf_rec+3+i) = *(buf_rec+6+i);
-						}*/
 						switch (addr_offset)
 						{
 							case 0x801:
 								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature;
-								write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
-								for (i=0;i<write_len;i++)
-								{
-									*(header + i) = *(buf_rec + 6 + write_len - i);
-									*(buf_rec+3+i) = *(buf_rec+6+i);
-								}
-								i = 0x89;
-								AT24C02_Write(90,(uint8_t *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature,sizeof(float));
+								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - 
+															(u8 *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature));
 								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
 								printf("Info:ts_task.c::ts_task ->Change startHeatingBoilerTemperature to %.2f.\r\n",
 											dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature);
 								#endif
-								AT24C02_Write(94,(uint8_t *)&i,sizeof(uint8_t));
 								read_len = write_len;
 								break;
 							case 0x803:
 								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature;
-								write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
-								for (i=0;i<write_len;i++)
-								{
-									*(header + i) = *(buf_rec + 6 + write_len - i);
-									*(buf_rec+3+i) = *(buf_rec+6+i);
-								}
-								i = 0x89;
-								AT24C02_Write(80,(uint8_t *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature,sizeof(float));
+								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - 
+															(u8 *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature));
 								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
 								printf("Info:ts_task.c::ts_task ->Change stopHeatingBoilerTemperature to %.2f.\r\n",
 											dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature);
 								#endif
-								AT24C02_Write(84,(uint8_t *)&i,sizeof(uint8_t));
 								read_len = write_len;
 								break;
 							case 0x805:
 								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate;
-								write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
-								for (i=0;i<write_len;i++)
-								{
-									*(header + i) = *(buf_rec + 6 + write_len - i);
-									*(buf_rec+3+i) = *(buf_rec+6+i);
-								}
-								i = 0x89;
-								AT24C02_Write(60,(uint8_t *)&dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate,sizeof(float));
+								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - 
+															(u8 *)&dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate));				
 								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
 								printf("Info:ts_task.c::ts_task ->Change runningTimeOfVentilate to %.2f.\r\n",
 											dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate);
 								#endif
-								AT24C02_Write(64,(uint8_t *)&i,sizeof(uint8_t));
 								read_len = write_len;
 								break;
 							case 0x807:
 								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.stoppedTimeOfVentilate;
-								write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
-								for (i=0;i<write_len;i++)
-								{
-									*(header + i) = *(buf_rec + 6 + write_len - i);
-									*(buf_rec+3+i) = *(buf_rec+6+i);
-								}
-								i = 0x89;
-								AT24C02_Write(70,(uint8_t *)&dataStore.ctrlParameter.systemOptions.stoppedTimeOfVentilate,sizeof(float));
+								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - 
+															(u8 *)&dataStore.ctrlParameter.systemOptions.stoppedTimeOfVentilate));
 								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
 								printf("Info:ts_task.c::ts_task ->Change stoppedTimeOfVentilate to %.2f.\r\n",
 											dataStore.ctrlParameter.systemOptions.stoppedTimeOfVentilate);
 								#endif
-								AT24C02_Write(74,(uint8_t *)&i,sizeof(uint8_t));
+								read_len = write_len;
+								break;
+							case 0x809:
+								header = (uint8_t *)&dataStore.ctrlParameter.coolDownGrade[0].temperatureDifference;
+								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - 
+															(u8 *)&dataStore.ctrlParameter.coolDownGrade[0].temperatureDifference));
+								read_len = write_len;
+								break;
+							case 0x80B:
+								header = (uint8_t *)&dataStore.ctrlParameter.coolDownGrade[1].temperatureDifference;
+								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - 
+															(u8 *)&dataStore.ctrlParameter.coolDownGrade[1].temperatureDifference));
 								read_len = write_len;
 								break;
 							case 0x7FF:
@@ -424,8 +412,16 @@ void ts_task(void *p_arg)
 								read_len = write_len;
 								break;
 							default:
+								return;
 								break;
 						}
+						write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+						for (i=0;i<write_len;i++)
+						{
+							*(header + i) = *(buf_rec + 6 + write_len - i);
+							*(buf_rec+3+i) = *(buf_rec+6+i);
+						}
+						AT24C02_Write(eeprom_addr,header,write_len);
 						break;
 					default:
 						#ifdef ENABLE_OUTPUT_LOG

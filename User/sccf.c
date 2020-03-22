@@ -122,46 +122,6 @@ uint8_t sysCtrlConfigFileInit(void)
 		memset(&dataStore.ctrlParameter,0x00,sizeof(ControlParameterStore));
 		err_code = setControlParametersToDefault();
 	}
-
-	AT24C02_Read(94,&err_code,sizeof(uint8_t));
-	if (err_code == 0x89)
-	{
-		AT24C02_Read(90,(uint8_t *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature,sizeof(float));
-		#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-		printf("Info:sccf.c::sysCtrlConfigFileInit -> startHeatingBoilerTemperature real value is %.2f.\r\n",
-						dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature);
-		#endif
-	}
-
-	AT24C02_Read(84,&err_code,sizeof(uint8_t));
-	if (err_code == 0x89)
-	{
-		AT24C02_Read(80,(uint8_t *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature,sizeof(float));
-		#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-		printf("Info:sccf.c::sysCtrlConfigFileInit -> stopHeatingBoilerTemperature real value is %.2f.\r\n",
-						dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature);
-		#endif
-	}
-	
-	AT24C02_Read(74,&err_code,sizeof(uint8_t));
-	if (err_code == 0x89)
-	{
-		AT24C02_Read(70,(uint8_t *)&dataStore.ctrlParameter.systemOptions.stoppedTimeOfVentilate,sizeof(float));
-		#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-		printf("Info:sccf.c::sysCtrlConfigFileInit -> stoppedTimeOfVentilate real value is %.2f.\r\n",
-						dataStore.ctrlParameter.systemOptions.stoppedTimeOfVentilate);
-		#endif
-	}
-	
-	AT24C02_Read(64,&err_code,sizeof(uint8_t));
-	if (err_code == 0x89)
-	{
-		AT24C02_Read(60,(uint8_t *)&dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate,sizeof(float));
-		#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-		printf("Info:sccf.c::sysCtrlConfigFileInit -> runningTimeOfVentilate real value is %.2f.\r\n",
-						dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate);
-		#endif
-	}
 	err_code = 0;
 	return err_code;
 }
