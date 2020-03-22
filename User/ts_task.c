@@ -415,13 +415,16 @@ void ts_task(void *p_arg)
 								return;
 								break;
 						}
-						write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
-						for (i=0;i<write_len;i++)
+						if (addr_offset != 0x7FF)
 						{
-							*(header + i) = *(buf_rec + 6 + write_len - i);
-							*(buf_rec+3+i) = *(buf_rec+6+i);
+							write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+							for (i=0;i<write_len;i++)
+							{
+								*(header + i) = *(buf_rec + 6 + write_len - i);
+								*(buf_rec+3+i) = *(buf_rec+6+i);
+							}
+							AT24C02_Write(eeprom_addr,header,write_len);
 						}
-						AT24C02_Write(eeprom_addr,header,write_len);
 						break;
 					default:
 						#ifdef ENABLE_OUTPUT_LOG

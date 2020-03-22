@@ -50,14 +50,15 @@ void ventilation_task(void *p_arg)
 			OS_CRITICAL_EXIT();
 			if (dataStore.realtimeData.isColding == true)
 			{
-				ventilation_cycle_counter = 0x00;
+				ventilation_cycle_counter = dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate;
 				isFanWorking = false;
 				#ifdef ENABLE_OUTPUT_LOG
 				printf("-------------->isColding now,do not use ventilation.\r\n");
 				#endif
 			}
 			++ventilation_cycle_counter;
-			if (ventilation_cycle_counter >= ventilation_cycle)
+			if ((ventilation_cycle_counter >= ventilation_cycle) && 
+					(dataStore.realtimeData.isColding == false))
 			{
 				if (isFanWorking == false)
 				{
