@@ -19,7 +19,7 @@ const AlarmThresholdStore alarmThresholdOptionsDefault = {
 };
 const CoolDownGrade coolDownGradeDefault[16] = {
 	{1.0,COOL_DOWN_DEFAULT_LEVEL_1,30},
-	{1.5,COOL_DOWN_DEFAULT_LEVEL_2,15},
+	{1.5,COOL_DOWN_DEFAULT_LEVEL_3,15},
 	{2.0,COOL_DOWN_DEFAULT_LEVEL_3,60},
 	{2.5,COOL_DOWN_DEFAULT_LEVEL_4,40},
 	{3.0,COOL_DOWN_DEFAULT_LEVEL_5,50},
