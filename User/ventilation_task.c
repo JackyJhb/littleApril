@@ -60,6 +60,14 @@ void ventilation_task(void *p_arg)
 			if ((ventilation_cycle_counter >= ventilation_cycle) && 
 					(dataStore.realtimeData.isColding == false))
 			{
+				if (dataStore.realtimeData.dayCycle < 19)
+				{
+					level = 0;
+				}
+				else
+				{
+					level = 1;
+				}
 				if (isFanWorking == false)
 				{
 					//fan_work_seconds = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle].runningTime +
@@ -74,20 +82,12 @@ void ventilation_task(void *p_arg)
 						printf("deltaActionTimeSpan = %d\r\n",dataStore.realtimeData.deltaActionTimeSpan);
 						printf("###############################################\r\n");
 					#endif
-					
 					work_timer_counter = 0x00;
-					if (dataStore.realtimeData.dayCycle < 19)
-					{
-						level = 0;
-					}
-					else
-					{
-						level = 1;
-					}
 					dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.coolDownGrade[level].sideWindowOpenAngle;
 					if (fan_work_seconds > 0)
 					{
-						littleAprilFanCtrl(dataStore.ctrlParameter.coolDownGrade[level].runningFansBits);
+						dataStore.realtimeData.workingVentilators = dataStore.ctrlParameter.coolDownGrade[level].runningFansBits;
+						littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
 						isFanWorking = true;
 					}
 				}
@@ -96,14 +96,8 @@ void ventilation_task(void *p_arg)
 					if (++work_timer_counter >= fan_work_seconds)
 					{
 						ventilation_cycle_counter = fan_work_seconds;
-						if (dataStore.realtimeData.dayCycle < 19)
-						{
-							dataStore.realtimeData.workingVentilators &= (~COOL_DOWN_DEFAULT_LEVEL_1);
-						}
-						else
-						{
-							dataStore.realtimeData.workingVentilators &= (~COOL_DOWN_DEFAULT_LEVEL_2);
-						}
+						dataStore.realtimeData.workingVentilators &= 
+						          (~dataStore.ctrlParameter.coolDownGrade[level].runningFansBits);
 						littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
 						isFanWorking = false;
 						//dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
