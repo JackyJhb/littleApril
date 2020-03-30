@@ -1,6 +1,7 @@
 
 
 #include "mqtt.h"
+#include "protocol.h"
 
 unsigned char getDataFixedHead(unsigned char mesType,unsigned char dupFlag,unsigned char qosLevel,unsigned char retain);
 unsigned int getDataPublish(unsigned char *buff,unsigned char dup, unsigned char qos,unsigned char retain,const char *topic ,const char *msg);		 	

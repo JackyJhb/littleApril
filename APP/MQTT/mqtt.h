@@ -24,11 +24,16 @@
 #define		MQTT_StaUserNameFlag        1
 #define		MQTT_StaPasswordFlag        1
 #define		MQTT_KeepAlive              60
-#define		MQTT_ClientIdentifier       "Tan1"
+#define		MQTT_ClientIdentifier       "littleApril_NO1"
 #define		MQTT_WillTopic              ""
 #define		MQTT_WillMessage            ""
-#define		MQTT_UserName               "admin"
-#define		MQTT_Password               "password"
+#define		MQTT_UserName               "rkkj2020"
+#define		MQTT_Password               "rkkj2020rkkj"
+
+#define 	MQTT_INIT                   0
+#define   MQTT_DISCONNECTED           1
+#define   MQTT_CONNECTING             2
+#define   MQTT_CONNECTED              3         
  
 extern unsigned char getDataFixedHead(unsigned char mesType,unsigned char dupFlag,unsigned char qosLevel,unsigned char retain);
 extern unsigned int getDataPublish(unsigned char *buff,unsigned char dup, unsigned char qos,unsigned char retain,const char *topic ,const char *msg);		 	

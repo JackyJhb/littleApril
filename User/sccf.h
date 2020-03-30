@@ -25,16 +25,16 @@ The meaning of sccf is System Control Configuration File.
 
 //#pragma pack(1)
 typedef enum{
-	NotFoundESP8266,
-	SettingCWMODE,
-	Reseting,
-	FoundRouter,
-	ConnectingToRouter,
-	RouterError,
-	PasswdError,
-	ConnectingToServer,
-	ServerConnected,
-	ServerDisconnected
+	NotFoundESP8266 = 0,
+	SettingCWMODE = 1,
+	Reseting = 2,
+	FoundRouter = 3,
+	ConnectingToRouter = 4,
+	RouterError = 5,
+	PasswdError = 6,
+	ConnectingToServer = 7,
+	ServerConnected = 8,
+	ServerDisconnected = 9
 }NetWorkStatus;
 
 typedef struct {

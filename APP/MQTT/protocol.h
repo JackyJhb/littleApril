@@ -1,38 +1,30 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 typedef enum {
-    RealDataClient,
-    AlarmDataClient,
-    ReferenceSetOKClient,
-    ReferenceSetErrorClient,
-    MQTTTest
-}MessageType;
+    FromClient = 'c',
+    FromServer = 's'
+}DataSource;
 
 typedef enum {
-    FromClient = 'C',
-    FromServer = 'S'
-}ClientOrServer;
+	WarnningDataClient 	= 'w',
+	RealDataClient  		= 'r',
+	MaunalOperateClient = 'm',
+	AutoOperateClient   = 'a'
+}DataTypeClient;
 
 typedef enum {
-    ReferenceSetServer
-}ServerOrder;
+	WarnningRefSet    	= 'w',
+	VentilateRefSet 		= 'v',
+	ColdDownRefSet      = 'c',
+	HeatingRefSet       = 'h'
+}DataTypeServer;
 
-typedef struct{
-    char clientDeviceID[12];
-    char clientOrServer;
-}SubscribeContent;
-
-typedef struct{
-	char a;
-}RealDataPackage;
-
-typedef struct{
-	char b;
-}AlarmDataPackage;
 
 typedef struct {
-    char msgType;
+    char dataSource;
+		char deviceID[12];
+    char dataType;
+}SubscribeOrPublishTopic;
 
-}ClientDataPackage;
 
 #endif
