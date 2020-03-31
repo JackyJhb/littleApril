@@ -62,11 +62,11 @@ void alarm_task(void *p_arg)
 		if ((dataStore.realtimeData.boilerTemperature < dataStore.ctrlParameter.alarmThresholdOptions.boilerTemperatureLowThreshold) || 
 			(dataStore.realtimeData.boilerTemperature > dataStore.ctrlParameter.alarmThresholdOptions.boilerTemperatureHighThreshold))
 		{
-			alarm_bits |= BOILER_TEMPERATURE_ALARM;
+			//alarm_bits |= BOILER_TEMPERATURE_ALARM;
 		}
 		else
 		{
-			alarm_bits &= ~BOILER_TEMPERATURE_ALARM;
+			//alarm_bits &= ~BOILER_TEMPERATURE_ALARM;
 		}
 		
 		if ((dataStore.realtimeData.humidityInside[1] > dataStore.ctrlParameter.alarmThresholdOptions.humidityHighThreshold) ||
