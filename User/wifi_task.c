@@ -77,7 +77,7 @@ void WIFI_task(void *p_arg)
 					//sendDatas(bufWifi,len);
 					break;
 				case MQTT_CONNECTED:
-					OSTimeDlyHMSM(0,0,0,500,OS_OPT_TIME_DLY,&err);
+					OSTimeDlyHMSM(0,0,2,0,OS_OPT_TIME_DLY,&err);
 					len = getDataPingRespond(bufWifi);
 					sendDatas(bufWifi,len);
 					len = wifiReceiveData(bufWifi,100);
