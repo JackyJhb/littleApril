@@ -20,12 +20,14 @@
 int main()
 {  	
 	OS_ERR err;
+	uint32_t offset;
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	//SysTick_Init();
 	LED_Init();
 	BEEP_Init();
 	RS485_Init(115200);
 	USART1_Init(115200);
+	usartWifiInit(115200);
 	AT24C02_Init();
 	littleAprilIOInit();
 	getRstSrcType();
@@ -49,8 +51,8 @@ int main()
 		printf("#############################################################\r\n");
 		printf("#                      littleApril core                     #\r\n");
 		printf("#Branch:beta                                                #\r\n");
-		printf("#Version:V1.1.10 (0308E)                                    #\r\n");
-		printf("#Change date:2020/03/08                                     #\r\n");
+		printf("#Version:V2.0.0 (0412E)                                     #\r\n");
+		printf("#Change date:2020/04/12                                     #\r\n");
 		printf("#Ventilation cycle changed.                                 #\r\n");
 		printf("#############################################################\r\n");
 		printf("Info:main.c::System start date:%d year %d month %d day\r\n",

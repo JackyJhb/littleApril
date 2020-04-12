@@ -1,11 +1,12 @@
 #include "task_monitor.h"
 #include "debug_config.h"
+#include "sccf.h"
 OS_TCB MonitorTaskTCB;
 CPU_STK MONITOR_TASK_STK[MONITOR_STK_SIZE];
 
 static uint8_t feedWatchDogBuf[16];
 static uint16_t enableWatchDogBits = 0x00;
-static uint8_t stm32UniqueID[STM32_UNIQUE_ID_SIZE] = {0};
+//static uint8_t stm32UniqueID[STM32_UNIQUE_ID_SIZE] = {0};
 
 void readSTM32UniqueID(void);
 ResetSourceType getRstSrcType(void);
@@ -23,10 +24,10 @@ void readSTM32UniqueID(void)
 	#endif
 	for (i = 0;i < STM32_UNIQUE_ID_SIZE;i++)
 	{
-		stm32UniqueID[i] = *addr;
+		dataStore.realtimeData.stm32UniqueID[i] = *addr;
 		++addr;
 		#ifdef ENABLE_OUTPUT_LOG
-		printf("%d ",stm32UniqueID[i]);
+		printf("%d ",dataStore.realtimeData.stm32UniqueID[i]);
 		#endif
 	}
 	#ifdef ENABLE_OUTPUT_LOG

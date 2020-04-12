@@ -18,22 +18,22 @@ const AlarmThresholdStore alarmThresholdOptionsDefault = {
 	1.0,1.0,80.0,40.0,80,48,-20.0
 };
 const CoolDownGrade coolDownGradeDefault[16] = {
-	{1.0,COOL_DOWN_DEFAULT_LEVEL_1,30},
-	{1.5,COOL_DOWN_DEFAULT_LEVEL_2,15},
-	{2.0,COOL_DOWN_DEFAULT_LEVEL_3,60},
-	{2.5,COOL_DOWN_DEFAULT_LEVEL_4,40},
-	{3.0,COOL_DOWN_DEFAULT_LEVEL_5,50},
-	{3.5,COOL_DOWN_DEFAULT_LEVEL_6,60},
-	{4.0,COOL_DOWN_DEFAULT_LEVEL_7,70},
-	{4.5,COOL_DOWN_DEFAULT_LEVEL_8,80},
-	{2.7,COOL_DOWN_DEFAULT_LEVEL_9,90},
-	{3.0,COOL_DOWN_DEFAULT_LEVEL_10,90},
-	{3.3,COOL_DOWN_DEFAULT_LEVEL_11,90},
-	{3.6,COOL_DOWN_DEFAULT_LEVEL_12,90},
-	{3.9,COOL_DOWN_DEFAULT_LEVEL_13,90},
-	{4.2,COOL_DOWN_DEFAULT_LEVEL_14,90},
-	{4.5,COOL_DOWN_DEFAULT_LEVEL_15,90},
-	{4.8,COOL_DOWN_DEFAULT_LEVEL_16,90}
+	{1.0,COOL_DOWN_DEFAULT_LEVEL_1},
+	{1.5,COOL_DOWN_DEFAULT_LEVEL_2},
+	{2.0,COOL_DOWN_DEFAULT_LEVEL_3},
+	{2.5,COOL_DOWN_DEFAULT_LEVEL_4},
+	{3.0,COOL_DOWN_DEFAULT_LEVEL_5},
+	{3.5,COOL_DOWN_DEFAULT_LEVEL_6},
+	{4.0,COOL_DOWN_DEFAULT_LEVEL_7},
+	{4.5,COOL_DOWN_DEFAULT_LEVEL_8},
+	{2.7,COOL_DOWN_DEFAULT_LEVEL_9},
+	{3.0,COOL_DOWN_DEFAULT_LEVEL_10},
+	{3.3,COOL_DOWN_DEFAULT_LEVEL_11},
+	{3.6,COOL_DOWN_DEFAULT_LEVEL_12},
+	{3.9,COOL_DOWN_DEFAULT_LEVEL_13},
+	{4.2,COOL_DOWN_DEFAULT_LEVEL_14},
+	{4.5,COOL_DOWN_DEFAULT_LEVEL_15},
+	{4.8,COOL_DOWN_DEFAULT_LEVEL_16}
 };
 
 const float ambientTemperatureDefault[50] = {
@@ -66,56 +66,58 @@ const VentilationCoefficient ventilationCoefficientDefault[8] = {
 }
 #else
 const VentilationCoefficient ventilationCoefficientDefault[50] = {
-	{0,180},//0  1
-	{30,180},//1
-	{30,180},//2
-	{50,180},//3
-	{55,180},//4
-	{55,180},//5
-	{55,180},//6
-	{55,180},//7
-	{55,180},//8
-	{60,180},//9
-	{65,180},//10
-	{65,180},//11
-	{60,240},//12
-	{60,240},//13
-	{60,240},//14
-	{60,240},//15
-	{60,240},//16
-	{60,240},//17
-	{60,240},//18
-	{60,240},//19
-	{60,240},//20
-	{60,240},//21
-	{60,240},//22
-	{70,220},//23
-	{70,220},//24
-	{70,220},//25
-	{70,220},//26 days
-	{70,220},//45
-	{70,220},//45
-	{70,220},//45
-	{70,180},//45
-	{70,180},//45
-	{70,180},//45
-	{70,180},//45 34 days
-	{70,180},//45
-	{70,180},//45
-	{70,180},//45
-	{70,180},//45
-	{45,180},//45
-	{45,180},//45
-	{45,180},//45
-	{45,180},//45
-	{45,180},//45
-	{45,180},//45
-	{45,180},//45
-	{45,180},//45
-	{45,180},//45
-	{45,180},//45
-	{45,180},//45
-	{45,180}//
+	{0,180,0},//0  1
+	{30,180,0},//1
+	{30,180,0},//2
+	{50,180,0},//3
+	{55,180,0},//4
+	{55,180,0},//5
+	{55,180,0},//6
+	{55,180,0},//7
+	{55,180,0},//8
+	{60,180,0},//9
+	{65,180,1},//10
+	{65,180,1},//11
+	{60,240,1},//12
+	{60,240,1},//13
+	{60,240,1},//14
+	{60,240,1},//15
+	{60,240,1},//16
+	{60,240,1},//17
+	{60,240,1},//18
+	{60,240,1},//19
+	{60,240,1},//20
+	{60,240,1},//21
+	{60,240,1},//22
+	{70,220,1},//23
+	{70,220,1},//24
+	{70,220,1},//25
+	{70,220,1},//26 days
+	{70,220,2},//45
+	{70,220,2},//45
+	{70,220,2},//45
+	{70,180,2},//45
+	{70,180,2},//45
+	{70,180,2},//45
+	{70,180,2},//45 34 days
+	{70,180,2},//45
+	{70,180,2},//45
+	{70,180,2},//45
+	{70,180,2},//45
+	{45,180,2},//45
+	{45,180,2},//45
+	{45,180,2},//45
+	{45,180,2},//45
+	{45,180,2},//45
+	{45,180,2},//45
+	{45,180,2},//45
+	{45,180,2},//45
+	{45,180,2},//45
+	{45,180,2},//45
+	{45,180,2},//45
+	{45,180,2}//
 };
 #endif
 const uint8_t humidityDefault[50];
+
+const VentilateGrade ventilateGradeDefault[5] = {0x01,0x06,0x07,0x17,0x67};

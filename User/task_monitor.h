@@ -14,8 +14,6 @@
 #define ALARM_TASK_WD       7
 #define USART_TASK_WD		8
 
-#define STM32_UNIQUE_ID_SIZE 12
-
 #define MONITOR_TASK_PRIO		3
 #define MONITOR_STK_SIZE 		512
 typedef enum{

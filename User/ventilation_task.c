@@ -84,7 +84,7 @@ void ventilation_task(void *p_arg)
 					{
 						level = 1;
 					}
-					dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.coolDownGrade[level].sideWindowOpenAngle;
+					//dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.coolDownGrade[level].sideWindowOpenAngle;
 					if (fan_work_seconds > 0)
 					{
 						littleAprilFanCtrl(dataStore.ctrlParameter.coolDownGrade[level].runningFansBits);

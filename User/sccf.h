@@ -12,8 +12,8 @@ The meaning of sccf is System Control Configuration File.
 #include "debug_config.h"
 
 #define AT24C128
-#define INIT_KEY        0x1111
-#define INIT_KEY_FLASH  0x3333
+#define INIT_KEY        0x2222
+#define INIT_KEY_FLASH  0x5555
 
 #define ADDR_RTD_FILE   0x0000      //Real time data
 #define ADDR_CFG_FILE   0x0400      //Config file data
@@ -23,18 +23,21 @@ The meaning of sccf is System Control Configuration File.
 #define HEATING_STARTED 0x68
 #define WIFI_REF_SET    0x18
 
-//#pragma pack(1)
+#define STM32_UNIQUE_ID_SIZE 12
+
+#pragma pack(1)
 typedef enum{
 	NotFoundESP8266 = 0,
 	SettingCWMODE = 1,
 	Reseting = 2,
-	FoundRouter = 3,
-	ConnectingToRouter = 4,
-	RouterError = 5,
-	PasswdError = 6,
-	ConnectingToServer = 7,
-	ServerConnected = 8,
-	ServerDisconnected = 9
+	TurnOffEcho = 3,
+	FoundRouter = 4,
+	ConnectingToRouter = 5,
+	RouterError = 6,
+	PasswdError = 7,
+	ConnectingToServer = 8,
+	ServerConnected = 9,
+	ServerDisconnected = 10
 }NetWorkStatus;
 
 typedef struct {
@@ -43,13 +46,19 @@ typedef struct {
 	char routerPasswd[21];
 	char serverIP[21];
 	char serverPort[7];
+	char mqttUserName[21];
+	char mqttPasswd[21];
+	char ip[21];
 }ESP8266Options;
 
 typedef struct{
 	float temperatureDifference;
 	uint32_t runningFansBits;
-	uint32_t sideWindowOpenAngle;
 }CoolDownGrade;
+
+typedef struct{
+	uint32_t runningFansBits;
+}VentilateGrade;
 
 typedef struct{
 	float setTemperature;
@@ -70,6 +79,7 @@ typedef struct {
 typedef struct {
 	uint32_t runningTime;
 	float	ventilationCycle;
+	uint8_t grade;
 }VentilationCoefficient;
 #endif
 
@@ -78,12 +88,13 @@ typedef struct {
 	float sterePerSecondOfFanRate;
 	float fanNumbers;
 	uint32_t chickNumbers;
-	uint32_t workTimeLimit;
+	uint32_t workTimeLimit; //20 + 450 + 20
 	#ifndef ENABLE_USER_SET
 	VentilationCoefficient ventilationCoefficient[8];
 	#else
 	VentilationCoefficient ventilationCoefficient[50];
 	#endif
+	VentilateGrade ventilateGrade[5];
 }Ventilation;
 
 typedef struct{
@@ -128,9 +139,9 @@ typedef struct{
 
 typedef struct{
 	uint16_t isStarted;
-	uint16_t cycleDays;
-	RTC_DateTypeDef rtcDateStart;
-	RTC_TimeTypeDef rtcTimeStart;
+	uint16_t cycleDays;           //
+	RTC_DateTypeDef rtcDateStart; //Week Month Date Year
+	RTC_TimeTypeDef rtcTimeStart; //Hour Minute Second H12/H24
 	uint16_t key;
 }RealDataToSave;
 
@@ -163,7 +174,7 @@ typedef struct{
 	uint16_t isColding;
 	
 	NetWorkStatus netWorkStatus;
-	uint8_t ip[21];
+	uint8_t stm32UniqueID[STM32_UNIQUE_ID_SIZE];
 }RealDataStore;
 
 #ifdef ENABLE_BLACK_BOX
@@ -190,7 +201,7 @@ typedef struct{
 	#endif
 }DataStore;
 
-//#pragma pack()
+#pragma pack()
 extern DataStore dataStore;
 extern uint8_t saveControlParameters(uint32_t *ptr,uint32_t size);
 extern void readControlParameters(uint32_t *ptr,uint32_t size);

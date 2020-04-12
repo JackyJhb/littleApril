@@ -47,6 +47,7 @@ uint8_t setControlParametersToDefault(void)
 	memcpy(dataStore.ctrlParameter.humidity,humidityDefault,sizeof(humidityDefault));
 	memcpy(dataStore.ctrlParameter.illuminationStrength,illuminationStrengthDefault,sizeof(illuminationStrengthDefault));
 	memcpy(dataStore.ctrlParameter.ventilation.ventilationCoefficient,ventilationCoefficientDefault,sizeof(ventilationCoefficientDefault));
+	memcpy(dataStore.ctrlParameter.ventilation.ventilateGrade,ventilateGradeDefault,sizeof(Ventilation));
 	memcpy(dataStore.ctrlParameter.coolDownGrade,coolDownGradeDefault,sizeof(coolDownGradeDefault));
 	memcpy(&dataStore.ctrlParameter.alarmThresholdOptions,&alarmThresholdOptionsDefault,sizeof(AlarmThresholdStore));
 	memcpy(&dataStore.ctrlParameter.systemOptions,&systemOptionsDefault,sizeof(SystemOptions));

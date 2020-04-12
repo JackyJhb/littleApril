@@ -209,7 +209,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 		printf("Info:pid.c::pidControlTemperature()->Cool down grade is %d,set side windows angle to %d\r\n",level,
 						dataStore.ctrlParameter.coolDownGrade[level].sideWindowOpenAngle);
 		#endif
-		dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.coolDownGrade[level].sideWindowOpenAngle;
+		//dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.coolDownGrade[level].sideWindowOpenAngle;
 		//TODO:According to the different case need to sellect difference side window opened anagle
 		//if ((dataStore.realtimeData.realSideWindowsAngle[0] <= (dataStore.realtimeData.targetSideWindowsAngle+2)) &&
 			//(dataStore.realtimeData.realSideWindowsAngle[1] <= (dataStore.realtimeData.targetSideWindowsAngle+2)))

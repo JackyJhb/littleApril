@@ -1,18 +1,17 @@
 
-
+#include "sccf.h"
 #include "mqtt.h"
-#include "protocol.h"
 
-unsigned char getDataFixedHead(unsigned char mesType,unsigned char dupFlag,unsigned char qosLevel,unsigned char retain);
-unsigned int getDataPublish(unsigned char *buff,unsigned char dup, unsigned char qos,unsigned char retain,const char *topic ,const char *msg);		 	
-unsigned int getDataSubscribe(unsigned char *buff,const char *dat,unsigned int num,unsigned char requestedQoS);
-unsigned int getDataDisconnect(unsigned char *buff);
-unsigned int getDataConnect(unsigned char *buff);
-unsigned int getDataPingRespond(unsigned char *buff);
+char getDataFixedHead(char mesType,char dupFlag,char qosLevel,char retain);
+int getDataPublish(char *buff,DataSource dataSrc,char *msg,char msgLen,char dataType);
+int getDataSubscribe(char *buff,DataSource dataSrc,int num,char requestedQoS);
+int getDataDisconnect(char *buff);
+int getDataConnect(char *buff,char *userName,char *passwd);
+int getDataPingRespond(char *buff);
 
-unsigned char getDataFixedHead(unsigned char mesType,unsigned char dupFlag,unsigned char qosLevel,unsigned char retain)
+char getDataFixedHead(char mesType,char dupFlag,char qosLevel,char retain)
 {
-    unsigned char dat = 0;
+	unsigned char dat = 0;
 	dat = (mesType & 0x0f) << 4;
 	dat |= (dupFlag & 0x01) << 3;
 	dat |= (qosLevel & 0x03) << 1;
@@ -20,36 +19,64 @@ unsigned char getDataFixedHead(unsigned char mesType,unsigned char dupFlag,unsig
 	return dat;
 }
 
-unsigned int getDataPublish(unsigned char *buff,unsigned char dup, unsigned char qos,unsigned char retain,const char *topic ,const char *msg)
+int getDataPublish(char *buff,DataSource dataSrc,char *msg,char msgLen,char dataType)
 {
-	unsigned int i,len=0,lennum=0;
-	buff[0] = getDataFixedHead(MQTT_TypePUBLISH,dup,qos,retain);
-	len = strlen(topic);
-	buff[2] = len>>8;
-	buff[3] = len;
-	for(i = 0;i<len;i++)
+	SubscribeOrPublishTopic *ptr;
+	unsigned int i,len=0,lennum=0,offset=0;
+	len = (sizeof(SubscribeOrPublishTopic) + msgLen + 2 + 1);
+	if (len > 1460)
+		return 0;
+	if (len > 127)
+		offset = 1;
+
+	buff[0] = getDataFixedHead(MQTT_TypePUBLISH,0x00,0x00,0x00);
+	len = sizeof(SubscribeOrPublishTopic);
+	buff[2+offset] = len>>8;
+	buff[3+offset] = len;
+	ptr = (SubscribeOrPublishTopic *)(buff+4+offset);
+	ptr->codeID = CODE_ID;
+	ptr->sep0 = '/';
+	ptr->dataSource = dataSrc;
+	ptr->sep1 = '/';
+	for(i = 0;i<STM32_UNIQUE_ID_SIZE;i++)
 	{
-		buff[4+i] = topic[i];
+		sprintf(ptr->deviceID+i*2,"%x",dataStore.realtimeData.stm32UniqueID[i]);
 	}
+	
 	lennum = len;
-	len = strlen(msg);
-	for(i = 0;i<len;i++)
+	len = msgLen;
+	buff[4+lennum+offset] = dataType;
+	/*for(i = 0;i<len;i++)
 	{
-		buff[4+i+lennum] = msg[i];
+		buff[4+i+lennum+offset + 1] = msg[i];
+	}*/
+	if (len > 0)
+	{
+		memcpy((buff+4+1+lennum+offset),msg,len);
 	}
 	lennum += len;
-	buff[1] = lennum + 2;
-	return (lennum+1);
+	lennum += 2;
+	lennum += 1;
+	if (offset)
+	{
+		buff[2] = lennum/128;
+		buff[1] = (lennum % 128 | 0x80);
+	}
+	else
+	{
+		buff[1] = lennum;
+	}
+	return (buff[1]+2+offset);
 }
 
-unsigned int getDataDisconnect(unsigned char *buff)
+int getDataDisconnect(char *buff)
 {
 	buff[0] = 0xe0;
 	buff[1] = 0;
 	return 2;
 }
 
-unsigned int getDataConnect(unsigned char *buff)
+int getDataConnect(char *buff,char *userName,char *passwd)
 {
 	unsigned int i,len,lennum = 0;
 	unsigned char *msg;
@@ -100,11 +127,11 @@ unsigned int getDataConnect(unsigned char *buff)
 	}
 	if(MQTT_StaUserNameFlag)
 	{
-		len = strlen(MQTT_UserName);
+		len = strlen(userName);
 		buff[13 + lennum + 1] = len >> 8;
 		buff[13 + lennum + 2] = len;
 		lennum += 2;
-		msg = MQTT_UserName;
+		msg = userName;
 		for(i = 0;i<len;i++)
 		{
 			buff[14+lennum+i] =  msg[i];
@@ -114,11 +141,11 @@ unsigned int getDataConnect(unsigned char *buff)
 	}
 	if(MQTT_StaPasswordFlag)
 	{
-		len = strlen(MQTT_Password);
+		len = strlen(passwd);
 		buff[13 + lennum + 1] = len >> 8;
 		buff[13 + lennum + 2] = len;
 		lennum += 2;
-		msg = MQTT_Password;
+		msg = passwd;
 		for(i = 0;i<len;i++)
 		{
 			buff[14+lennum+i] =  msg[i];
@@ -129,18 +156,24 @@ unsigned int getDataConnect(unsigned char *buff)
 	return (buff[1]+2);
 }
 
-unsigned int getDataSubscribe(unsigned char *buff,const char *dat,unsigned int num,unsigned char requestedQoS)
+int getDataSubscribe(char *buff,DataSource dataSrc,int num,char requestedQoS)
 {
+	SubscribeOrPublishTopic *ptr;
 	unsigned int i,len = 0,lennum = 0; 
 	buff[0] = 0x82;
-	len = strlen(dat);
+	len = sizeof(SubscribeOrPublishTopic);
 	buff[2] = num>>8;
 	buff[3] = num;
 	buff[4] = len>>8;
 	buff[5] = len;
-	for(i = 0;i<len;i++)
+	ptr = (SubscribeOrPublishTopic *)(buff+6);
+	ptr->codeID = CODE_ID;
+	ptr->sep0 = '/';
+	ptr->dataSource = dataSrc;
+	ptr->sep1 = '/';
+	for(i = 0;i<STM32_UNIQUE_ID_SIZE;i++)
 	{
-		buff[6+i] = dat[i];
+		sprintf(ptr->deviceID+i*2,"%x",dataStore.realtimeData.stm32UniqueID[i]);
 	}
 	lennum = len;
 	buff[6 + lennum ] = requestedQoS;
@@ -148,7 +181,7 @@ unsigned int getDataSubscribe(unsigned char *buff,const char *dat,unsigned int n
 	return buff[1]+2;
 }
 
-unsigned int getDataPingRespond(unsigned char *buff)
+int getDataPingRespond(char *buff)
 {
 	buff[0] = 0xc0;
 	buff[1] = 0;

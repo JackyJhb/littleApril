@@ -9,8 +9,14 @@
 #include "mqtt.h"
 #include "debug_config.h"
 
-char receiveBuf[1000],tempLen[5];
-volatile uint16_t uartBytesCount;
+char receiveBuf[WIFI_BUF_SIZE],tempLen[5];
+char testBuf[44] = {0x0D,0x0A,0x52,0x65,0x63,0x76,0x20,0x35,
+									0x33,0x20,0x62,0x79,0x74,0x65,0x73,0x0D,
+									0x0A,0x0D,0x0A,0x53,0x45,0x4E,0x44,0x20,
+									0x4F,0x4B,0x0D,0x0A,0x0D,0x0A,0x2B,0x49,
+									0x50,0x44,0x2C,0x30,0x2C,0x34,0x3A,0x20,
+									0x02,0x01,0x01,0x00};
+volatile uint16_t wifiBytesCount;
 //AT+CIFSR 查看IP地址
 //AT+CIPSTART=0,"TCP","192.168.43.102",8080  TCP连接到服务器
 //
@@ -44,10 +50,10 @@ char mqttUserPasswd[]    = "rkkj2020rkkj";
 <-0,CONNECT
 	OK
 */
+void clearBuf(void);
 void sendChar(uint8_t ch);
 void sendChars(uint8_t *str, uint16_t strlen);
 void sendStr(char *str);
-void split(char *src, const char *separator, char **dest, int *num);
 void usartWifiInit(u32 bound);
 uint8_t switchESP8266Mode(void);
 uint8_t searchRouter(void);
@@ -58,38 +64,57 @@ uint8_t setServerMode(void);
 uint8_t connectToServer(void);
 uint8_t waitForAnswer(char *cmpSrcPtr,uint16_t delayms,uint16_t usartDelay);
 uint16_t sendDatas(char *buf,uint16_t len);
-uint16_t wifiReceiveData(char *buf,uint16_t delay);
+int16_t getWifiRecDatas(char *saveBufPtr);
+
+int16_t getWifiRecDatas(char *saveBufPtr)
+{
+	OS_ERR err;
+	uint16_t len_rec;
+	char *ptrLenHead,tempLen[5],*ptrData;
+	ptrLenHead = strstr(receiveBuf,"+IPD,0,");
+	if (ptrLenHead != NULL)
+	{
+		OSTimeDlyHMSM(0,0,0,10,OS_OPT_TIME_DLY,&err);
+		memset(tempLen,0x00,5);
+		ptrLenHead += 7;
+		ptrData = strstr(receiveBuf,":");
+		if (ptrData != NULL)
+		{
+			memcpy(tempLen,ptrLenHead,abs(ptrData-ptrLenHead));
+			len_rec = atoi(tempLen);
+			++ptrData;
+			memcpy(saveBufPtr,ptrData,len_rec);
+			clearBuf();
+			printf("HB4\r\n");
+			return len_rec;
+		}
+	}
+	ptrLenHead = strstr(receiveBuf,"CLOSED");
+	if (ptrLenHead != NULL)
+	{
+		return -1;
+	}
+	ptrLenHead = strstr(receiveBuf,"link is not valid");
+	if (ptrLenHead != NULL)
+	{
+		return -2;
+	}
+	return 0;
+}
 
 void clearBuf(void)
 {
-	uartBytesCount = 0;
+	wifiBytesCount = 0;
 	memset(receiveBuf,0x00,sizeof(receiveBuf));
-}
-
-void split(char *src, const char *separator, char **dest, int *num) 
-{
-	char *pNext;
-	int count = 0;
-	if (src == NULL || strlen(src) == 0)
-		return; 
-	if (separator == NULL || strlen(separator) == 0)
-		return;
-  pNext = (char *)strtok(src,separator);
-	while(pNext != NULL)
-	{
-		*dest++ = pNext;
-		++count;
-		pNext = (char *)strtok(NULL,separator);
-	}  
-	*num = count;
+	#ifdef ENABLE_WIFI_LOG
+	//printf("Info:wifi clearBuf.\r\n");
+	#endif
 }
 
 void sendChar(uint8_t ch)
 {      
-	while(USART_GetFlagStatus(USART6,USART_FLAG_TC)==RESET)
-	{
-	}
-  USART_SendData(USART6,ch);
+	while(USART_GetFlagStatus(USART6,USART_FLAG_TC)==RESET);
+	USART_SendData(USART6,ch);
 }
 
 void sendChars(uint8_t *str, uint16_t strlen)
@@ -102,9 +127,10 @@ void sendChars(uint8_t *str, uint16_t strlen)
 	}
 	while (k < strlen);
 }
+
 void sendStr(char *str)
 {
-	char i = 0;
+	uint16_t i = 0;
 	while(*(str+i) != 0)
 	{
 		sendChar(*(str+i));
@@ -148,20 +174,20 @@ uint8_t connectToRouter(void)
 	sendStr("\",\"");
 	sendStr(dataStore.ctrlParameter.esp8266Options.routerPasswd);
 	sendStr("\"\r\n");
-	return waitForAnswer("WIFI GOT IP",2000,3); //6s
+	return waitForAnswer("WIFI GOT IP",1000,3); //6s
 }
 uint8_t setMuxConnection(void)
 {
 	clearBuf();
 	sendStr("AT+CIPMUX=1\r\n");
-	return waitForAnswer("OK",500,3);
+	return waitForAnswer("OK",100,3);
 }
 
 uint8_t setServerMode(void)
 {
 	clearBuf();
 	sendStr("AT+CIPSERVER=1\r\n");
-	return waitForAnswer("OK",500,3);
+	return waitForAnswer("OK",100,3);
 }
 
 uint8_t connectToServer(void)
@@ -172,7 +198,7 @@ uint8_t connectToServer(void)
 	sendStr("\",");
 	sendStr(dataStore.ctrlParameter.esp8266Options.serverPort);
 	sendStr("\r\n");
-	return waitForAnswer("CONNECT",500,3);
+	return waitForAnswer("CONNECT",100,3);
 }
 
 void usartWifiInit(u32 bound)
@@ -202,8 +228,8 @@ void usartWifiInit(u32 bound)
 	USART_ClearFlag(USART6, USART_FLAG_TC);
 	USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);
 	NVIC_InitStructure.NVIC_IRQChannel = USART6_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=13;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority =1;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority =4;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }
@@ -219,23 +245,25 @@ void WIFI_Server_Init(void)
 		strcpy(dataStore.ctrlParameter.esp8266Options.routerPasswd,routerPasswd);
 		strcpy(dataStore.ctrlParameter.esp8266Options.serverIP,serverIP);
 		strcpy(dataStore.ctrlParameter.esp8266Options.serverPort,serverPort);
+		strcpy(dataStore.ctrlParameter.esp8266Options.mqttUserName,mqttUserName);
+		strcpy(dataStore.ctrlParameter.esp8266Options.mqttPasswd,mqttUserPasswd);
 	}
 	do
 	{
 		switch (dataStore.realtimeData.netWorkStatus)
-		{
+		{ //link is builded
 			case NotFoundESP8266:
 				#ifdef ENABLE_WIFI_LOG
-				printf("Info:wifi Step1->Searching ESP8266\r\n");
+				printf("Info:wifi Step0->Searching ESP8266\r\n");
 				#endif
-				if (searchESP8266() == NO_ERR)
+				//if (searchESP8266() == NO_ERR)
 				{
 					dataStore.realtimeData.netWorkStatus = SettingCWMODE;
 				}
 				break;
 			case SettingCWMODE:
 				#ifdef ENABLE_WIFI_LOG
-				printf("Info:wifi Step2->Switch mode of ESP8266\r\n");
+				printf("Info:wifi Step1->Switch mode of ESP8266\r\n");
 				#endif
 				if (switchESP8266Mode() == NO_ERR)
 				{
@@ -244,13 +272,21 @@ void WIFI_Server_Init(void)
 				break;
 			case Reseting:
 				#ifdef ENABLE_WIFI_LOG
+				printf("Info:wifi Step2->Reset ESP8266\r\n");
+				#endif
+				if (resetESP8266() == NO_ERR)
+				{
+					dataStore.realtimeData.netWorkStatus = TurnOffEcho;
+				}
+				break;
+			case TurnOffEcho:
+				#ifdef ENABLE_WIFI_LOG
 				printf("Info:wifi Step3->Reset ESP8266\r\n");
 				#endif
 				if (resetESP8266() == NO_ERR)
 				{
 					dataStore.realtimeData.netWorkStatus = FoundRouter;
 				}
-				break;
 			case FoundRouter:
 				#ifdef ENABLE_WIFI_LOG
 				printf("Info:wifi Step4->Search router\r\n");
@@ -311,12 +347,10 @@ void USART6_IRQHandler(void)
 	if(USART_GetITStatus(USART6, USART_IT_RXNE) != RESET)
 	{
 		rec_data =(u8)USART_ReceiveData(USART6);
-		receiveBuf[uartBytesCount]=rec_data;
-		++uartBytesCount;
-		if (uartBytesCount > sizeof(receiveBuf))
-		{
-			uartBytesCount = 0;
-		}
+		receiveBuf[wifiBytesCount]=rec_data;
+		++wifiBytesCount;
+		//if (wifiBytesCount > WIFI_BUF_SIZE)
+			//wifiBytesCount = 0;
 	}
 }
 
@@ -326,94 +360,48 @@ uint16_t sendDatas(char *buf,uint16_t len)
 	sendStr("AT+CIPSEND=0,");
 	sprintf(temp,"%d",len);
 	sendStr(temp);
+	clearBuf();
 	sendStr("\r\n");
-	if (waitForAnswer(">",500,3) != NO_ERR)
+	if (waitForAnswer(">",100,3) != 0)
 		return 0;
 	sendChars(buf,len);
-	clearBuf();
-	if (waitForAnswer("SEND OK",500,3) != NO_ERR)
+	/*if (waitForAnswer("SEND OK",100,3) != 0)
 		return 0;
+	clearBuf();*/
 	return len;
-}
-
-uint16_t wifiReceiveData(char *buf,uint16_t delay)
-{
-	OS_ERR err;
-	uint16_t delay_ms = 0,len_rec = 0,i;
-	char *ptrLenHead,*ptrData;
-	do
-	{
-		if (uartBytesCount > 0)
-		{
-			if (strstr(receiveBuf,"SEND FAIL"))
-			{
-				dataStore.realtimeData.netWorkStatus = ConnectingToServer;
-				return 0;
-			}
-			ptrLenHead = strstr(receiveBuf,"+IPD");
-			if (ptrLenHead != NULL)
-			{
-				memset(tempLen,0x00,5);
-				ptrLenHead = strstr(receiveBuf,",0,");
-				ptrLenHead += 3;
-				ptrData = strstr(receiveBuf,":");
-				if (ptrData != NULL)
-				{
-					memcpy(tempLen,ptrLenHead,abs(ptrData-ptrLenHead));
-					len_rec = atoi(tempLen);
-					++ptrData;
-					memcpy(buf,ptrData,len_rec);
-					#ifdef ENABLE_WIFI_LOG
-					printf("Info:wifi +IPD = %d: %s\r\n",len_rec);
-					#endif
-					return len_rec;
-				}
-			}
-			if (strstr(receiveBuf,"link is not valid") || strstr(receiveBuf,"ERROR")
-				  || strstr(receiveBuf,"CLOSED") || strstr(receiveBuf,"SEND FAIL"))
-			{
-				dataStore.realtimeData.netWorkStatus = ConnectingToServer;
-				return 0;
-			}
-		}
-		OSTimeDlyHMSM(0,0,0,10,OS_OPT_TIME_DLY,&err);
-	}while (++delay_ms < delay);
-	return 0;
 }
 
 uint8_t waitForAnswer(char *cmpSrcPtr,uint16_t delayms,uint16_t usartDelay)
 {
 	OS_ERR err;
 	uint16_t wait_timer = 0;
-	#ifdef ENABLE_WIFI_LOG
-	printf("Info:wifi waitForAnswer : %s\r\n",cmpSrcPtr);
-	#endif
 	do
 	{
-		OSTimeDlyHMSM(0,0,0,10,OS_OPT_TIME_DLY,&err);
-		if (uartBytesCount > 0)
+		if (wifiBytesCount > 0)
 		{
-			#ifdef ENABLE_WIFI_LOG
-			//printf("Info:wifi uartBytesCount = %d ,strlen=%d\r\n",uartBytesCount,strlen(receiveBuf));
-			#endif
-			while (uartBytesCount > strlen(receiveBuf))
+			while (wifiBytesCount > strlen(receiveBuf))
 				receiveBuf[strlen(receiveBuf)] = 0x01;
 			if (strstr(receiveBuf,cmpSrcPtr) != NULL)
 			{
-				#ifdef ENABLE_WIFI_LOG
-				printf("Info:wifi waitForAnswer successful: %s\r\n",cmpSrcPtr);
-				#endif
 				return 0;
-			}
-			if (dataStore.realtimeData.netWorkStatus == ServerConnected)
-			{
 			}
 			if (strstr(receiveBuf,"link is not valid") != NULL)
 			{
 				dataStore.realtimeData.netWorkStatus = ConnectingToServer;
 				return TCP_Link_Broken;
 			}
+			if (strstr(receiveBuf,"CLOSED") != NULL)
+			{
+				dataStore.realtimeData.netWorkStatus = ConnectingToServer;
+				return TCP_Link_Broken;
+			}
+			if (strstr(receiveBuf,"link is builded") != NULL)
+			{
+				dataStore.realtimeData.netWorkStatus = Reseting;
+				return Router_Broken;
+			}
 		}
+		OSTimeDlyHMSM(0,0,0,10,OS_OPT_TIME_DLY,&err);
 	} while (++wait_timer < delayms);
 	return 2;
 }

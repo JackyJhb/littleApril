@@ -2,6 +2,8 @@
 #define MQTT_H
 
 #include <string.h>
+#include "protocol.h"
+
 #define		MQTT_TypeCONNECT           1
 #define		MQTT_TypeCONNACK           2 
 #define		MQTT_TypePUBLISH           3
@@ -29,17 +31,13 @@
 #define		MQTT_WillMessage            ""
 #define		MQTT_UserName               "rkkj2020"
 #define		MQTT_Password               "rkkj2020rkkj"
-
-#define 	MQTT_INIT                   0
-#define   MQTT_DISCONNECTED           1
-#define   MQTT_CONNECTING             2
-#define   MQTT_CONNECTED              3         
+        
  
-extern unsigned char getDataFixedHead(unsigned char mesType,unsigned char dupFlag,unsigned char qosLevel,unsigned char retain);
-extern unsigned int getDataPublish(unsigned char *buff,unsigned char dup, unsigned char qos,unsigned char retain,const char *topic ,const char *msg);		 	
-extern unsigned int getDataSubscribe(unsigned char *buff,const char *dat,unsigned int num,unsigned char requestedQoS);
-extern unsigned int getDataDisconnect(unsigned char *buff);
-extern unsigned int getDataConnect(unsigned char *buff);
-extern unsigned int getDataPingRespond(unsigned char *buff);
+extern char getDataFixedHead(char mesType,char dupFlag,char qosLevel,char retain);
+extern int getDataPublish(char *buff,DataSource dataSrc,char *msg,char msgLen,char dataType);
+extern int getDataSubscribe(char *buff,DataSource dataSrc,int num,char requestedQoS);
+extern int getDataDisconnect(char *buff);
+extern int getDataConnect(char *buff,char *userName,char *passwd);
+extern int getDataPingRespond(char *buff);
 
 #endif
