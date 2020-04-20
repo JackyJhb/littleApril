@@ -42,15 +42,21 @@ void temperatureCtrl(uint8_t dev_id)
 	float temp=0.0f,set_temperature;
 	uint8_t valid_nums = 0,hours;
 
-	if (dataStore.realtimeData.insideTemperature[dev_id][0] != INVIAL)
-	{
-		temp = dataStore.realtimeData.insideTemperature[dev_id][0];
-		++valid_nums;
+	if ((dataStore.realtimeData.insideTemperature[dev_id][0] != INVIAL))
+	{		
+		if (dataStore.realtimeData.insideTemperature[dev_id][0] > 5.0)
+		{
+			temp = dataStore.realtimeData.insideTemperature[dev_id][0];
+			++valid_nums;
+		}
 	}
 	if (dataStore.realtimeData.insideTemperature[dev_id][1] != INVIAL)
 	{
-		temp += dataStore.realtimeData.insideTemperature[dev_id][1];
-		++valid_nums;
+		if (dataStore.realtimeData.insideTemperature[dev_id][1] > 5.0)
+		{
+			temp += dataStore.realtimeData.insideTemperature[dev_id][1];
+			++valid_nums;
+		}
 	}
 	if (valid_nums != 0)
 	{
@@ -235,7 +241,7 @@ void EnvParameter_task(void *p_arg)
 						#endif
 						dataStore.realtimeData.sensorErrStatus = ((DataPackage *)pMsg)->err;
 						if (((((DataPackage *)pMsg)->err & DS18B20_LEFT_ERR) != DS18B20_LEFT_ERR) && 
-							((float)((DataPackage *)pMsg)->leftTemperature/100 > 15.0) &&
+							((float)((DataPackage *)pMsg)->leftTemperature/100 > 5.0) &&
 							((float)((DataPackage *)pMsg)->leftTemperature/100 < 35.0))
 						{
 							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0] = (float)((DataPackage *)pMsg)->leftTemperature/100;
@@ -247,10 +253,12 @@ void EnvParameter_task(void *p_arg)
 							#endif
 						}
 						if (((((DataPackage *)pMsg)->err & DS18B20_RIGHT_ERR) != DS18B20_RIGHT_ERR) && 
-							((float)((DataPackage *)pMsg)->rightTemperature/100 > 15.0) &&
+							((float)((DataPackage *)pMsg)->rightTemperature/100 > 5.0) &&
 							((float)((DataPackage *)pMsg)->rightTemperature/100 < 35.0))
 						{
 							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][1] = (float)((DataPackage *)pMsg)->rightTemperature/100;
+							if (((DataPackage *)pMsg)->dev_id == 0x02)
+								dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0] = (float)((DataPackage *)pMsg)->rightTemperature/100;
 						}
 						else
 						{

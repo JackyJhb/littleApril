@@ -93,10 +93,11 @@ GPIO_Index_Struct littleAprilFanOutputGPIOCS[5] = {
 };
 #else
 GPIO_Index_Struct littleAprilFanOutputGPIO[16] = {
-	{GPIOG,GPIO_Pin_5},{GPIOF,GPIO_Pin_6},{GPIOF,GPIO_Pin_7},{GPIOF,GPIO_Pin_9},
-	{GPIOE,GPIO_Pin_6}/*E*/,{GPIOC,GPIO_Pin_0},{GPIOC,GPIO_Pin_2},{GPIOC,GPIO_Pin_3},
-	{GPIOF,GPIO_Pin_4}/*E*/,{GPIOC,GPIO_Pin_5},{GPIOC,GPIO_Pin_6},{GPIOC,GPIO_Pin_7},
-	{GPIOB,GPIO_Pin_5},{GPIOB,GPIO_Pin_1},{GPIOE,GPIO_Pin_15},{GPIOE,GPIO_Pin_5}/*E*/,
+	{GPIOE,GPIO_Pin_6}/*E*/,{GPIOF,GPIO_Pin_4}/*E*/,{GPIOE,GPIO_Pin_5}/*E*/,{GPIOF,GPIO_Pin_9},
+	{GPIOC,GPIO_Pin_0},{GPIOC,GPIO_Pin_2},{GPIOC,GPIO_Pin_3},
+	{GPIOC,GPIO_Pin_5},{GPIOC,GPIO_Pin_6},{GPIOC,GPIO_Pin_7},
+	{GPIOB,GPIO_Pin_5},{GPIOB,GPIO_Pin_1},{GPIOE,GPIO_Pin_15},/*E*/
+	{GPIOG,GPIO_Pin_5},{GPIOF,GPIO_Pin_6},{GPIOF,GPIO_Pin_7},
 };
 #endif
 
