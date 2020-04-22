@@ -71,7 +71,7 @@ int main()
 	ADCx_Init();
 	DS18B20_GPIO_Init();
 	watchDogInit();
-	
+	//readSTM32UniqueID();
 	OSInit(&err);
 
 	OSTaskCreate((OS_TCB 	* )&StartTaskTCB,

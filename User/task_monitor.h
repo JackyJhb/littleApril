@@ -31,6 +31,7 @@ typedef enum{
 extern OS_TCB MonitorTaskTCB;
 extern CPU_STK MONITOR_TASK_STK[MONITOR_STK_SIZE];
 
+extern void readSTM32UniqueID(void);
 extern ResetSourceType getRstSrcType(void);
 extern void enableWatchDog(uint8_t whichTask);
 extern void disableWatchDog(uint8_t whichTask);

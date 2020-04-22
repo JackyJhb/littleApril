@@ -6,8 +6,6 @@ CPU_STK MONITOR_TASK_STK[MONITOR_STK_SIZE];
 
 static uint8_t feedWatchDogBuf[16];
 static uint16_t enableWatchDogBits = 0x00;
-//static uint8_t stm32UniqueID[STM32_UNIQUE_ID_SIZE] = {0};
-
 void readSTM32UniqueID(void);
 ResetSourceType getRstSrcType(void);
 void enableWatchDog(uint8_t whichTask);
@@ -18,14 +16,14 @@ void watchDogInit(void);
 void readSTM32UniqueID(void)
 {
 	uint8_t i;
-	vu8 *addr = (vu8*)(0x1ffff7a10);
+	__IO uint8_t *addr = (__IO uint8_t *)(0x1FFF7A10);
 	#ifdef ENABLE_OUTPUT_LOG
 	printf("Info:task_monitor.c::readSTM32UniqueID()->\r\n");
 	#endif
 	for (i = 0;i < STM32_UNIQUE_ID_SIZE;i++)
 	{
-		dataStore.realtimeData.stm32UniqueID[i] = *addr;
-		++addr;
+		dataStore.realtimeData.stm32UniqueID[i] = *(addr+i);
+		//++addr;
 		#ifdef ENABLE_OUTPUT_LOG
 		printf("%d ",dataStore.realtimeData.stm32UniqueID[i]);
 		#endif
