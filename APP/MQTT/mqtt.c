@@ -37,12 +37,12 @@ int getDataPublish(char *buff,DataSource dataSrc,char *msg,char msgLen,char data
 	ptr->codeID = CODE_ID;
 	ptr->sep0 = '/';
 	ptr->dataSource = dataSrc;
-	ptr->sep1 = '/';
 	for(i = 0;i<STM32_UNIQUE_ID_SIZE;i++)
 	{
-		sprintf(ptr->deviceID+i*2,"%x",dataStore.realtimeData.stm32UniqueID[i]);
+		sprintf(ptr->deviceID+i*2,"%x",dataStore.realtimeData.stm32UniqueID[i]/16);
+		sprintf(ptr->deviceID+i*2+1,"%x",dataStore.realtimeData.stm32UniqueID[i]%16);
 	}
-	
+	ptr->sep1 = '/';
 	lennum = len;
 	len = msgLen;
 	buff[4+lennum+offset] = dataType;
@@ -173,7 +173,8 @@ int getDataSubscribe(char *buff,DataSource dataSrc,int num,char requestedQoS)
 	ptr->sep1 = '/';
 	for(i = 0;i<STM32_UNIQUE_ID_SIZE;i++)
 	{
-		sprintf(ptr->deviceID+i*2,"%x",dataStore.realtimeData.stm32UniqueID[i]);
+		sprintf(ptr->deviceID+i*2,"%x",dataStore.realtimeData.stm32UniqueID[i]/16);
+		sprintf(ptr->deviceID+i*2+1,"%x",dataStore.realtimeData.stm32UniqueID[i]%16);
 	}
 	lennum = len;
 	buff[6 + lennum ] = requestedQoS;

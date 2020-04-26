@@ -44,7 +44,8 @@ void protocolAnalyze(char *buf,uint16_t len)
 {
 	uint32_t offset = 0;
 	uint16_t len_data = 0;
-	switch (*buf)
+	uint8_t order = *buf;
+	switch (order)
 	{
 		case ServerRequestAlarmThreshold:
 			len_data = getDataPublish(bufWifi,ToServer,
@@ -146,7 +147,7 @@ void ipdDeal(char *buf,uint16_t len)
 			else
 			{
 				real_len = buf[1];
-				ptr = buf+2;
+				ptr = buf+1+real_len;
 			}
 			protocolAnalyze(ptr,real_len);
 			break;
@@ -208,12 +209,12 @@ void WIFI_task(void *p_arg)
 					}
 					break;
 				case MQTT_CONNECTED:
-					if (timer == 2000)
+					if (timer == 2100)
 					{
 						heartBeat();
 						timer = 0x00;
 					}
-					else if ((timer % 100) == 0)
+					else if ((timer % 500) == 0)
 					{
 						publishRealTimeData();
 					}
