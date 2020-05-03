@@ -168,6 +168,9 @@ uint8_t needToFeedWatchDog(void)
 					case USART_TASK_WD:
 						printf("USART_TASK_WD was dead!!!\r\n");
 						break;
+					case WATERPUMP_TASK_WD:
+						printf("WATERPUMP_TASK_WD was dead!!!\r\n");
+						break;
 					default:
 						printf("Unkown watch dog error occurred!!!\r\n");
 						break;

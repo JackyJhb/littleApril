@@ -12,7 +12,12 @@ const SystemOptions systemOptionsDefault = {
 	55,//float stopCirculatingPumpTemperature;
 	70,//
 	110,
-	15//uint16_t sideWindowDefaultAngle;
+	15,//uint16_t sideWindowDefaultAngle;
+	
+	3.0,
+	2.0,
+	30,
+	30
 };
 const AlarmThresholdStore alarmThresholdOptionsDefault = {
 	1.0,1.0,80.0,40.0,80,48,-20.0

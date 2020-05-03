@@ -180,6 +180,27 @@ void ts_task(void *p_arg)
 							*(buf_rec+28) = *(header + 2);
 							*(buf_rec+29) = *(header + 1);
 							*(buf_rec+30) = *(header + 0);
+							
+							header = (int8_t *)&dataStore.ctrlParameter.systemOptions.waterPumpStartTemperature;
+							*(buf_rec+31) = *(header + 3);
+							*(buf_rec+32) = *(header + 2);
+							*(buf_rec+33) = *(header + 1);
+							*(buf_rec+34) = *(header + 0);
+							header = (int8_t *)&dataStore.ctrlParameter.systemOptions.waterPumpStopTemperature;
+							*(buf_rec+35) = *(header + 3);
+							*(buf_rec+36) = *(header + 2);
+							*(buf_rec+37) = *(header + 1);
+							*(buf_rec+38) = *(header + 0);
+							header = (int8_t *)&dataStore.ctrlParameter.systemOptions.waterPumpRunningTime;
+							*(buf_rec+39) = *(header + 3);
+							*(buf_rec+40) = *(header + 2);
+							*(buf_rec+41) = *(header + 1);
+							*(buf_rec+42) = *(header + 0);
+							header = (int8_t *)&dataStore.ctrlParameter.systemOptions.waterPumpStoppedTime;
+							*(buf_rec+43) = *(header + 3);
+							*(buf_rec+44) = *(header + 2);
+							*(buf_rec+45) = *(header + 1);
+							*(buf_rec+46) = *(header + 0);
 							break;
 						}
 						else
@@ -392,6 +413,30 @@ void ts_task(void *p_arg)
 								header = (uint8_t *)&dataStore.ctrlParameter.coolDownGrade[1].temperatureDifference;
 								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - 
 															(u8 *)&dataStore.ctrlParameter.coolDownGrade[1].temperatureDifference));
+								read_len = write_len;
+								break;
+							case 0x80D:
+								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.waterPumpStartTemperature;
+								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - 
+															(u8 *)&dataStore.ctrlParameter.systemOptions.waterPumpStartTemperature));
+								read_len = write_len;
+								break;
+							case 0x80F:
+								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.waterPumpStopTemperature;
+								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - 
+															(u8 *)&dataStore.ctrlParameter.systemOptions.waterPumpStopTemperature));
+								read_len = write_len;
+								break;
+							case 0x811:
+								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.waterPumpRunningTime;
+								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - 
+															(u8 *)&dataStore.ctrlParameter.systemOptions.waterPumpRunningTime));
+								read_len = write_len;
+								break;
+							case 0x813:
+								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.waterPumpStoppedTime;
+								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - 
+															(u8 *)&dataStore.ctrlParameter.systemOptions.waterPumpStoppedTime));
 								read_len = write_len;
 								break;
 							case 0x7FF:
