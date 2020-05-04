@@ -35,9 +35,13 @@ volatile uint16_t wifiBytesCount;
 /*char routerName[]      = "Nokia 7";
 char routerPasswd[]    = "lianke611";
 char serverIP[]        = "192.168.43.102";
-char serverPort[]      = "8080";*/
+char serverPort[]      = "8080";
 char routerName[]      = "niuniu";
-char routerPasswd[]    = "niuniu20090317";
+char routerPasswd[]    = "niuniu20090317";*/
+
+char routerName[]      = "ChinaNet-mWvK";
+char routerPasswd[]    = "jtpsehgi";
+
 char serverIP[]        = "121.36.75.193";
 //char serverIP[]        = "192.168.1.107";
 char serverPort[]      = "16888";
@@ -156,7 +160,8 @@ uint8_t resetESP8266(void)
 {
 	clearBuf();
 	sendStr("AT+RST\r\n");
-	return waitForAnswer("WIFI GOT IP",1000,10);
+	//return waitForAnswer("WIFI GOT IP",1000,10);
+	return waitForAnswer("OK",1000,10);
 }
 
 uint8_t searchRouter(void)
