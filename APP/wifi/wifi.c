@@ -14,7 +14,7 @@
 *********************************************************************************/	
 
 u8 receive_str[UART4_REC_NUM];     																			//接收缓存数组,最大USART_REC_LEN个字节 
-u8 uart_bytes_count=0;
+//u8 uart_bytes_count=0;
 u8 APP_mode=0;          																								//APP控制模式  0：命令控制区  1：接收发送区
 
 unsigned char MODE[]			="AT+CWMODE=3\r\n";
@@ -172,8 +172,8 @@ void USART6_IRQHandler(void)
 				}				  
 			else if((uart_byte_count>0)&&(uart_byte_count<=UART4_REC_NUM))*/
 				{
-				   receive_str[uart_bytes_count-1]=rec_data;
-				   uart_bytes_count++;
+				   //receive_str[uart_bytes_count-1]=rec_data;
+				   //uart_bytes_count++;
 				}            
    } 
 } 
