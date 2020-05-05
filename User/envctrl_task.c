@@ -20,11 +20,6 @@ static void updateData(void);
 static void temperatureCtrl(uint8_t dev_id);
 static void huimidityCtrl(uint8_t dev_id);
 static void illuminancyCtrl(uint8_t dev_id);
-static void waterPumpCtrl(uint8_t dev_id);
-
-void waterPumpCtrl(uint8_t dev_id)
-{
-}
 
 void updateData(void)
 {
