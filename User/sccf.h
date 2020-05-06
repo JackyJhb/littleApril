@@ -121,6 +121,11 @@ typedef struct {
 	float runningTimeOfVentilate;
 	float stoppedTimeOfVentilate;
 	uint16_t sideWindowDefaultAngle;
+	
+	float waterPumpStartTemperature;
+	float waterPumpStopTemperature;
+	float waterPumpRunningTime;
+	float waterPumpStoppedTime;
 }SystemOptions;
 
 typedef struct{

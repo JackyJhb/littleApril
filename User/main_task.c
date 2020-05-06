@@ -10,6 +10,7 @@
 #include "task_monitor.h"
 #include "sidewindowctrl_task.h"
 #include "alarm_task.h"
+#include "waterpumpctrl_task.h"
 
 OS_MEM mymem;
 uint8_t ucArray [ 20 ] [ 40];
@@ -105,19 +106,19 @@ void start_task(void *p_arg)
                  (OS_OPT      )OS_OPT_TASK_STK_CHK|OS_OPT_TASK_STK_CLR,
                  (OS_ERR 	* )&err);
 				 
-	/*OSTaskCreate((OS_TCB 	* )&GPIOTaskTCB,		
-				 (CPU_CHAR	* )"GPIO task", 		
-                 (OS_TASK_PTR )GPIO_task, 			
+	OSTaskCreate((OS_TCB 	* )&WATERPUMPTaskTCB,		
+				 (CPU_CHAR	* )"waterpump task", 		
+                 (OS_TASK_PTR )waterpump_task, 			
                  (void		* )0,					
-                 (OS_PRIO	  )GPIO_TASK_PRIO,     
-                 (CPU_STK   * )&GPIO_TASK_STK[0],	
-                 (CPU_STK_SIZE)GPIO_STK_SIZE/10,	
-                 (CPU_STK_SIZE)GPIO_STK_SIZE,		
+                 (OS_PRIO	  )WATERPUMP_TASK_PRIO,     
+                 (CPU_STK   * )&WATERPUMP_TASK_STK[0],	
+                 (CPU_STK_SIZE)WATERPUMP_STK_SIZE/10,	
+                 (CPU_STK_SIZE)WATERPUMP_STK_SIZE,		
                  (OS_MSG_QTY  )50,					
                  (OS_TICK	  )0,					
                  (void   	* )0,					
                  (OS_OPT      )OS_OPT_TASK_STK_CHK|OS_OPT_TASK_STK_CLR,
-                 (OS_ERR 	* )&err);*/			 
+                 (OS_ERR 	* )&err);			 
 
 	OSTaskCreate((OS_TCB 	* )&EnvParameterTaskTCB,		
 				 (CPU_CHAR	* )"EnvParameter task", 		

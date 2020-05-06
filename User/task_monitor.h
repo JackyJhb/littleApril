@@ -13,6 +13,7 @@
 #define SIDE_WINDOW_TASK_WD 6
 #define ALARM_TASK_WD       7
 #define USART_TASK_WD		8
+#define WATERPUMP_TASK_WD 9
 
 #define MONITOR_TASK_PRIO		3
 #define MONITOR_STK_SIZE 		512
