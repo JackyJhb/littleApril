@@ -93,13 +93,19 @@ int getDataConnect(char *buff,char *userName,char *passwd)
 							|	(MQTT_StaPasswordFlag << 6) |(MQTT_StaUserNameFlag << 7);
 	buff[10] = MQTT_KeepAlive >> 8;
 	buff[11] = MQTT_KeepAlive;
-	len = strlen(MQTT_ClientIdentifier);
+	//len = strlen(MQTT_ClientIdentifier);
+	len = STM32_UNIQUE_ID_SIZE*2;
 	buff[12] = len >> 8;
 	buff[13] = len;
-	msg = MQTT_ClientIdentifier;
+	/*msg = MQTT_ClientIdentifier;
 	for(i = 0;i<len;i++)
 	{
 		buff[14+i] =  msg[i];
+	}*/
+	for(i = 0;i<STM32_UNIQUE_ID_SIZE;i++)
+	{
+		sprintf(buff+14+i*2,"%x",dataStore.realtimeData.stm32UniqueID[i]/16);
+		sprintf(buff+14+i*2+1,"%x",dataStore.realtimeData.stm32UniqueID[i]%16);
 	}
 	lennum += len;
 	if(MQTT_StaWillFlag)

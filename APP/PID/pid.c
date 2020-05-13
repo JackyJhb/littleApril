@@ -102,7 +102,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 		if ((dataStore.realtimeData.heatingColdingStatus & (1<<which_one)) &&
 			(dataStore.realtimeData.boilerTemperature <= dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature))
 		{
-				littleAprilIOCtrl(which_one,Off);
+				littleAprilHCWCtrl((1<<which_one),Off);
 				dataStore.realtimeData.heatingColdingStatus &= ~(1<<which_one);
 				#ifdef ENABLE_OUTPUT_LOG
 				printf("Warning:pid.c::pidControlTemperature()->Boiler's temperature is %.2f,It's lower than setting's value %.2f.Heating paused.\r\n",
@@ -113,7 +113,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 		if (((dataStore.realtimeData.heatingColdingStatus & (1<<which_one)) == 0) &&
 			(dataStore.realtimeData.boilerTemperature >= dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature))
 		{
-				littleAprilIOCtrl(which_one,On);
+				littleAprilHCWCtrl((1<<which_one),On);
 				//is_heating[which_one] = 1;
 				dataStore.realtimeData.heatingColdingStatus |= (1<<which_one);
 				#ifdef ENABLE_OUTPUT_LOG
@@ -127,9 +127,9 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 		if (((dataStore.ctrlParameter.pidParameter.setTemperature + dataStore.ctrlParameter.systemOptions.stopHeatingCondition) <= actual_temperature) &&
 			(dataStore.realtimeData.heatingColdingStatus & (1<<which_one)))
 		{
-			littleAprilIOCtrl(which_one,Off);
+			littleAprilHCWCtrl((1<<which_one),Off);
 			dataStore.realtimeData.heatingColdingStatus &= ~(1<<which_one);
-			littleAprilIOCtrl(Colding,Off);
+			littleAprilHCWCtrl(Colding,Off);
 			#ifdef ENABLE_OUTPUT_LOG
 			printf("Info:pid.c::pidControlTemperature()->Fine tuning.Area %d heating stopped.\r\n",which_one);
 			#endif
@@ -149,7 +149,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 		{
 			cooding_down_fans = 0x0000;
 			dataStore.realtimeData.workingVentilators = cooding_down_fans;
-			littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
+			littleApril16FansCtrl(dataStore.realtimeData.workingVentilators);
 			//dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
 			dataStore.realtimeData.isColding = false;
 			#ifdef ENABLE_OUTPUT_LOG
@@ -220,7 +220,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 			dataStore.realtimeData.workingVentilators = 0x0000;
 			cooding_down_fans =  dataStore.ctrlParameter.coolDownGrade[level].runningFansBits;
 			dataStore.realtimeData.workingVentilators = cooding_down_fans;
-			littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
+			littleApril16FansCtrl(dataStore.realtimeData.workingVentilators);
 			#ifdef ENABLE_OUTPUT_LOG
 			printf("Info:pid.c::pidControlTemperature()->Fans working list:");
 			for (i = 0;i < 16;i++)

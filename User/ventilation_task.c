@@ -60,14 +60,7 @@ void ventilation_task(void *p_arg)
 			if ((ventilation_cycle_counter >= ventilation_cycle) && 
 					(dataStore.realtimeData.isColding == false))
 			{
-				if (dataStore.realtimeData.dayCycle < 19)
-				{
-					level = 0;
-				}
-				else
-				{
-					level = 1;
-				}
+				level = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle].grade;
 				if (isFanWorking == false)
 				{
 					//fan_work_seconds = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle].runningTime +
@@ -86,8 +79,8 @@ void ventilation_task(void *p_arg)
 					//dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.coolDownGrade[level].sideWindowOpenAngle;
 					if (fan_work_seconds > 0)
 					{
-						dataStore.realtimeData.workingVentilators = dataStore.ctrlParameter.coolDownGrade[level].runningFansBits;
-						littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
+						dataStore.realtimeData.workingVentilators = dataStore.ctrlParameter.ventilation.ventilateGrade[level].runningFansBits;
+						littleApril16FansCtrl(dataStore.realtimeData.workingVentilators);
 						isFanWorking = true;
 					}
 				}
@@ -97,8 +90,8 @@ void ventilation_task(void *p_arg)
 					{
 						ventilation_cycle_counter = fan_work_seconds;
 						dataStore.realtimeData.workingVentilators &= 
-						          (~dataStore.ctrlParameter.coolDownGrade[level].runningFansBits);
-						littleAprilFanCtrl(dataStore.realtimeData.workingVentilators);
+						          (~dataStore.ctrlParameter.ventilation.ventilateGrade[level].runningFansBits);
+						littleApril16FansCtrl(dataStore.realtimeData.workingVentilators);
 						isFanWorking = false;
 						//dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
 						#ifdef ENABLE_OUTPUT_LOG

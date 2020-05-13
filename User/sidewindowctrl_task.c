@@ -18,10 +18,10 @@ void sidewindowctrl_task(void *p_arg)
 	cpu_clk_freq = BSP_CPU_ClkFreq();
 	enableWatchDog(SIDE_WINDOW_TASK_WD);
 	
-	littleAprilIOCtrl(Window_RIGHT_CLOSE,Off);
+	/*littleAprilIOCtrl(Window_RIGHT_CLOSE,Off);
 	littleAprilIOCtrl(Window_RIGHT_OPEN,Off);
 	littleAprilIOCtrl(Window_LEFT_CLOSE,Off);
-	littleAprilIOCtrl(Window_LEFT_OPEN,Off);
+	littleAprilIOCtrl(Window_LEFT_OPEN,Off);*/
 	
 	while (1)
 	{
@@ -59,8 +59,8 @@ void sidewindowctrl_task(void *p_arg)
 			else
 			{
 				dataStore.realtimeData.isSideWindowMotorRunning &= 0xFE;
-				littleAprilIOCtrl(Window_LEFT_CLOSE,Off);
-				littleAprilIOCtrl(Window_LEFT_OPEN,Off);
+				//littleAprilIOCtrl(Window_LEFT_CLOSE,Off);
+				//littleAprilIOCtrl(Window_LEFT_OPEN,Off);
 				#ifdef ENABLE_OUTPUT_LOG
 				//printf("Left side window is stopped.\r\n");
 				#endif
@@ -87,8 +87,8 @@ void sidewindowctrl_task(void *p_arg)
 			else
 			{
 				dataStore.realtimeData.isSideWindowMotorRunning &= 0xFD;
-				littleAprilIOCtrl(Window_RIGHT_CLOSE,Off);
-				littleAprilIOCtrl(Window_RIGHT_OPEN,Off);
+				//littleAprilIOCtrl(Window_RIGHT_CLOSE,Off);
+				//littleAprilIOCtrl(Window_RIGHT_OPEN,Off);
 				#ifdef ENABLE_OUTPUT_LOG
 				//printf("Right side window is stopped.\r\n");
 				#endif

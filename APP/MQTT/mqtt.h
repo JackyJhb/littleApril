@@ -26,7 +26,7 @@
 #define		MQTT_StaUserNameFlag        1
 #define		MQTT_StaPasswordFlag        1
 #define		MQTT_KeepAlive              60
-#define		MQTT_ClientIdentifier       "littleApril_NO1"
+//#define		MQTT_ClientIdentifier       "littleApril_NO2"
 #define		MQTT_WillTopic              ""
 #define		MQTT_WillMessage            ""
 #define		MQTT_UserName               "rkkj2020"

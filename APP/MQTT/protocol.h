@@ -32,7 +32,9 @@ typedef enum {
 	ServerSetRefVentilateFansRunCtrl	 				= 0x10,
 	ServerSetRefVentilate				 							= 0x11,
 
-	ClientBroadcastRealTimeStatus        			= 0x12
+	ClientBroadcastRealTimeStatus        			= 0x12,
+	
+	ClientBroadcastLog                              = 0x50
 }PackageType;
 
 typedef struct {

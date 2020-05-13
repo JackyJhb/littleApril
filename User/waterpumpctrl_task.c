@@ -37,7 +37,7 @@ void waterpump_task(void *p_arg)
 				dataStore.ctrlParameter.systemOptions.waterPumpStopTemperature))
 		{
 			isRunning = false;
-			//littleAprilIOCtrl(Colding,Off);
+			//littleAprilHCWCtrl(Colding,Off);
 			#ifdef ENABLE_OUTPUT_LOG
 			printf("Info:waterpumpctrl_task.c::waterpump_task()->Pump disable,stopTemperature = %.1f!\r\n",
 							dataStore.ctrlParameter.systemOptions.waterPumpStopTemperature);
@@ -50,7 +50,7 @@ void waterpump_task(void *p_arg)
 			isRunning = true;
 			pumpStatus = true;
 			counter = 0x00;
-			//littleAprilIOCtrl(Colding,On);
+			//littleAprilHCWCtrl(Colding,On);
 			#ifdef ENABLE_OUTPUT_LOG
 			printf("Info:waterpumpctrl_task.c::waterpump_task()->Pump enable,startTemperature = %.1f!\r\n",
 							dataStore.ctrlParameter.systemOptions.waterPumpStartTemperature);
@@ -63,7 +63,7 @@ void waterpump_task(void *p_arg)
 			if ((pumpStatus == false) && 
 					(counter > dataStore.ctrlParameter.systemOptions.waterPumpStoppedTime))
 			{
-				//littleAprilIOCtrl(Colding,On);
+				//littleAprilHCWCtrl(Colding,On);
 				counter = 0x00;
 				pumpStatus = true;
 				#ifdef ENABLE_OUTPUT_LOG
@@ -74,7 +74,7 @@ void waterpump_task(void *p_arg)
 			else if ((pumpStatus == true) && 
 					(counter > dataStore.ctrlParameter.systemOptions.waterPumpRunningTime))
 			{
-				//littleAprilIOCtrl(Colding,Off);
+				//littleAprilHCWCtrl(Colding,Off);
 				counter = 0x00;
 				pumpStatus = false;
 				#ifdef ENABLE_OUTPUT_LOG
