@@ -3,7 +3,7 @@
 #include "mqtt.h"
 
 char getDataFixedHead(char mesType,char dupFlag,char qosLevel,char retain);
-int getDataPublish(char *buff,DataSource dataSrc,char *msg,char msgLen,char dataType);
+int getDataPublish(char *buff,DataSource dataSrc,char *msg,int msgLen,char dataType);
 int getDataSubscribe(char *buff,DataSource dataSrc,int num,char requestedQoS);
 int getDataDisconnect(char *buff);
 int getDataConnect(char *buff,char *userName,char *passwd);
@@ -19,7 +19,7 @@ char getDataFixedHead(char mesType,char dupFlag,char qosLevel,char retain)
 	return dat;
 }
 
-int getDataPublish(char *buff,DataSource dataSrc,char *msg,char msgLen,char dataType)
+int getDataPublish(char *buff,DataSource dataSrc,char *msg,int msgLen,char dataType)
 {
 	SubscribeOrPublishTopic *ptr;
 	unsigned int i,len=0,lennum=0,offset=0;

@@ -75,7 +75,7 @@ void ts_task(void *p_arg)
 	uint16_t crc_result,rec_crc,addr_offset,read_len = 0,write_len = 0,send_len = 0,eeprom_addr;
 	p_arg = p_arg;
 	char *pMsg,msg_size,buf_rec[200],i;
-	uint8_t *store,*header;
+	char *store,*header;
 	static char isFirst = 1;
 	CPU_SR_ALLOC();
 	cpu_clk_freq = BSP_CPU_ClkFreq();
@@ -202,6 +202,14 @@ void ts_task(void *p_arg)
 							*(buf_rec+45) = *(header + 1);
 							*(buf_rec+46) = *(header + 0);
 							break;
+						}
+						else if (addr_offset >= 0xA00 && addr_offset < 0xBBB)
+						{
+							//header = (int8_t *)dataStore.ctrlParameter.esp8266Options.routerName;
+							//for (i = 0;i < read_len;i++)
+							{
+								//*(buf_rec+3+i) = *(header + i);
+							}
 						}
 						else
 						{
@@ -455,6 +463,33 @@ void ts_task(void *p_arg)
 								#endif
 								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
 								read_len = write_len;
+								break;
+							case 0x0B02:
+								header = dataStore.ctrlParameter.esp8266Options.routerPasswd;
+								write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+								write_len *= 2;
+								for (i=0;i<write_len;i++)
+								{
+									*(header + i) = *(buf_rec + 7 + i);
+									*(buf_rec+3+i) = *(buf_rec+7+i);
+								}
+								break;
+							case 0x0AF0:
+								header = dataStore.ctrlParameter.esp8266Options.routerName;
+								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - dataStore.ctrlParameter.esp8266Options.routerName));
+								for (i=0;i<write_len*2;i++)
+								{
+									*(header + i) = *(buf_rec + 7 + i);
+									*(buf_rec+3+i) = *(buf_rec+7+i);
+								}
+								AT24C02_Write(eeprom_addr,header,write_len);
+								*(buf_rec + 2) = read_len;
+								send_len = read_len + 5;
+								crc_result = crc16(buf_rec,(read_len+3));
+								*(buf_rec+3+read_len) = (uint8_t)(crc_result>>8);
+								*(buf_rec+4+read_len) = (uint8_t)(crc_result & 0x00FF);
+								RS485_Send_Data(buf_rec,send_len);
+								return ;
 								break;
 							default:
 								return;

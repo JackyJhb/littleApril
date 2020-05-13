@@ -27,9 +27,12 @@ void disconnectFromMQTTServer(void)
 void publishRealTimeData(void)
 {
 	uint16_t len;
+	/*len = getDataPublish(bufWifi,ToServer,
+											(char *)dataStore.ctrlParameter.ventilation.ventilationCoefficient,
+											sizeof(dataStore.ctrlParameter.ventilation.ventilationCoefficient),
+											ClientBroadcastRealTimeStatus);*/
 	len = getDataPublish(bufWifi,ToServer,(char *)&dataStore.realtimeData,
-											 sizeof(dataStore.realtimeData),
-											 ClientBroadcastRealTimeStatus);
+											 sizeof(dataStore.realtimeData),ClientBroadcastRealTimeStatus);
 	sendDatas(bufWifi,len);
 	
 }
@@ -214,7 +217,7 @@ void WIFI_task(void *p_arg)
 						heartBeat();
 						timer = 0x00;
 					}
-					else if ((timer % 500) == 0)
+					else if ((timer % 100) == 0)
 					{
 						publishRealTimeData();
 					}
