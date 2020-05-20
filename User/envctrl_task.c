@@ -23,6 +23,7 @@ static void illuminancyCtrl(uint8_t dev_id);
 
 void updateData(void)
 {
+	CPU_SR_ALLOC();
     /*if (ReadTemperature(&dataStore.realtimeData.outsideTemperature,CH1))
 	{
 		#ifdef ENABLE_OUTPUT_LOG
@@ -34,6 +35,9 @@ void updateData(void)
 			#ifdef ENABLE_OUTPUT_LOG
 			printf("Error:watcher_task.c::watcher_task()->get boiler temperature error occurred!\r\n");
 			#endif
+			OS_CRITICAL_ENTER();
+		  logPrintf("Error:watcher_task.c::watcher_task()->get boiler temperature error occurred!\r\n");
+			OS_CRITICAL_EXIT();
 	}
 }
 
@@ -41,7 +45,7 @@ void temperatureCtrl(uint8_t dev_id)
 {
 	float temp=0.0f,set_temperature;
 	uint8_t valid_nums = 0,hours;
-
+	CPU_SR_ALLOC();
 	if (dataStore.realtimeData.insideTemperature[dev_id][0] != INVIAL)
 	{
 		temp = dataStore.realtimeData.insideTemperature[dev_id][0];
@@ -65,11 +69,13 @@ void temperatureCtrl(uint8_t dev_id)
 					set_temperature = (set_temperature/24) * hours;
 					set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle - 1] - set_temperature;
 					#ifdef ENABLE_OUTPUT_LOG
-					printf("Debug:envctrl_task.c::temperatureCtrl()--->hours:%d,base_temperature:%.2f,target_temperature:%.2f,set_temperature:%.2f\r\n",
+					OS_CRITICAL_ENTER();
+					logPrintf("Debug:envctrl_task.c::temperatureCtrl()--->hours:%d,base_temperature:%.2f,target_temperature:%.2f,set_temperature:%.2f\r\n",
 								hours,
 								dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle - 1],
 								dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle],
 								set_temperature);
+					OS_CRITICAL_EXIT();
 					#endif
 			}
 			else
@@ -87,7 +93,9 @@ void temperatureCtrl(uint8_t dev_id)
 	{
 		#ifdef ENABLE_OUTPUT_LOG
 		//TODO: Both of DS18B20 don't work anymore!It's a criticl error!
-		printf("Error:Dev_id = %d , main.c::EnvParameter_task",dev_id);
+		OS_CRITICAL_ENTER();
+		logPrintf("Error:Dev_id = %d , main.c::EnvParameter_task",dev_id);
+		OS_CRITICAL_EXIT();
 		#endif
 	}	
 }
@@ -161,19 +169,21 @@ void EnvParameter_task(void *p_arg)
 		if (ask_dev_id == 0x03)
 		{
 			#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-			printf("Info:envctrl_task.c::20%d.%d.%d--->",
+			OS_CRITICAL_ENTER();
+			logPrintf("Info:envctrl_task.c::20%d.%d.%d--->",
 			RTC_DateStruct.RTC_Year,RTC_DateStruct.RTC_Month,RTC_DateStruct.RTC_Date);
-			printf("%d:%d:%d\r\n",
+			logPrintf("%d:%d:%d\r\n",
 			RTC_TimeStruct.RTC_Hours,RTC_TimeStruct.RTC_Minutes,RTC_TimeStruct.RTC_Seconds);
-			printf("Info:envctrl_task.c::System start date:%d year %d month %d day\r\n",
+			logPrintf("Info:envctrl_task.c::System start date:%d year %d month %d day\r\n",
 				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Year,
 				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Month,
 				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Date);
-			printf("Info:envctrl_task.c::System start time:%d hour %d minute %d second\r\n",
+			logPrintf("Info:envctrl_task.c::System start time:%d hour %d minute %d second\r\n",
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours,
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds);
-			printf("Info:envctrl_task.c::System days of cycle:%d\r\n",dataStore.realtimeData.dayCycle);
+			logPrintf("Info:envctrl_task.c::System days of cycle:%d\r\n",dataStore.realtimeData.dayCycle);
+			OS_CRITICAL_EXIT();
 			#endif
 			OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
 			ask_dev_id = 0x00;
@@ -198,7 +208,9 @@ void EnvParameter_task(void *p_arg)
 		if (err != OS_ERR_NONE)
 		{
 			#ifdef ENABLE_OUTPUT_LOG
-			printf("Error:Dev_id:%d , main.c::EnvParameter_task->QSTaskQPend() wait for requests temperature respond err = %d ",ask_dev_id,err);
+			OS_CRITICAL_ENTER();
+			logPrintf("Error:Dev_id:%d , main.c::EnvParameter_task->QSTaskQPend() wait for requests temperature respond err = %d ",ask_dev_id,err);
+			OS_CRITICAL_EXIT();
 			#endif
 			#ifdef ENABLE_BLACK_BOX
 			if (err == OS_ERR_TIMEOUT)
@@ -217,8 +229,10 @@ void EnvParameter_task(void *p_arg)
 			if (((DataPackage *)pMsg)->dev_id > 0x02)
 			{
 				#ifdef ENABLE_OUTPUT_LOG
-				printf("Error:main.c::EnvParameter_task->CAN receive data->unknown dev_id = %d",((DataPackage *)pMsg)->dev_id);
-				printf("\r\n");
+				OS_CRITICAL_ENTER();
+				logPrintf("Error:main.c::EnvParameter_task->CAN receive data->unknown dev_id = %d",((DataPackage *)pMsg)->dev_id);
+				logPrintf("\r\n");
+				OS_CRITICAL_EXIT();
 				#endif
 			}
 			else
@@ -274,21 +288,25 @@ void EnvParameter_task(void *p_arg)
 						huimidityCtrl(((DataPackage *)pMsg)->dev_id);
 						
 						#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-						printf("Info:main.c::EnvParameter_task->CAN receive data::");
-						printf("dev_id = %d,tempCH0 = %f,tempCH1 = %f,humidity = %d",((DataPackage *)pMsg)->dev_id,
+						OS_CRITICAL_ENTER();
+						logPrintf("Info:main.c::EnvParameter_task->CAN receive data::");
+						logPrintf("dev_id = %d,tempCH0 = %f,tempCH1 = %f,humidity = %d",((DataPackage *)pMsg)->dev_id,
 								dataStore.realtimeData.insideTemperature[((DataPackage *)pMsg)->dev_id][0],
 								dataStore.realtimeData.insideTemperature[((DataPackage *)pMsg)->dev_id][1],
 								dataStore.realtimeData.humidityInside[((DataPackage *)pMsg)->dev_id]);
-						printf("\r\n");
+						logPrintf("\r\n");
+						OS_CRITICAL_EXIT();
 						#endif
 						ask_status = SERVER_REQ_TEMPERATURE;
 						break;
 					case SERVER_REQ_ILLUMINANCY:
 						#ifdef ENABLE_OUTPUT_LOG
-						printf ( "Info:main.c::EnvParameter_task->CAN receive data::");
+						OS_CRITICAL_ENTER();
+						logPrintf ( "Info:main.c::EnvParameter_task->CAN receive data::");
 						//TODO
 						//printf("Dev_id = %d , Illuminancy = %f lex \r\n",ask_dev_id,);
-						printf("\r\n");
+						logPrintf("\r\n");
+						OS_CRITICAL_EXIT();
 						#endif
 						if ((((DataPackage *)pMsg)->err & ILLUMINANCY_SENSOR_ERR) != ILLUMINANCY_SENSOR_ERR)
 						{
@@ -314,7 +332,9 @@ void EnvParameter_task(void *p_arg)
 			#ifdef ENABLE_OUTPUT_LOG
 			if (err != OS_ERR_NONE)
 			{
-				printf("Error:EnvParameter_task::QSTaskQPend() err = %d ,pMsg = %d\r\n",err,(int)pMsg);
+				OS_CRITICAL_ENTER();
+				logPrintf("Error:EnvParameter_task::QSTaskQPend() err = %d ,pMsg = %d\r\n",err,(int)pMsg);
+				OS_CRITICAL_EXIT();
 			}
 			#endif
 		}

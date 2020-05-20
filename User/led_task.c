@@ -5,6 +5,7 @@
 #include "bsp_gpio.h"
 #include "sccf.h"
 #include "task_monitor.h"
+#include "circleBuffer.h"
 
 OS_TCB Led1TaskTCB;
 CPU_STK LED1_TASK_STK[LED1_STK_SIZE];
@@ -26,6 +27,7 @@ void led1_task(void *p_arg)
 			GPIO_SetBits(GPIOF,GPIO_Pin_10);
 			OSTimeDlyHMSM(0,0,2,900,OS_OPT_TIME_DLY,&err);
 			feedWatchDog(LED_TASK_WD);
+			dataStore.blackBox.rebootTimes = 25;
 			#ifdef ENABLE_OUTPUT_LOG
 			printf("-------------------------------------------\r\n");
 			printf("Info:BlackBox store information lists:\r\n");

@@ -18,22 +18,22 @@ typedef enum {
 	ServerRequestVentilateFansRunCtrl    			= 0x04,            //5 levels
 	ServerRequestVentilate               			= 0x05,
 
-	ClientRespondAlarmThreshold			 					= 0x06,			//alarm threadhold
-	ClientRespondSystemOptions			 					= 0x07,			//control reference
-	ClientRespondCoolDownGrade			 					= 0x08,			//16 levels
+	ClientRespondAlarmThreshold			 			= 0x06,			//alarm threadhold
+	ClientRespondSystemOptions			 			= 0x07,			//control reference
+	ClientRespondCoolDownGrade			 			= 0x08,			//16 levels
 	ClientRespondAmbientTemperatureWeek  			= 0x09,			//
 	ClientRespondVentilationFansRunCtrl  			= 0x0A,			//5 levels
-	ClientRespondVentilate				 						= 0x0B,
+	ClientRespondVentilate				 			= 0x0B,
 	
-	ServerSetRefAlarmThreshold			 					= 0x0C,
-	ServerSetRefSystemOptions			 						= 0x0D,
-	ServerSetRefCoolDownGrade			 						= 0x0E,
+	ServerSetRefAlarmThreshold			 			= 0x0C,
+	ServerSetRefSystemOptions			 			= 0x0D,
+	ServerSetRefCoolDownGrade			 			= 0x0E,
 	ServerSetRefAmbientTemperatureWeek	 			= 0x0F,
-	ServerSetRefVentilateFansRunCtrl	 				= 0x10,
-	ServerSetRefVentilate				 							= 0x11,
+	ServerSetRefVentilateFansRunCtrl	 			= 0x10,
+	ServerSetRefVentilate				 			= 0x11,
 
 	ClientBroadcastRealTimeStatus        			= 0x12,
-	
+
 	ClientBroadcastLog                              = 0x50
 }PackageType;
 

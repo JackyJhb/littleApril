@@ -1,8 +1,10 @@
 
 #include "sccf.h"
 #include "mqtt.h"
+#include "circleBuffer.h"
 
 char getDataFixedHead(char mesType,char dupFlag,char qosLevel,char retain);
+int getLogDataPublish(char *buff,DataSource dataSrc,int lenOnePackage);
 int getDataPublish(char *buff,DataSource dataSrc,char *msg,int msgLen,char dataType);
 int getDataSubscribe(char *buff,DataSource dataSrc,int num,char requestedQoS);
 int getDataDisconnect(char *buff);
@@ -17,6 +19,54 @@ char getDataFixedHead(char mesType,char dupFlag,char qosLevel,char retain)
 	dat |= (qosLevel & 0x03) << 1;
 	dat |= (retain & 0x01);
 	return dat;
+}
+
+int getLogDataPublish(char *buff,DataSource dataSrc,int lenOnePackage)
+{
+	SubscribeOrPublishTopic *ptr;
+	unsigned int i,len=0,lennum=0,offset=0,msgLen;
+	msgLen = circleBufferCount();
+	if (msgLen < lenOnePackage)
+		return 0;
+	//if (msgLen > lenOnePackage)
+		//msgLen = lenOnePackage;
+	len = (sizeof(SubscribeOrPublishTopic) + msgLen + 2 + 1);
+	if (len > 1460)
+		return 0;
+	if (len > 127)
+		offset = 1;
+
+	buff[0] = getDataFixedHead(MQTT_TypePUBLISH,0x00,0x00,0x00);
+	len = sizeof(SubscribeOrPublishTopic);
+	buff[2+offset] = len>>8;
+	buff[3+offset] = len;
+	ptr = (SubscribeOrPublishTopic *)(buff+4+offset);
+	ptr->codeID = CODE_ID;
+	ptr->sep0 = '/';
+	ptr->dataSource = dataSrc;
+	for(i = 0;i<STM32_UNIQUE_ID_SIZE;i++)
+	{
+		sprintf(ptr->deviceID+i*2,"%x",dataStore.realtimeData.stm32UniqueID[i]/16);
+		sprintf(ptr->deviceID+i*2+1,"%x",dataStore.realtimeData.stm32UniqueID[i]%16);
+	}
+	ptr->sep1 = '/';
+	lennum = len;
+	len = msgLen;
+	buff[4+lennum+offset] = ClientBroadcastLog;
+	len = circleBufferRead((buff+4+1+lennum+offset),len);
+	lennum += len;
+	lennum += 2;
+	lennum += 1;
+	if (offset)
+	{
+		buff[2] = lennum/128;
+		buff[1] = (lennum % 128 | 0x80);
+	}
+	else
+	{
+		buff[1] = lennum;
+	}
+	return (buff[1]+2+offset);
 }
 
 int getDataPublish(char *buff,DataSource dataSrc,char *msg,int msgLen,char dataType)
@@ -46,10 +96,6 @@ int getDataPublish(char *buff,DataSource dataSrc,char *msg,int msgLen,char dataT
 	lennum = len;
 	len = msgLen;
 	buff[4+lennum+offset] = dataType;
-	/*for(i = 0;i<len;i++)
-	{
-		buff[4+i+lennum+offset + 1] = msg[i];
-	}*/
 	if (len > 0)
 	{
 		memcpy((buff+4+1+lennum+offset),msg,len);
@@ -93,15 +139,9 @@ int getDataConnect(char *buff,char *userName,char *passwd)
 							|	(MQTT_StaPasswordFlag << 6) |(MQTT_StaUserNameFlag << 7);
 	buff[10] = MQTT_KeepAlive >> 8;
 	buff[11] = MQTT_KeepAlive;
-	//len = strlen(MQTT_ClientIdentifier);
 	len = STM32_UNIQUE_ID_SIZE*2;
 	buff[12] = len >> 8;
 	buff[13] = len;
-	/*msg = MQTT_ClientIdentifier;
-	for(i = 0;i<len;i++)
-	{
-		buff[14+i] =  msg[i];
-	}*/
 	for(i = 0;i<STM32_UNIQUE_ID_SIZE;i++)
 	{
 		sprintf(buff+14+i*2,"%x",dataStore.realtimeData.stm32UniqueID[i]/16);

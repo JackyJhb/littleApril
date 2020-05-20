@@ -10,15 +10,9 @@
 #include "debug_config.h"
 
 char receiveBuf[WIFI_BUF_SIZE],tempLen[5];
-char testBuf[44] = {0x0D,0x0A,0x52,0x65,0x63,0x76,0x20,0x35,
-									0x33,0x20,0x62,0x79,0x74,0x65,0x73,0x0D,
-									0x0A,0x0D,0x0A,0x53,0x45,0x4E,0x44,0x20,
-									0x4F,0x4B,0x0D,0x0A,0x0D,0x0A,0x2B,0x49,
-									0x50,0x44,0x2C,0x30,0x2C,0x34,0x3A,0x20,
-									0x02,0x01,0x01,0x00};
 volatile uint16_t wifiBytesCount;
-//AT+CIFSR 查看IP地址
-//AT+CIPSTART=0,"TCP","192.168.43.102",8080  TCP连接到服务器
+//AT+CIFSR ??IP???
+//AT+CIPSTART=0,"TCP","192.168.43.102",8080  TCP???????????
 //
 /*
 ->AT+CWJAP="Nokia 7","lianke611" 
@@ -35,12 +29,12 @@ volatile uint16_t wifiBytesCount;
 /*char routerName[]      = "Nokia 7";
 char routerPasswd[]    = "lianke611";
 char serverIP[]        = "192.168.43.102";
-char serverPort[]      = "8080";
+char serverPort[]      = "8080";*/
 char routerName[]      = "niuniu";
-char routerPasswd[]    = "niuniu20090317";*/
+char routerPasswd[]    = "niuniu20090317";
 
-char routerName[]      = "ChinaNet-mWvK";
-char routerPasswd[]    = "jtpsehgi";
+/*char routerName[]      = "ChinaNet-mWvK";
+char routerPasswd[]    = "jtpsehgi";*/
 
 char serverIP[]        = "121.36.75.193";
 //char serverIP[]        = "192.168.1.107";

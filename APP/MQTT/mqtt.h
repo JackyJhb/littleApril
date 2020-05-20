@@ -26,14 +26,14 @@
 #define		MQTT_StaUserNameFlag        1
 #define		MQTT_StaPasswordFlag        1
 #define		MQTT_KeepAlive              60
-//#define		MQTT_ClientIdentifier       "littleApril_NO2"
 #define		MQTT_WillTopic              ""
 #define		MQTT_WillMessage            ""
 #define		MQTT_UserName               "rkkj2020"
 #define		MQTT_Password               "rkkj2020rkkj"
         
  
-extern char getDataFixedHead(char mesType,char dupFlag,char qosLevel,char retain);
+//extern char getDataFixedHead(char mesType,char dupFlag,char qosLevel,char retain);
+extern int getLogDataPublish(char *buff,DataSource dataSrc,int lenOnePackage);
 extern int getDataPublish(char *buff,DataSource dataSrc,char *msg,int msgLen,char dataType);
 extern int getDataSubscribe(char *buff,DataSource dataSrc,int num,char requestedQoS);
 extern int getDataDisconnect(char *buff);

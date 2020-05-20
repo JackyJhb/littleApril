@@ -7,7 +7,7 @@
 
 OS_TCB WIFITaskTCB;
 CPU_STK WIFI_TASK_STK[WIFI_STK_SIZE];
-char bufWifi[512],realTimeDataBuf[sizeof(ClientRealData)];
+char bufWifi[1500];
 char mqttStatus = MQTT_INIT;
 uint16_t timer=0;
 
@@ -24,17 +24,25 @@ void disconnectFromMQTTServer(void)
 {
 }
 
+void sendLogStream(void)
+{
+	uint16_t len;
+	CPU_SR_ALLOC();
+	OS_CRITICAL_ENTER();
+	len = getLogDataPublish(bufWifi,ToServer,300);
+	OS_CRITICAL_EXIT();
+	if (len)
+	{
+		sendDatas(bufWifi,len);
+	}
+}
+
 void publishRealTimeData(void)
 {
 	uint16_t len;
-	/*len = getDataPublish(bufWifi,ToServer,
-											(char *)dataStore.ctrlParameter.ventilation.ventilationCoefficient,
-											sizeof(dataStore.ctrlParameter.ventilation.ventilationCoefficient),
-											ClientBroadcastRealTimeStatus);*/
 	len = getDataPublish(bufWifi,ToServer,(char *)&dataStore.realtimeData,
 											 sizeof(dataStore.realtimeData),ClientBroadcastRealTimeStatus);
 	sendDatas(bufWifi,len);
-	
 }
 
 void heartBeat(void)
@@ -217,9 +225,13 @@ void WIFI_task(void *p_arg)
 						heartBeat();
 						timer = 0x00;
 					}
-					else if ((timer % 100) == 0)
+					else if ((timer % 500) == 0)
 					{
 						publishRealTimeData();
+					}
+					else
+					{
+						sendLogStream();
 					}
 					break;
 				default:
