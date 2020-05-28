@@ -11,6 +11,7 @@
 #include "sidewindowctrl_task.h"
 #include "alarm_task.h"
 #include "waterpumpctrl_task.h"
+#include "circleBuffer.h"
 
 OS_MEM mymem;
 uint8_t ucArray [ 20 ] [ 40];
@@ -43,12 +44,14 @@ void start_task(void *p_arg)
 #endif
 
 	OS_CRITICAL_ENTER();
+    loggerBufferInit();
 	OSMemCreate ((OS_MEM      *)&mymem,
 				(CPU_CHAR    *)"mymem",
 				(void        *)ucArray,
 				(OS_MEM_QTY   )20,
 				(OS_MEM_SIZE  )40,
 				(OS_ERR      *)&err);
+                
 
 	OSTaskCreate((OS_TCB 	* )&VentilationTaskTCB,		
 				 (CPU_CHAR	* )"Ventilation task", 		

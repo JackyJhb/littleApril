@@ -80,6 +80,7 @@ int16_t getWifiRecDatas(char *saveBufPtr)
 		{
 			memcpy(tempLen,ptrLenHead,abs(ptrData-ptrLenHead));
 			len_rec = atoi(tempLen);
+			OSTimeDlyHMSM(0,0,0,100,OS_OPT_TIME_DLY,&err);
 			++ptrData;
 			memcpy(saveBufPtr,ptrData,len_rec);
 			clearBuf();

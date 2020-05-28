@@ -12,7 +12,8 @@
 #define   MQTT_CONNECTING             4
 #define   MQTT_CONNECTED              5 
 
-extern OS_TCB WIFITaskTCB;	
+extern OS_TCB WIFITaskTCB;
+extern OS_MEM logMalloc;
 extern CPU_STK WIFI_TASK_STK[WIFI_STK_SIZE];
 extern void WIFI_task(void *p_arg);
 #endif

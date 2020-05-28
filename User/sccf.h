@@ -12,8 +12,8 @@ The meaning of sccf is System Control Configuration File.
 #include "debug_config.h"
 
 #define AT24C128
-#define INIT_KEY        0x2222
-#define INIT_KEY_FLASH  0x5555
+#define INIT_KEY        0x3333
+#define INIT_KEY_FLASH  0x6666
 
 #define ADDR_RTD_FILE   0x0000      //Real time data
 #define ADDR_CFG_FILE   0x0400      //Config file data
@@ -69,19 +69,11 @@ typedef struct{
 	float kD;
 }PIDParameter;
 
-#ifndef ENABLE_USER_SET
-typedef struct {
-	uint32_t demarcationDay;
-	float   cmfPerMinute;
-	float	ventilationCycle;
-}VentilationCoefficient;
-#else
 typedef struct {
 	uint32_t runningTime;
 	float	ventilationCycle;
 	uint8_t grade;
 }VentilationCoefficient;
-#endif
 
 typedef struct {
 	float henhouseVolume;
@@ -89,11 +81,7 @@ typedef struct {
 	float fanNumbers;
 	uint32_t chickNumbers;
 	uint32_t workTimeLimit; //20 + 450 + 20
-	#ifndef ENABLE_USER_SET
-	VentilationCoefficient ventilationCoefficient[8];
-	#else
 	VentilationCoefficient ventilationCoefficient[50];
-	#endif
 	VentilateGrade ventilateGrade[5];
 }Ventilation;
 

@@ -10,6 +10,6 @@
 extern OS_TCB EnvParameterTaskTCB;
 extern CPU_STK EnvParameter_TASK_STK[EnvParameter_STK_SIZE];
 extern OS_MEM mymem;
-extern uint8_t ucArray [ 20 ] [ 40 ];
+//extern uint8_t ucArray [ 20 ] [ 40 ];
 extern void EnvParameter_task(void *p_arg);
 #endif

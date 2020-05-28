@@ -11,6 +11,7 @@ char bufWifi[1500];
 char mqttStatus = MQTT_INIT;
 uint16_t timer=0;
 
+
 void heartBeat(void);
 void connectToMQTTServer(void);
 void disconnectFromMQTTServer(void);
@@ -27,10 +28,7 @@ void disconnectFromMQTTServer(void)
 void sendLogStream(void)
 {
 	uint16_t len;
-	CPU_SR_ALLOC();
-	OS_CRITICAL_ENTER();
 	len = getLogDataPublish(bufWifi,ToServer,300);
-	OS_CRITICAL_EXIT();
 	if (len)
 	{
 		sendDatas(bufWifi,len);
@@ -40,6 +38,20 @@ void sendLogStream(void)
 void publishRealTimeData(void)
 {
 	uint16_t len;
+	static uint16_t fans=0x5555;
+	fans =~fans;
+	dataStore.realtimeData.currentSetTemperature = dataStore.realtimeData.minute*0.5;
+	dataStore.realtimeData.insideTemperature[0][0] = 38.3;
+	dataStore.realtimeData.insideTemperature[0][1] = 38.1;
+	dataStore.realtimeData.insideTemperature[1][0] = 27.9;
+	dataStore.realtimeData.insideTemperature[1][1] = 27.7;
+	dataStore.realtimeData.insideTemperature[2][0] = 32.9;
+	dataStore.realtimeData.insideTemperature[2][1] = dataStore.realtimeData.second * 0.2;
+	dataStore.realtimeData.boilerTemperature = 56;
+	dataStore.realtimeData.heatingColdingStatus = fans;
+	dataStore.realtimeData.outsideTemperature = 26.8;
+	dataStore.realtimeData.pressureInside = -26;
+	dataStore.realtimeData.workingVentilators = fans;
 	len = getDataPublish(bufWifi,ToServer,(char *)&dataStore.realtimeData,
 											 sizeof(dataStore.realtimeData),ClientBroadcastRealTimeStatus);
 	sendDatas(bufWifi,len);
@@ -55,7 +67,7 @@ void protocolAnalyze(char *buf,uint16_t len)
 {
 	uint32_t offset = 0;
 	uint16_t len_data = 0;
-	uint8_t order = *buf;
+	uint8_t order = *buf,rep_res=0x00;
 	switch (order)
 	{
 		case ServerRequestAlarmThreshold:
@@ -97,37 +109,37 @@ void protocolAnalyze(char *buf,uint16_t len)
 			memcpy((char *)&dataStore.ctrlParameter.alarmThresholdOptions,(buf+1),sizeof(AlarmThresholdStore));
 			offset = abs((char *)&dataStore.ctrlParameter - (char *)&dataStore.ctrlParameter.alarmThresholdOptions);
 			AT24C02_Write(ADDR_CFG_FILE+offset,(uint8_t *)&dataStore.ctrlParameter.alarmThresholdOptions,sizeof(AlarmThresholdStore));
-			len_data = getDataPublish(bufWifi,ToServer,0,0,0x00);
+			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetRefAlarmThreshold);
 			break;
 		case ServerSetRefSystemOptions:
 			memcpy((char *)&dataStore.ctrlParameter.systemOptions,(buf+1),sizeof(SystemOptions));
 			offset = abs((char *)&dataStore.ctrlParameter - (char *)&dataStore.ctrlParameter.systemOptions);
 			AT24C02_Write(ADDR_CFG_FILE+offset,(uint8_t *)&dataStore.ctrlParameter.systemOptions,sizeof(SystemOptions));
-			len_data = getDataPublish(bufWifi,ToServer,0,0,0x00);
+			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetRefSystemOptions);
 			break;
 		case ServerSetRefCoolDownGrade:
 			memcpy((char *)dataStore.ctrlParameter.coolDownGrade,(buf+1),sizeof(dataStore.ctrlParameter.coolDownGrade));
 			offset = abs((char *)&dataStore.ctrlParameter - (char *)dataStore.ctrlParameter.coolDownGrade);
 			AT24C02_Write(ADDR_CFG_FILE+offset,(uint8_t *)dataStore.ctrlParameter.coolDownGrade,sizeof(dataStore.ctrlParameter.coolDownGrade));
-			len_data = getDataPublish(bufWifi,ToServer,0,0,0x00);
+			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetRefCoolDownGrade);
 			break;
 		case ServerSetRefAmbientTemperatureWeek:
 			memcpy((char *)dataStore.ctrlParameter.ambientTemperature,(buf+1),sizeof(dataStore.ctrlParameter.ambientTemperature));
 			offset = abs((char *)&dataStore.ctrlParameter - (char *)dataStore.ctrlParameter.ambientTemperature);
 			AT24C02_Write(ADDR_CFG_FILE+offset,(uint8_t *)dataStore.ctrlParameter.ambientTemperature,sizeof(dataStore.ctrlParameter.ambientTemperature));
-			len_data = getDataPublish(bufWifi,ToServer,0,0,0x00);
+			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetRefAmbientTemperatureWeek);
 			break;
 		case ServerSetRefVentilateFansRunCtrl:
 			memcpy((char *)dataStore.ctrlParameter.ventilation.ventilateGrade,(buf+1),sizeof(dataStore.ctrlParameter.ventilation.ventilateGrade));
 			offset = abs((char *)&dataStore.ctrlParameter - (char *)dataStore.ctrlParameter.ventilation.ventilateGrade);
 			AT24C02_Write(ADDR_CFG_FILE+offset,(uint8_t *)dataStore.ctrlParameter.ventilation.ventilateGrade,sizeof(dataStore.ctrlParameter.ventilation.ventilateGrade));
-			len_data = getDataPublish(bufWifi,ToServer,0,0,0x00);
+			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetRefVentilateFansRunCtrl);
 			break;
 		case ServerSetRefVentilate:
 			memcpy((char *)dataStore.ctrlParameter.ventilation.ventilationCoefficient,(buf+1),sizeof(dataStore.ctrlParameter.ventilation.ventilationCoefficient));
 			offset = abs((char *)&dataStore.ctrlParameter - (char *)dataStore.ctrlParameter.ventilation.ventilationCoefficient);
 			AT24C02_Write(ADDR_CFG_FILE+offset,(uint8_t *)dataStore.ctrlParameter.ventilation.ventilationCoefficient,sizeof(dataStore.ctrlParameter.ventilation.ventilationCoefficient));
-			len_data = getDataPublish(bufWifi,ToServer,0,0,0x00);
+			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetRefVentilate);
 			break;
 		default:
 			break;
@@ -152,13 +164,15 @@ void ipdDeal(char *buf,uint16_t len)
 		case 0x30:         //Datas arrivied
 			if (buf[1]&0x80)
 			{
-				real_len += buf[2]*128 + buf[0]&0x7F;
-				ptr = buf+3;
+				real_len = buf[2];
+				real_len *= 128;
+				real_len += buf[1] & 0x7F;
+				ptr = buf+3+sizeof(SubscribeOrPublishTopic)+2;
 			}
 			else
 			{
 				real_len = buf[1];
-				ptr = buf+1+real_len;
+				ptr = buf+2+sizeof(SubscribeOrPublishTopic)+2;
 			}
 			protocolAnalyze(ptr,real_len);
 			break;
@@ -190,6 +204,7 @@ void WIFI_task(void *p_arg)
 		else
 		{
 			OSTimeDlyHMSM(0,0,0,10,OS_OPT_TIME_DLY,&err);
+			//receiveLogFromQPend();
 			++timer;
 			switch (mqttStatus)
 			{
@@ -225,11 +240,11 @@ void WIFI_task(void *p_arg)
 						heartBeat();
 						timer = 0x00;
 					}
-					else if ((timer % 500) == 0)
+					else if ((timer % 1000) == 0)
 					{
 						publishRealTimeData();
 					}
-					else
+					else if ((timer % 300) == 0)
 					{
 						sendLogStream();
 					}

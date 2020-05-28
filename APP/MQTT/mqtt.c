@@ -25,14 +25,14 @@ int getLogDataPublish(char *buff,DataSource dataSrc,int lenOnePackage)
 {
 	SubscribeOrPublishTopic *ptr;
 	unsigned int i,len=0,lennum=0,offset=0,msgLen;
-	msgLen = circleBufferCount();
+	msgLen = loggerBufferCount();
 	if (msgLen < lenOnePackage)
 		return 0;
-	//if (msgLen > lenOnePackage)
-		//msgLen = lenOnePackage;
+	if (msgLen > lenOnePackage)
+		msgLen = lenOnePackage;
 	len = (sizeof(SubscribeOrPublishTopic) + msgLen + 2 + 1);
 	if (len > 1460)
-		return 0;
+		return -1;
 	if (len > 127)
 		offset = 1;
 
@@ -53,7 +53,7 @@ int getLogDataPublish(char *buff,DataSource dataSrc,int lenOnePackage)
 	lennum = len;
 	len = msgLen;
 	buff[4+lennum+offset] = ClientBroadcastLog;
-	len = circleBufferRead((buff+4+1+lennum+offset),len);
+	len = loggerBufferRead((buff+4+1+lennum+offset),len);
 	lennum += len;
 	lennum += 2;
 	lennum += 1;
@@ -66,7 +66,7 @@ int getLogDataPublish(char *buff,DataSource dataSrc,int lenOnePackage)
 	{
 		buff[1] = lennum;
 	}
-	return (buff[1]+2+offset);
+	return (lennum+2+offset);
 }
 
 int getDataPublish(char *buff,DataSource dataSrc,char *msg,int msgLen,char dataType)
@@ -112,7 +112,7 @@ int getDataPublish(char *buff,DataSource dataSrc,char *msg,int msgLen,char dataT
 	{
 		buff[1] = lennum;
 	}
-	return (buff[1]+2+offset);
+	return (lennum+2+offset);
 }
 
 int getDataDisconnect(char *buff)

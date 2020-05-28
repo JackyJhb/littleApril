@@ -48,11 +48,7 @@ The meaning of sccf is System Control Configuration File.
 extern const CoolDownGrade coolDownGradeDefault[16];
 extern const float ambientTemperatureDefault[50];
 extern const float illuminationStrengthDefault[50];
-#ifndef ENABLE_USER_SET
-extern const VentilationCoefficient ventilationCoefficientDefault[8];
-#else
 extern const VentilationCoefficient ventilationCoefficientDefault[50] ;
-#endif
 extern const uint8_t humidityDefault[50];
 extern const VentilateGrade ventilateGradeDefault[5];
 

@@ -3,7 +3,7 @@
 #include "stdio.h"	
 #include "stm32f4xx.h" 
 
-#define WIFI_BUF_SIZE  			700
+#define WIFI_BUF_SIZE  			1024
 #define MAX_RETRY_TIMES     2
 
 typedef enum {

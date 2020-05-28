@@ -31,6 +31,7 @@ typedef enum {
 	ServerSetRefAmbientTemperatureWeek	 			= 0x0F,
 	ServerSetRefVentilateFansRunCtrl	 			= 0x10,
 	ServerSetRefVentilate				 			= 0x11,
+	ServerEnableMQTTLog               = 0x13,
 
 	ClientBroadcastRealTimeStatus        			= 0x12,
 
