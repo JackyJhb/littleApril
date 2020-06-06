@@ -152,7 +152,7 @@ void EnvParameter_task(void *p_arg)
 	order_ptr = (ServerOrder *)buf;
 	enableWatchDog(ENVCTRL_TASK_WD);
 	#ifdef ENABLE_PIRACY_TRAP
-	if ((RTC_DateStruct.RTC_Year > 20) || (RTC_DateStruct.RTC_Month > 6)) 
+	if ((RTC_DateStruct.RTC_Year > 20) || (RTC_DateStruct.RTC_Month > 8)) 
 	{
 		while(1);
 	}
