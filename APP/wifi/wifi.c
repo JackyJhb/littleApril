@@ -29,12 +29,12 @@ volatile uint16_t wifiBytesCount;
 /*char routerName[]      = "Nokia 7";
 char routerPasswd[]    = "lianke611";
 char serverIP[]        = "192.168.43.102";
-char serverPort[]      = "8080";*/
+char serverPort[]      = "8080";
 char routerName[]      = "niuniu";
-char routerPasswd[]    = "niuniu20090317";
+char routerPasswd[]    = "niuniu20090317";*/
 
-/*char routerName[]      = "ChinaNet-mWvK";
-char routerPasswd[]    = "jtpsehgi";*/
+char routerName[]      = "ChinaNet-mWvK";
+char routerPasswd[]    = "jtpsehgi";
 
 char serverIP[]        = "121.36.75.193";
 //char serverIP[]        = "192.168.1.107";
@@ -399,6 +399,11 @@ uint8_t waitForAnswer(char *cmpSrcPtr,uint16_t delayms,uint16_t usartDelay)
 			{
 				dataStore.realtimeData.netWorkStatus = Reseting;
 				return Router_Broken;
+			}
+			if (strstr(receiveBuf,"WIFI GOT IP") != NULL)
+			{
+				dataStore.realtimeData.netWorkStatus = ConnectingToServer;
+				return TCP_Link_Broken;
 			}
 		}
 		OSTimeDlyHMSM(0,0,0,10,OS_OPT_TIME_DLY,&err);

@@ -2,8 +2,8 @@
 #define RTC_TASK_H
 #include "includes.h"
 #include "rtc.h"
+#include "priolevel.h"
 
-#define RTC_TASK_PRIO		10
 #define RTC_STK_SIZE 		128
 
 extern OS_TCB RTCTaskTCB;	

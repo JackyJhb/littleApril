@@ -12,7 +12,7 @@ The meaning of sccf is System Control Configuration File.
 #include "debug_config.h"
 
 #define AT24C128
-#define INIT_KEY        0x3333
+#define INIT_KEY        0x4444
 #define INIT_KEY_FLASH  0x6666
 
 #define ADDR_RTD_FILE   0x0000      //Real time data

@@ -4,8 +4,8 @@
 #include "stm32f4xx.h"
 #include "stm32f4xx_gpio.h"
 
-#define    CH1        GPIO_Pin_4
-#define    GROUP_E    GPIOE 
+#define    CH1        GPIO_Pin_12
+#define    GROUP_G    GPIOG 
 
 #define    CH2        GPIO_Pin_15
 #define    GROUP_G    GPIOG

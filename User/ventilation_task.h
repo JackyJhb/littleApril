@@ -3,8 +3,8 @@
 
 #include "includes.h"
 #include "bsp_gpio.h"
+#include "priolevel.h"
 
-#define VENTILATION_TASK_PRIO		4
 #define VENTILATION_STK_SIZE 		512
 
 extern OS_TCB VentilationTaskTCB;

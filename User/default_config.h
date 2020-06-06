@@ -37,10 +37,10 @@ The meaning of sccf is System Control Configuration File.
 
 #define DAY_CYCLE_DEFAULT                   0x00
 #define CYCLE_DAYS_DEFAULT                  49
-#define START_RTC_YEAR_DEFAULT           		20
-#define START_RTC_MONTH_DEFAULT             4
+#define START_RTC_YEAR_DEFAULT           	20
+#define START_RTC_MONTH_DEFAULT             5
 #define START_RTC_DATE_DEFAULT              21
-#define START_RTC_WEEKDAY_DEFAULT           2
+#define START_RTC_WEEKDAY_DEFAULT           4
 #define START_RTC_HOURS_DEFAULT             6
 #define START_RTC_MINUTES_DEFAULT           00
 #define START_RTC_SECONDS_DEFAULT           00

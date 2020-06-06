@@ -1,8 +1,8 @@
 #ifndef USART_TASK_H
 #define USART_TASK_H
 #include "includes.h"
+#include "priolevel.h"
 
-#define USART_TASK_PRIO		14
 #define USART_STK_SIZE 		512
 
 extern OS_TCB USARTTaskTCB;

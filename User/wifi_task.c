@@ -38,20 +38,7 @@ void sendLogStream(void)
 void publishRealTimeData(void)
 {
 	uint16_t len;
-	static uint16_t fans=0x5555;
-	fans =~fans;
-	dataStore.realtimeData.currentSetTemperature = dataStore.realtimeData.minute*0.5;
-	dataStore.realtimeData.insideTemperature[0][0] = 38.3;
-	dataStore.realtimeData.insideTemperature[0][1] = 38.1;
-	dataStore.realtimeData.insideTemperature[1][0] = 27.9;
-	dataStore.realtimeData.insideTemperature[1][1] = 27.7;
-	dataStore.realtimeData.insideTemperature[2][0] = 32.9;
-	dataStore.realtimeData.insideTemperature[2][1] = dataStore.realtimeData.second * 0.2;
-	dataStore.realtimeData.boilerTemperature = 56;
-	dataStore.realtimeData.heatingColdingStatus = fans;
-	dataStore.realtimeData.outsideTemperature = 26.8;
-	dataStore.realtimeData.pressureInside = -26;
-	dataStore.realtimeData.workingVentilators = fans;
+
 	len = getDataPublish(bufWifi,ToServer,(char *)&dataStore.realtimeData,
 											 sizeof(dataStore.realtimeData),ClientBroadcastRealTimeStatus);
 	sendDatas(bufWifi,len);
@@ -240,13 +227,13 @@ void WIFI_task(void *p_arg)
 						heartBeat();
 						timer = 0x00;
 					}
-					else if ((timer % 1000) == 0)
+					else if ((timer % 200) == 0)
 					{
 						publishRealTimeData();
 					}
-					else if ((timer % 300) == 0)
+					else if ((timer % 150) == 0)
 					{
-						sendLogStream();
+						//sendLogStream();
 					}
 					break;
 				default:

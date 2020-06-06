@@ -2,9 +2,9 @@
 #ifndef  ENVCTRL_TASK_H
 #define ENVCTRL_TASK_H
 #include "includes.h"
+#include "priolevel.h"
 
 #define INVIAL                      168
-#define EnvParameter_TASK_PRIO		3
 #define EnvParameter_STK_SIZE 		512
 
 extern OS_TCB EnvParameterTaskTCB;

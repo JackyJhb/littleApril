@@ -2,8 +2,8 @@
 #define LED_TASK_H
 #include "includes.h"
 #include "led.h"
+#include "priolevel.h"
 
-#define LED1_TASK_PRIO		15
 #define LED1_STK_SIZE 		128
 
 extern OS_TCB Led1TaskTCB;

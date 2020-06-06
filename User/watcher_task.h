@@ -2,8 +2,8 @@
 #define WATCHER_TASK_H
 
 #include "includes.h"
+#include "priolevel.h"
 
-#define WATCHER_TASK_PRIO	16
 #define WATCHER_STK_SIZE 		512
 extern OS_TCB WatcherTaskTCB;
 extern CPU_STK WATCHER_TASK_STK[WATCHER_STK_SIZE];

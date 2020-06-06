@@ -11,6 +11,7 @@
 #include "task_monitor.h"
 #include "ds18b20.h"
 #include "adc.h"
+#include "circleBuffer.h"
 
 OS_TCB EnvParameterTaskTCB;
 CPU_STK EnvParameter_TASK_STK[EnvParameter_STK_SIZE];
@@ -22,13 +23,13 @@ static void illuminancyCtrl(uint8_t dev_id);
 
 void updateData(void)
 {
-  if (ReadTemperature(&dataStore.realtimeData.outsideTemperature,CH1))
+	if (ReadTemperature(&dataStore.realtimeData.outsideTemperature,CH1))
 	{
-		logPrintf("Error:envctrl_task.c::updateData()->get outside temperature error!\r\n");
+		logPrintf(Error,"E:envctrl_task.c::updateData()->get outside temperature error!\r\n");
 	}
 	if (ReadTemperature(&dataStore.realtimeData.boilerTemperature,CH2))
 	{
-		logPrintf("Error:envctrl_task.c::updateData()->get boiler temperature error!\r\n");
+		logPrintf(Error,"E:envctrl_task.c::updateData()->get boiler temperature error!\r\n");
 	}
 }
 
@@ -59,7 +60,7 @@ void temperatureCtrl(uint8_t dev_id)
 					set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle - 1] - dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle];
 					set_temperature = (set_temperature/24) * hours;
 					set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle - 1] - set_temperature;
-					logPrintf("Debug:envctrl_task.c::temperatureCtrl()--->hours:%d,base_temperature:%.2f,target_temperature:%.2f,set_temperature:%.2f\r\n",
+					logPrintf(Verbose,"V:envctrl_task.c::temperatureCtrl()->hours:%d,base_temperature:%.2f,target_temperature:%.2f,set_temperature:%.2f\r\n",
 								hours,
 								dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle - 1],
 								dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle],
@@ -79,7 +80,7 @@ void temperatureCtrl(uint8_t dev_id)
 	else
 	{
 		//TODO: Both of DS18B20 don't work anymore!It's a criticl error!
-		logPrintf("Error:envctrl_task.c::temperatureCtrl()->Dev_id = %d ,DS18B20 destoried!\r\n",dev_id);
+		logPrintf(Error,"E:envctrl_task.c::temperatureCtrl()->Dev_id = %d ,DS18B20 destoried!\r\n",dev_id);
 	}	
 }
 
@@ -137,7 +138,7 @@ void EnvParameter_task(void *p_arg)
 	order_ptr = (ServerOrder *)buf;
 	enableWatchDog(ENVCTRL_TASK_WD);
 	#ifdef ENABLE_PIRACY_TRAP
-	if ((RTC_DateStruct.RTC_Year > 20) || (RTC_DateStruct.RTC_Month > 6)) 
+	if ((RTC_DateStruct.RTC_Year > 20) || (RTC_DateStruct.RTC_Month > 7)) 
 	{
 		while(1);
 	}
@@ -151,19 +152,19 @@ void EnvParameter_task(void *p_arg)
 		}
 		if (ask_dev_id == 0x03)
 		{
-			logPrintf("Info:envctrl_task.c::EnvParameter_task()->20%d.%d.%d--->",
+			logPrintf(Verbose,"V:envctrl_task.c::EnvParameter_task()->20%d.%d.%d--->",
 			RTC_DateStruct.RTC_Year,RTC_DateStruct.RTC_Month,RTC_DateStruct.RTC_Date);
-			logPrintf("Info:envctrl_task.c::EnvParameter_task()->%d:%d:%d\r\n",
+			logPrintf(Verbose,"V:envctrl_task.c::EnvParameter_task()->%d:%d:%d\r\n",
 			RTC_TimeStruct.RTC_Hours,RTC_TimeStruct.RTC_Minutes,RTC_TimeStruct.RTC_Seconds);
-			logPrintf("Info:envctrl_task.c::EnvParameter_task()->System start date:%d year %d month %d day\r\n",
+			logPrintf(Verbose,"V:envctrl_task.c::EnvParameter_task()->System start date:%d year %d month %d day\r\n",
 				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Year,
 				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Month,
 				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Date);
-			logPrintf("Info:envctrl_task.c::EnvParameter_task()->System start time:%d hour %d minute %d second\r\n",
+			logPrintf(Verbose,"V:envctrl_task.c::EnvParameter_task()->System start time:%d hour %d minute %d second\r\n",
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours,
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds);
-			logPrintf("Info:envctrl_task.c::EnvParameter_task()->System days of cycle:%d\r\n",dataStore.realtimeData.dayCycle);
+			logPrintf(Verbose,"V:envctrl_task.c::EnvParameter_task()->System days of cycle:%d\r\n",dataStore.realtimeData.dayCycle);
 			OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
 			ask_dev_id = 0x00;
 		}
@@ -172,7 +173,7 @@ void EnvParameter_task(void *p_arg)
 		OS_CRITICAL_EXIT();
 		order_ptr->type = ask_status;
 		CAN1_Send_Msg(ENV_PAR_RECEIVE_ID|ask_dev_id,buf,sizeof(ServerOrder),0);
-		logPrintf("Debug:envctrl_task::Ask for temperature dev_id=%d\r\n",ask_dev_id);
+		logPrintf(Debug,"D:envctrl_task.c::EnvParameter_task()->Ask for temperature dev_id=%d\r\n",ask_dev_id);
 		pMsg = OSTaskQPend ((OS_TICK        )3000,
 							(OS_OPT         )OS_OPT_PEND_BLOCKING,
 							(OS_MSG_SIZE   *)&msg_size,
@@ -184,7 +185,7 @@ void EnvParameter_task(void *p_arg)
 		#endif
 		if (err != OS_ERR_NONE)
 		{
-			logPrintf("Error:Dev_id:%d , main.c::EnvParameter_task->QSTaskQPend() wait for requests temperature respond err = %d ",ask_dev_id,err);
+			logPrintf(Error,"E:envctrl_task.c::EnvParameter_task()->QSTaskQPend() Dev_id:%d , wait for requests temperature respond err = %d ",ask_dev_id,err);
 			#ifdef ENABLE_BLACK_BOX
 			if (err == OS_ERR_TIMEOUT)
 			{
@@ -201,7 +202,7 @@ void EnvParameter_task(void *p_arg)
 		{
 			if (((DataPackage *)pMsg)->dev_id > 0x02)
 			{
-				logPrintf("Error:main.c::EnvParameter_task->CAN receive data->unknown dev_id = %d",((DataPackage *)pMsg)->dev_id);
+				logPrintf(Error,"E:envctrl_task.c::EnvParameter_task()->CAN receive data->unknown dev_id = %d",((DataPackage *)pMsg)->dev_id);
 			}
 			else
 			{
@@ -255,20 +256,17 @@ void EnvParameter_task(void *p_arg)
 						}
 						huimidityCtrl(((DataPackage *)pMsg)->dev_id);
 
-						logPrintf("Info:main.c::EnvParameter_task->CAN receive data::");
-						logPrintf("dev_id = %d,tempCH0 = %f,tempCH1 = %f,humidity = %d",((DataPackage *)pMsg)->dev_id,
+						logPrintf(Verbose,"D:envctrl_task.c::EnvParameter_task()->CAN receive data::");
+						logPrintf(Verbose,"dev_id = %d,tempCH0 = %f,tempCH1 = %f,humidity = %d\r\n",((DataPackage *)pMsg)->dev_id,
 								dataStore.realtimeData.insideTemperature[((DataPackage *)pMsg)->dev_id][0],
 								dataStore.realtimeData.insideTemperature[((DataPackage *)pMsg)->dev_id][1],
 								dataStore.realtimeData.humidityInside[((DataPackage *)pMsg)->dev_id]);
-						logPrintf("\r\n");
 						ask_status = SERVER_REQ_TEMPERATURE;
 						break;
 					case SERVER_REQ_ILLUMINANCY:
-						logPrintf ( "Info:main.c::EnvParameter_task->CAN receive data::");
+						logPrintf (Verbose,"D:envctrl_task.c::EnvParameter_task()->CAN receive data::\r\n");
 						//TODO
 						//printf("Dev_id = %d , Illuminancy = %f lex \r\n",ask_dev_id,);
-						logPrintf("\r\n");
-
 						if ((((DataPackage *)pMsg)->err & ILLUMINANCY_SENSOR_ERR) != ILLUMINANCY_SENSOR_ERR)
 						{
 							illuminancyCtrl(ask_dev_id);
@@ -289,11 +287,12 @@ void EnvParameter_task(void *p_arg)
 			OSMemPut ((OS_MEM  *)&mymem,
 					(void    *)pMsg,
 					(OS_ERR  *)&err);
-			++ask_dev_id;
+			//++ask_dev_id;
 			if (err != OS_ERR_NONE)
 			{
-				logPrintf("Error:EnvParameter_task::QSTaskQPend() err = %d ,pMsg = %d\r\n",err,(int)pMsg);
+				logPrintf(Error,"E:envctrl_task.c::EnvParameter_task()->OSMemPut() err = %d\r\n",err);
 			}
 		}
+		++ask_dev_id;
 	}
 }

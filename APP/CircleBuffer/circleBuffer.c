@@ -14,8 +14,10 @@ LoggerBufferStruct rb;
 static char initFlag = 0;
 #endif
 
+LogLevel logLevel = Error;    
+
 void loggerBufferInit(void);
-int logPrintf(const char *format,...);
+int logPrintf(LogLevel level,const char *format,...);
 uint16_t receiveLogFromQPend(void);
 uint16_t loggerBufferRead(uint8_t *pdest,uint16_t rd_len);
 uint16_t loggerBufferCount(void);
@@ -40,27 +42,34 @@ void loggerBufferInit(void)
   #endif
 }
 
-int logPrintf(const char *format,...)
+void setLogLevel(LogLevel level)
+{
+  #ifdef ENABLE_OUTPUT_LOG
+  logLevel = level;
+  #endif
+}
+
+int logPrintf(LogLevel level,const char *format,...)
 {
   char *p_mem_blk;
   va_list args;
-	
+	#ifndef ENABLE_OUTPUT_LOG
+	return 0;
+	#endif
+
   #ifdef ENABLE_WIFI_LOG
   OS_ERR          err;
   uint16_t len;
-	 #ifndef ENABLE_OUTPUT_LOG
-		return 0;
-	 #endif
+  if (level > logLevel)
+    return 0;
   p_mem_blk = OSMemGet((OS_MEM *)&logMalloc,(OS_ERR *)&err);  //???????? mem ??????????
 	if (err != OS_ERR_NONE)
 	{
 		return 0;
   }
-  #endif
   va_start(args,format);
 	vsprintf(p_mem_blk,format,args);
 	va_end(args);
-  #ifdef ENABLE_WIFI_LOG
   len = strlen(p_mem_blk);
   OSTaskQPost((OS_TCB      *)&WIFITaskTCB,
 							(void        *)p_mem_blk,
@@ -69,12 +78,13 @@ int logPrintf(const char *format,...)
 							(OS_ERR      *)&err);
   return len;
   #else
-	 #ifndef ENABLE_OUTPUT_LOG
-		return 0;
-	 #else
-		return printf(format,args);
-	 #endif
-  #endif
+  if (level > logLevel)
+    return 0;
+  va_start(args,format);
+	vsprintf(p_mem_blk,format,args);
+	va_end(args);
+	return printf(format,args);
+	#endif
 }
 
 uint16_t loggerBufferCount(void)

@@ -125,6 +125,6 @@ void littleAprilHCWCtrl(WhichRelay whichOne,OnOrOff onOrOff)
 void littleApril16FansCtrl(uint32_t relayCtrlGroup)
 {
 	fansOutputCtrl = relayCtrlGroup & 0xFFFF;
-	littleAprilGroupOutput(FansGroup1,fansOutputCtrl & 0xFF);
-	littleAprilGroupOutput(FansGroup1,(fansOutputCtrl>>8) & 0xFF);
+	littleAprilGroupOutput(FansGroup1,fansOutputCtrl&0xFF);
+	littleAprilGroupOutput(FansGroup2,(fansOutputCtrl&0xFF00)>>8);
 }

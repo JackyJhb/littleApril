@@ -14,6 +14,7 @@ void rtc_task(void *p_arg)
 	OS_ERR 			err;
 	CPU_INT32U      cpu_clk_freq;
 	CPU_TS          ts;
+	static char a = 0x55;
 	CPU_SR_ALLOC();
 	cpu_clk_freq = BSP_CPU_ClkFreq();
 	p_arg = p_arg;
@@ -39,5 +40,11 @@ void rtc_task(void *p_arg)
 		dataStore.realtimeData.hour = RTC_TimeStruct.RTC_Hours;
 		dataStore.realtimeData.minute = RTC_TimeStruct.RTC_Minutes;
 		dataStore.realtimeData.second = RTC_TimeStruct.RTC_Seconds;
+		 /*a =~a;
+		littleAprilGroupOutput(HCWGroup0,a);
+		littleAprilGroupOutput(FansGroup1,a);
+		littleAprilGroupOutput(FansGroup2,a);
+		littleAprilGroupOutput(Group3,a);
+		littleAprilGroupOutput(Group4,a);*/
 	}
 }

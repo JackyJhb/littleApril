@@ -3,8 +3,8 @@
 
 #include "includes.h"
 #include "stm32f4xx.h"
+#include "priolevel.h"
 
-#define SIDEWINDOWCTRL_TASK_PRIO		10
 #define SIDEWINDOWCTRL_STK_SIZE 		512
 
 extern OS_TCB SideWindowCtrlTaskTCB;

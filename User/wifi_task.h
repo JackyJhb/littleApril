@@ -1,8 +1,8 @@
 #ifndef WIFI_TASK_H
 #define WIFI_TASK_H
 #include "includes.h"
+#include "priolevel.h"
 
-#define WIFI_TASK_PRIO		17
 #define WIFI_STK_SIZE 		512
 
 #define   MQTT_INIT                   0

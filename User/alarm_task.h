@@ -2,6 +2,7 @@
 #define ALARM_TASK_H
 
 #include "includes.h"
+#include "priolevel.h"
 
 #define AREA1_TEMPERATURE_ALARM 			0x01
 #define AREA2_TEMPERATURE_ALARM				0x02
@@ -13,8 +14,6 @@
 
 #define PIRACY_ALARM                  0x80000000
 
-
-#define ALARM_TASK_PRIO		16
 #define ALARM_STK_SIZE 		512
 
 extern OS_TCB AlarmTaskTCB;

@@ -8,6 +8,7 @@
 #include "task_monitor.h"
 #include "default_config.h"
 #include "rtc.h"
+#include "circleBuffer.h"
 
 OS_TCB VentilationTaskTCB;
 CPU_STK VENTILATION_TASK_STK[VENTILATION_STK_SIZE];
@@ -59,22 +60,25 @@ void ventilation_task(void *p_arg)
 					//logPrintf("ventilation_cycle = %d\r\n",dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle].ventilationCycle);
 					//logPrintf("###############################################\r\n");
 					work_timer_counter = 0x00;
-					//dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.coolDownGrade[level].sideWindowOpenAngle;
 					dataStore.realtimeData.workingVentilators = dataStore.ctrlParameter.ventilation.ventilateGrade[level].runningFansBits;
 					littleApril16FansCtrl(dataStore.realtimeData.workingVentilators);
 					isFanWorking = true;
+					logPrintf(Debug,"D:ventilation_task.c::ventilation_task()->20%d.%d.%d %d:%d:%d\r\n",
+								RTC_DateStruct.RTC_Year,RTC_DateStruct.RTC_Month,RTC_DateStruct.RTC_Date,
+								RTC_TimeStruct.RTC_Hours,RTC_TimeStruct.RTC_Minutes,RTC_TimeStruct.RTC_Seconds);
+					logPrintf(Debug,"D:ventilation_task.c::ventilation_task()->Start ventilate:workingVentilators=%d\r\n",dataStore.realtimeData.workingVentilators);
 				}
 				else
 				{
 					if (++work_timer_counter >= fan_work_seconds)
 					{
 						ventilation_cycle_counter = fan_work_seconds;
-						dataStore.realtimeData.workingVentilators &= 
-						          (~dataStore.ctrlParameter.ventilation.ventilateGrade[level].runningFansBits);
+						//dataStore.realtimeData.workingVentilators &= 
+						//          (~dataStore.ctrlParameter.ventilation.ventilateGrade[level].runningFansBits);
+						dataStore.realtimeData.workingVentilators = 0x0000;
 						littleApril16FansCtrl(dataStore.realtimeData.workingVentilators);
 						isFanWorking = false;
-						//dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
-						//logPrintf("Info:ventilation_task.c::ventilation_task ventilators stopped working.\r\n");
+						logPrintf(Debug,"D:ventilation_task.c::ventilation_task()->Stop\r\n");
 					}
 				}
 			}

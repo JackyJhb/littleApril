@@ -2,8 +2,8 @@
 #define MAIN_TASK_H
 
 #include "includes.h"
+#include "priolevel.h"
 
-#define START_TASK_PRIO		2
 #define START_STK_SIZE 		512
 
 extern OS_TCB StartTaskTCB;
