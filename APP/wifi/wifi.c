@@ -60,7 +60,7 @@ uint8_t connectToRouter(void);
 uint8_t setMuxConnection(void);
 uint8_t setServerMode(void);
 uint8_t connectToServer(void);
-uint8_t waitForAnswer(char *cmpSrcPtr,uint16_t delayms,uint16_t usartDelay);
+uint8_t waitForAnswer(char *cmpSrcPtr,uint16_t delayms);
 uint16_t sendDatas(char *buf,uint16_t len);
 int16_t getWifiRecDatas(char *saveBufPtr);
 
@@ -141,14 +141,14 @@ uint8_t searchESP8266(void)
 {
 	clearBuf();
 	sendStr("AT\r\n");
-	return waitForAnswer("OK",100,3);
+	return waitForAnswer("OK",100);
 }
 
 uint8_t switchESP8266Mode(void)
 {
 	clearBuf();
 	sendStr("AT+CWMODE=1\r\n");
-	return waitForAnswer("OK",100,3);
+	return waitForAnswer("OK",100);
 }
 
 uint8_t resetESP8266(void)
@@ -156,14 +156,14 @@ uint8_t resetESP8266(void)
 	clearBuf();
 	sendStr("AT+RST\r\n");
 	//return waitForAnswer("WIFI GOT IP",1000,10);
-	return waitForAnswer("OK",1000,10);
+	return waitForAnswer("OK",1000);
 }
 
 uint8_t searchRouter(void)
 {
 	clearBuf();
 	sendStr("AT+CWLAP\r\n");
-	return waitForAnswer(dataStore.ctrlParameter.esp8266Options.routerName,1000,3); //4s
+	return waitForAnswer(dataStore.ctrlParameter.esp8266Options.routerName,1000); //4s
 }
 
 uint8_t connectToRouter(void)
@@ -174,20 +174,20 @@ uint8_t connectToRouter(void)
 	sendStr("\",\"");
 	sendStr(dataStore.ctrlParameter.esp8266Options.routerPasswd);
 	sendStr("\"\r\n");
-	return waitForAnswer("WIFI GOT IP",1000,3); //6s
+	return waitForAnswer("WIFI GOT IP",1000); //6s
 }
 uint8_t setMuxConnection(void)
 {
 	clearBuf();
 	sendStr("AT+CIPMUX=1\r\n");
-	return waitForAnswer("OK",100,3);
+	return waitForAnswer("OK",100);
 }
 
 uint8_t setServerMode(void)
 {
 	clearBuf();
 	sendStr("AT+CIPSERVER=1\r\n");
-	return waitForAnswer("OK",100,3);
+	return waitForAnswer("OK",100);
 }
 
 uint8_t connectToServer(void)
@@ -198,7 +198,7 @@ uint8_t connectToServer(void)
 	sendStr("\",");
 	sendStr(dataStore.ctrlParameter.esp8266Options.serverPort);
 	sendStr("\r\n");
-	return waitForAnswer("CONNECT",100,3);
+	return waitForAnswer("CONNECT",100);
 }
 
 void usartWifiInit(u32 bound)
@@ -362,7 +362,7 @@ uint16_t sendDatas(char *buf,uint16_t len)
 	sendStr(temp);
 	clearBuf();
 	sendStr("\r\n");
-	if (waitForAnswer(">",100,3) != 0)
+	if (waitForAnswer(">",100) != 0)
 		return 0;
 	sendChars(buf,len);
 	/*if (waitForAnswer("SEND OK",100,3) != 0)
@@ -371,7 +371,7 @@ uint16_t sendDatas(char *buf,uint16_t len)
 	return len;
 }
 
-uint8_t waitForAnswer(char *cmpSrcPtr,uint16_t delayms,uint16_t usartDelay)
+uint8_t waitForAnswer(char *cmpSrcPtr,uint16_t delayms)
 {
 	OS_ERR err;
 	uint16_t wait_timer = 0;
