@@ -71,7 +71,7 @@ const VentilationCoefficient ventilationCoefficientDefault[8] = {
 }
 #else
 const VentilationCoefficient ventilationCoefficientDefault[50] = {
-	{0,180},//0  1
+	{30,180},//0  1
 	{30,180},//1
 	{30,180},//2
 	{50,180},//3

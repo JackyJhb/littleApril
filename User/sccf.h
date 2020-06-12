@@ -12,8 +12,8 @@ The meaning of sccf is System Control Configuration File.
 #include "debug_config.h"
 
 #define AT24C128
-#define INIT_KEY        0x3333
-#define INIT_KEY_FLASH  0x4455
+#define INIT_KEY        0x5555
+#define INIT_KEY_FLASH  0x6666
 
 #define ADDR_RTD_FILE   0x0000      //Real time data
 #define ADDR_CFG_FILE   0x0400      //Config file data
@@ -151,9 +151,9 @@ typedef struct{
 	uint16_t communicateTimeOutErrTimes[4];
 	uint16_t memAllocErrTimes;
 	uint16_t memTooLowTimes;
+	uint16_t sensorErrTimes[3][4];
 	uint16_t boilerTemperatureTooLowErrTimes;
 	uint16_t devIDErrTimes;
-	uint16_t sensorErrTimes[3][4];
 	uint16_t heatingTimes[3];
 	uint16_t coldingTimes[2];
 	uint16_t rebootTimes;

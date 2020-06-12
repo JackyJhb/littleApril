@@ -6,7 +6,7 @@
 #define ENABLE_BLACK_BOX
 #define ENABLE_USER_SET
 
-#define ENABLE_PIRACY_TRAP
+//#define ENABLE_PIRACY_TRAP
 //#define ENABLE_NEW_CIRCURIT        //Enable new circurit board and to use 74hc573 to output io 
 
 #define true  1
