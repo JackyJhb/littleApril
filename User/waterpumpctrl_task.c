@@ -74,9 +74,12 @@ void waterpump_task(void *p_arg)
 			else if ((pumpStatus == true) && 
 					(counter > dataStore.ctrlParameter.systemOptions.waterPumpRunningTime))
 			{
-				littleAprilIOCtrl(Colding,Off);
+				if (dataStore.ctrlParameter.systemOptions.waterPumpStoppedTime != 0)
+				{
+					littleAprilIOCtrl(Colding,Off);
+					pumpStatus = false;
+				}
 				counter = 0x00;
-				pumpStatus = false;
 				#ifdef ENABLE_OUTPUT_LOG
 				printf("Info:waterpumpctrl_task.c::waterpump_task()->Pump stopped!Stopped delay=%f\r\n",
 								dataStore.ctrlParameter.systemOptions.waterPumpStoppedTime);

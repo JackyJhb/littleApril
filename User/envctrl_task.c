@@ -139,7 +139,7 @@ void EnvParameter_task(void *p_arg)
 	CPU_TS_TMR      ts_int;
 	CPU_INT32U      cpu_clk_freq;
 	OS_MSG_SIZE     msg_size;
-	char * pMsg,ask_status = SERVER_REQ_TEMPERATURE,ask_dev_id = 0x00;
+	char * pMsg,ask_status = SERVER_REQ_TEMPERATURE,ask_dev_id = 0x00,ch0_ok,ch1_ok;
 	ServerOrder *order_ptr;
 	#ifdef ENABLE_OUTPUT_LOG
 	unsigned int can_err_times = 0;
@@ -245,26 +245,38 @@ void EnvParameter_task(void *p_arg)
 							((float)((DataPackage *)pMsg)->leftTemperature/100 < 35.0))
 						{
 							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0] = (float)((DataPackage *)pMsg)->leftTemperature/100;
+							ch0_ok = 1;
 						}
 						else
 						{
 							#ifdef ENABLE_BLACK_BOX
 							++dataStore.blackBox.sensorErrTimes[((DataPackage *)pMsg)->dev_id][0];
 							#endif
+							ch0_ok = 0;
 						}
 						if (((((DataPackage *)pMsg)->err & DS18B20_RIGHT_ERR) != DS18B20_RIGHT_ERR) && 
 							((float)((DataPackage *)pMsg)->rightTemperature/100 > 18.0) &&
 							((float)((DataPackage *)pMsg)->rightTemperature/100 < 35.0))
 						{
 							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][1] = (float)((DataPackage *)pMsg)->rightTemperature/100;
-							if (((DataPackage *)pMsg)->dev_id == 0x02)
-								dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0] = (float)((DataPackage *)pMsg)->rightTemperature/100;
+							ch1_ok = 1;
 						}
 						else
 						{
 							#ifdef ENABLE_BLACK_BOX
 							++dataStore.blackBox.sensorErrTimes[((DataPackage *)pMsg)->dev_id][1];
-							#endif	
+							#endif
+							ch1_ok = 0;
+						}
+						if ((ch0_ok == 0) && ch1_ok)
+						{
+							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0] = 
+									dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][1];
+						}
+						if ((ch1_ok == 0) && ch0_ok)
+						{
+							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][1] = 
+									dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0];
 						}
 						temperatureCtrl(((DataPackage *)pMsg)->dev_id);
 								
@@ -274,7 +286,7 @@ void EnvParameter_task(void *p_arg)
 						}
 						else
 						{
-							dataStore.realtimeData.humidityInside[((DataPackage *)pMsg)->dev_id] = INVIAL;
+							//dataStore.realtimeData.humidityInside[((DataPackage *)pMsg)->dev_id] = INVIAL;
 							#ifdef ENABLE_BLACK_BOX
 							++dataStore.blackBox.sensorErrTimes[((DataPackage *)pMsg)->dev_id][2];
 							#endif
@@ -284,8 +296,8 @@ void EnvParameter_task(void *p_arg)
 						#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
 						printf("Info:main.c::EnvParameter_task->CAN receive data::");
 						printf("dev_id = %d,tempCH0 = %f,tempCH1 = %f,humidity = %d",((DataPackage *)pMsg)->dev_id,
-								dataStore.realtimeData.insideTemperature[((DataPackage *)pMsg)->dev_id][0],
-								dataStore.realtimeData.insideTemperature[((DataPackage *)pMsg)->dev_id][1],
+								(float)((DataPackage *)pMsg)->leftTemperature/100,
+								(float)((DataPackage *)pMsg)->rightTemperature/100,
 								dataStore.realtimeData.humidityInside[((DataPackage *)pMsg)->dev_id]);
 						printf("\r\n");
 						#endif
