@@ -23,37 +23,33 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 			average_temperature += *((float *)dataStore.realtimeData.insideTemperature +i);
 		}
 		average_temperature /= 6;
-		#ifdef ENABLE_OUTPUT_LOG
 		logPrintf(Verbose,"V:pid.c::pidControlTemperature()->average temperature is %.2f\r\n",average_temperature);
-		#endif
 	}
 	dataStore.ctrlParameter.pidParameter.setTemperature = set_temperature;
 	dataStore.realtimeData.currentSetTemperature = set_temperature;
-	#ifdef ENABLE_OUTPUT_LOG
 	logPrintf(Verbose,"V:pid.c::pidControlTemperature()->%d's area set temperature is %.2f.\r\n",which_one,dataStore.ctrlParameter.pidParameter.setTemperature);
-	printf("Info:pid.c::pidControlTemperature()->Real time temperature is %.2f\r\n",actual_temperature);
-	#endif
+	logPrintf(Verbose,"V:pid.c::pidControlTemperature()->Real time temperature is %.2f\r\n",actual_temperature);
 	
 	if ((dataStore.ctrlParameter.pidParameter.setTemperature + dataStore.ctrlParameter.systemOptions.startHeatingCondition) >= actual_temperature)
 	{
 		#ifdef ENABLE_OUTPUT_LOG
 		logPrintf(Warning,"W:pid.c::pidControlTemperature()->%d's area's temperature is lower than setting,need to heating.\r\n",which_one);
-		logPrintf(Warning,"W:pid.c::pidControlTemperature()->dataStore.realtimeData.boilerTemperature=%.2f.\r\n",dataStore.realtimeData.boilerTemperature);
-		logPrintf(Warning,"W:pid.c::pidControlTemperature()->dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature=%.2f.\r\n",dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature);
+		logPrintf(Warning,"W:pid.c::pidControlTemperature()->dataStore.realtimeData.boilerPipeTemperature=%.2f.\r\n",dataStore.realtimeData.boilerPipeTemperature);
+		logPrintf(Warning,"W:pid.c::pidControlTemperature()->dataStore.ctrlParameter.systemOptions.startHeatingBoilerPipeTemperature=%.2f.\r\n",dataStore.ctrlParameter.systemOptions.startHeatingBoilerPipeTemperature);
 		#endif
 		if ((dataStore.realtimeData.heatingColdingStatus & (1<<which_one)) &&
-			(dataStore.realtimeData.boilerTemperature <= dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature))
+			(dataStore.realtimeData.boilerPipeTemperature <= dataStore.ctrlParameter.systemOptions.stopHeatingBoilerPipeTemperature))
 		{
 				littleAprilHCWCtrl((1<<which_one),Off);
 				dataStore.realtimeData.heatingColdingStatus &= ~(1<<which_one);
 				#ifdef ENABLE_OUTPUT_LOG
 				logPrintf(Warning,"W:pid.c::pidControlTemperature()->Boiler's temperature is %.2f,It's lower than setting's value %.2f.Heating paused.\r\n",
-				         dataStore.realtimeData.boilerTemperature,
-						  dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature);
+				         dataStore.realtimeData.boilerPipeTemperature,
+						  dataStore.ctrlParameter.systemOptions.stopHeatingBoilerPipeTemperature);
 				#endif
 		}
 		if (((dataStore.realtimeData.heatingColdingStatus & (1<<which_one)) == 0) &&
-			(dataStore.realtimeData.boilerTemperature >= dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature))
+			(dataStore.realtimeData.boilerPipeTemperature >= dataStore.ctrlParameter.systemOptions.startHeatingBoilerPipeTemperature))
 		{
 				littleAprilHCWCtrl((1<<which_one),On);
 				//is_heating[which_one] = 1;
@@ -123,14 +119,10 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 		if (i == (grade_nums-2))
 		{
 			level = grade_nums -1;
-			#ifdef ENABLE_OUTPUT_LOG
-			printf("Info:pid.c::pidControlTemperature()->Cool down grade is %d that is too high,it's terrible!\r\n",level);
-			#endif
+			logPrintf(Info,"Info:pid.c::pidControlTemperature()->Cool down grade is %d that is too high,it's terrible!\r\n",level);
 		}
 	}
-	#ifdef ENABLE_OUTPUT_LOG
-	printf("Info:pid.c::pidControlTemperature()->Calculate cool down grade result is %d!\r\n",level);
-	#endif
+	logPrintf(Info,"Info:pid.c::pidControlTemperature()->Calculate cool down grade result is %d!\r\n",level);
 	if ((level_last > level) && 
 		(temperature_difference > 
 					(dataStore.ctrlParameter.coolDownGrade[level].temperatureDifference + 

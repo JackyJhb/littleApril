@@ -12,6 +12,8 @@
 #include "alarm_task.h"
 #include "waterpumpctrl_task.h"
 #include "circleBuffer.h"
+#include "boilerctrl_task.h"
+#include "lightctrl_task.h"
 
 OS_MEM mymem;
 uint8_t ucArray [ 20 ] [ 40];
@@ -68,7 +70,7 @@ void start_task(void *p_arg)
                  (OS_ERR 	* )&err);
 
 	OSTaskCreate((OS_TCB 	* )&Led1TaskTCB,		
-				 (CPU_CHAR	* )"led1 task", 		
+				 (CPU_CHAR	* )"Led1 task", 		
                  (OS_TASK_PTR )led1_task, 			
                  (void		* )0,					
                  (OS_PRIO	  )LED1_TASK_PRIO,     
@@ -110,7 +112,7 @@ void start_task(void *p_arg)
                  (OS_ERR 	* )&err);
 				 
 	OSTaskCreate((OS_TCB 	* )&WATERPUMPTaskTCB,		
-				 (CPU_CHAR	* )"waterpump task", 		
+				 (CPU_CHAR	* )"Waterpump task", 		
                  (OS_TASK_PTR )waterpump_task, 			
                  (void		* )0,					
                  (OS_PRIO	  )WATERPUMP_TASK_PRIO,     
@@ -152,7 +154,7 @@ void start_task(void *p_arg)
                  (OS_ERR 	* )&err);
 								 
 	OSTaskCreate((OS_TCB 	* )&AlarmTaskTCB,		
-				 (CPU_CHAR	* )"alarm task", 		
+				 (CPU_CHAR	* )"Alarm task", 		
                  (OS_TASK_PTR )alarm_task, 			
                  (void		* )0,					
                  (OS_PRIO	  )ALARM_TASK_PRIO,     
@@ -193,7 +195,7 @@ void start_task(void *p_arg)
                  (OS_ERR 	* )&err);
 				 
 	OSTaskCreate((OS_TCB 	* )&RTCTaskTCB,		
-				 (CPU_CHAR	* )"rtc task", 		
+				 (CPU_CHAR	* )"RTC task", 		
                  (OS_TASK_PTR )rtc_task, 			
                  (void		* )0,					
                  (OS_PRIO	  )RTC_TASK_PRIO,     
@@ -219,7 +221,34 @@ void start_task(void *p_arg)
                  (void   	* )0,					
                  (OS_OPT      )OS_OPT_TASK_STK_CHK|OS_OPT_TASK_STK_CLR,
                  (OS_ERR 	* )&err);
-				 
+
+    OSTaskCreate((OS_TCB 	* )&BoilerCtrlTaskTCB,		
+				 (CPU_CHAR	* )"Boiler control task", 		
+                 (OS_TASK_PTR )boilerctrl_task, 			
+                 (void		* )0,					
+                 (OS_PRIO	  )BOILERCTRL_TASK_PRIO,     
+                 (CPU_STK   * )&BOILERCTRL_TASK_STK[0],	
+                 (CPU_STK_SIZE)BOILERCTRL_STK_SIZE/10,	
+                 (CPU_STK_SIZE)BOILERCTRL_STK_SIZE,		
+                 (OS_MSG_QTY  )50,					
+                 (OS_TICK	  )0,					
+                 (void   	* )0,					
+                 (OS_OPT      )OS_OPT_TASK_STK_CHK|OS_OPT_TASK_STK_CLR,
+                 (OS_ERR 	* )&err);
+
+    OSTaskCreate((OS_TCB 	* )&LightCtrlTaskTCB,		
+				 (CPU_CHAR	* )"Light control task", 		
+                 (OS_TASK_PTR )lightctrl_task, 			
+                 (void		* )0,					
+                 (OS_PRIO	  )LIGHTCTRL_TASK_PRIO,     
+                 (CPU_STK   * )&LIGHTCTRL_TASK_STK[0],	
+                 (CPU_STK_SIZE)LIGHTCTRL_STK_SIZE/10,	
+                 (CPU_STK_SIZE)LIGHTCTRL_STK_SIZE,		
+                 (OS_MSG_QTY  )50,					
+                 (OS_TICK	  )0,					
+                 (void   	* )0,					
+                 (OS_OPT      )OS_OPT_TASK_STK_CHK|OS_OPT_TASK_STK_CLR,
+                 (OS_ERR 	* )&err);
 	OS_TaskSuspend((OS_TCB*)&StartTaskTCB,&err);
 	OS_CRITICAL_EXIT();
 }

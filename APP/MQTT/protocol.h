@@ -17,25 +17,28 @@ typedef enum {
 	ServerRequestAmbientTemperatureWeek  			= 0x03,
 	ServerRequestVentilateFansRunCtrl    			= 0x04,            //5 levels
 	ServerRequestVentilate               			= 0x05,
+	ServerRequestBlackBoxData									= 0x15,
 
-	ClientRespondAlarmThreshold			 			= 0x06,			//alarm threadhold
-	ClientRespondSystemOptions			 			= 0x07,			//control reference
-	ClientRespondCoolDownGrade			 			= 0x08,			//16 levels
+	ClientRespondAlarmThreshold			 					= 0x06,			//alarm threadhold
+	ClientRespondSystemOptions			 					= 0x07,			//control reference
+	ClientRespondCoolDownGrade			 					= 0x08,			//16 levels
 	ClientRespondAmbientTemperatureWeek  			= 0x09,			//
 	ClientRespondVentilationFansRunCtrl  			= 0x0A,			//5 levels
-	ClientRespondVentilate				 			= 0x0B,
+	ClientRespondVentilate				 						= 0x0B,
+	ClientRespondBlackBoxData									=0x16,
 	
-	ServerSetRefAlarmThreshold			 			= 0x0C,
-	ServerSetRefSystemOptions			 			= 0x0D,
-	ServerSetRefCoolDownGrade			 			= 0x0E,
+	ServerSetRefAlarmThreshold			 					= 0x0C,
+	ServerSetRefSystemOptions			 						= 0x0D,
+	ServerSetRefCoolDownGrade			 						= 0x0E,
 	ServerSetRefAmbientTemperatureWeek	 			= 0x0F,
-	ServerSetRefVentilateFansRunCtrl	 			= 0x10,
-	ServerSetRefVentilate				 			= 0x11,
-	ServerEnableMQTTLog               = 0x13,
+	ServerSetRefVentilateFansRunCtrl	 				= 0x10,
+	ServerSetRefVentilate				 							= 0x11,
 
 	ClientBroadcastRealTimeStatus        			= 0x12,
-
-	ClientBroadcastLog                              = 0x50
+	ClientBroadcastLog                        = 0x50,
+	
+	ServerEnableMQTTLog												= 0x13,
+	ServerCtrlSystem													= 0x14
 }PackageType;
 
 typedef struct {
@@ -50,7 +53,7 @@ typedef struct {
 	char packageType;
 }ReceiveMsgHeader;
 
-typedef struct {
+/*typedef struct {
 	uint8_t isStarted;
 	uint8_t cycleDays;
 	uint8_t yearSystemStart;
@@ -71,6 +74,6 @@ typedef struct {
 	uint16_t workingVentilators;
 	uint16_t heatingColdingStatus;
 	uint32_t sensorErrStatus;
-}ClientRealData;
+}ClientRealData;*/
 
 #endif

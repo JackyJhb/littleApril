@@ -3,6 +3,7 @@
 #include "bsp_gpio.h"
 #include "adc.h"
 #include "task_monitor.h"
+#include "circleBuffer.h"
 
 #define THRESHOLD  0
 OS_TCB SideWindowCtrlTaskTCB;
@@ -30,11 +31,9 @@ void sidewindowctrl_task(void *p_arg)
 		Get_ADC_Value();
 		if (last_side_window_angle != dataStore.realtimeData.targetSideWindowsAngle)
 		{
-			#ifdef ENABLE_OUTPUT_LOG
-			printf("Side window's open angle has been changed from %d to %d degree.\r\n",
+			logPrintf(Info,"I:sidewindowctrl_task.c::sidewindowCtrl_task()->Changed angle from %d to %d .\r\n",
 							last_side_window_angle,
 							dataStore.realtimeData.targetSideWindowsAngle);
-			#endif
 			dataStore.realtimeData.isSideWindowMotorRunning = 0x03;
 			last_side_window_angle = dataStore.realtimeData.targetSideWindowsAngle;
 		}

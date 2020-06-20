@@ -5,6 +5,7 @@
 #include "sccf.h"
 #include "task_monitor.h"
 #include "bsp_gpio.h"
+#include "circleBuffer.h"
 
 OS_TCB RTCTaskTCB;
 CPU_STK RTC_TASK_STK[RTC_STK_SIZE];
@@ -28,9 +29,7 @@ void rtc_task(void *p_arg)
 						(OS_ERR   *)&err);
 		if (err != OS_ERR_NONE)
 		{
-			#ifdef ENABLE_OUTPUT_LOG
-			printf("Error:RTC_task::QSTaskQPend() err = %d \r\n",err);
-			#endif
+			logPrintf(Error,"Error:RTC_task::QSTaskQPend() err = %d \r\n",err);
 		}
 		RTC_GetTimes(RTC_Format_BIN);
 		dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds = RTC_TimeStruct.RTC_Seconds;

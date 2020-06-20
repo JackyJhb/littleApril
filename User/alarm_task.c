@@ -6,6 +6,7 @@
 #include "task_monitor.h"
 #include "rtc.h"
 #include "stm32f4xx.h"                  // Device header
+#include "circleBuffer.h"
 
 OS_TCB AlarmTaskTCB;
 CPU_STK ALARM_TASK_STK[ALARM_STK_SIZE];
@@ -59,8 +60,8 @@ void alarm_task(void *p_arg)
 			alarm_bits &= ~AREA3_TEMPERATURE_ALARM;
 		}
 		
-		if ((dataStore.realtimeData.boilerTemperature < dataStore.ctrlParameter.alarmThresholdOptions.boilerTemperatureLowThreshold) || 
-			(dataStore.realtimeData.boilerTemperature > dataStore.ctrlParameter.alarmThresholdOptions.boilerTemperatureHighThreshold))
+		if ((dataStore.realtimeData.boilerPipeTemperature < dataStore.ctrlParameter.alarmThresholdOptions.boilerTemperatureLowThreshold) || 
+			(dataStore.realtimeData.boilerPipeTemperature > dataStore.ctrlParameter.alarmThresholdOptions.boilerTemperatureHighThreshold))
 		{
 			alarm_bits |= BOILER_TEMPERATURE_ALARM;
 		}
@@ -91,9 +92,7 @@ void alarm_task(void *p_arg)
 			if (beep_status)
 			{
 				GPIO_ResetBits(BEEP_Port,BEEP_Pin);
-				#ifdef ENABLE_OUTPUT_LOG
-				printf("Info:alarm_task.c::alarm_task!Alarm code = %d\r\n",beep_status);
-				#endif
+				logPrintf(Info,"Info:alarm_task.c::alarm_task!Alarm code = %d\r\n",beep_status);
 				beep_status = 0x00;
 			}
 			else

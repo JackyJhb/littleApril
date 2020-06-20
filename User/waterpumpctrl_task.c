@@ -3,6 +3,7 @@
 #include "sccf.h"
 #include "debug_config.h"
 #include "task_monitor.h"
+#include "circleBuffer.h"
 
 OS_TCB WATERPUMPTaskTCB;	
 CPU_STK WATERPUMP_TASK_STK[WATERPUMP_STK_SIZE];
@@ -37,11 +38,9 @@ void waterpump_task(void *p_arg)
 				dataStore.ctrlParameter.systemOptions.waterPumpStopTemperature))
 		{
 			isRunning = false;
-			//littleAprilHCWCtrl(Colding,Off);
-			#ifdef ENABLE_OUTPUT_LOG
-			printf("Info:waterpumpctrl_task.c::waterpump_task()->Pump disable,stopTemperature = %.1f!\r\n",
+			littleAprilHCWCtrl(Colding,Off);
+			logPrintf(Info,"I:waterpumpctrl_task.c::waterpump_task()->Pump disable,stopTemperature = %.1f!\r\n",
 							dataStore.ctrlParameter.systemOptions.waterPumpStopTemperature);
-			#endif
 		}
 		else if ((isRunning == false) &&
 			(average_temperature > 
@@ -50,11 +49,9 @@ void waterpump_task(void *p_arg)
 			isRunning = true;
 			pumpStatus = true;
 			counter = 0x00;
-			//littleAprilHCWCtrl(Colding,On);
-			#ifdef ENABLE_OUTPUT_LOG
-			printf("Info:waterpumpctrl_task.c::waterpump_task()->Pump enable,startTemperature = %.1f!\r\n",
+			littleAprilHCWCtrl(Colding,On);
+			logPrintf(Info,"I:waterpumpctrl_task.c::waterpump_task()->Pump enable,startTemperature = %.1f!\r\n",
 							dataStore.ctrlParameter.systemOptions.waterPumpStartTemperature);
-			#endif
 		}
 		
 		if (isRunning == true)
@@ -63,24 +60,20 @@ void waterpump_task(void *p_arg)
 			if ((pumpStatus == false) && 
 					(counter > dataStore.ctrlParameter.systemOptions.waterPumpStoppedTime))
 			{
-				//littleAprilHCWCtrl(Colding,On);
+				littleAprilHCWCtrl(Colding,On);
 				counter = 0x00;
 				pumpStatus = true;
-				#ifdef ENABLE_OUTPUT_LOG
-				printf("Info:waterpumpctrl_task.c::waterpump_task()->Pump working!Working delay=%f\r\n",
+				logPrintf(Info,"I:waterpumpctrl_task.c::waterpump_task()->Pump working!Working delay=%f\r\n",
 								dataStore.ctrlParameter.systemOptions.waterPumpRunningTime);
-				#endif
 			}
 			else if ((pumpStatus == true) && 
 					(counter > dataStore.ctrlParameter.systemOptions.waterPumpRunningTime))
 			{
-				//littleAprilHCWCtrl(Colding,Off);
+				littleAprilHCWCtrl(Colding,Off);
 				counter = 0x00;
 				pumpStatus = false;
-				#ifdef ENABLE_OUTPUT_LOG
-				printf("Info:waterpumpctrl_task.c::waterpump_task()->Pump stopped!Stopped delay=%f\r\n",
+				logPrintf(Info,"I:waterpumpctrl_task.c::waterpump_task()->Pump stopped!Stopped delay=%f\r\n",
 								dataStore.ctrlParameter.systemOptions.waterPumpStoppedTime);
-				#endif
 			}
 		}
 		OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);

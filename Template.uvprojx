@@ -459,6 +459,16 @@
               <FileType>1</FileType>
               <FilePath>.\User\waterpumpctrl_task.c</FilePath>
             </File>
+            <File>
+              <FileName>boilerctrl_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\boilerctrl_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>lightctrl_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\lightctrl_task.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -27,7 +27,7 @@ void updateData(void)
 	{
 		logPrintf(Error,"E:envctrl_task.c::updateData()->get outside temperature error!\r\n");
 	}
-	if (ReadTemperature(&dataStore.realtimeData.boilerTemperature,CH2))
+	if (ReadTemperature(&dataStore.realtimeData.boilerPipeTemperature,CH2))
 	{
 		logPrintf(Error,"E:envctrl_task.c::updateData()->get boiler temperature error!\r\n");
 	}
@@ -179,10 +179,6 @@ void EnvParameter_task(void *p_arg)
 							(OS_MSG_SIZE   *)&msg_size,
 							(CPU_TS        *)0,
 							(OS_ERR       *)&err);
-		#ifdef ENABLE_OUTPUT_LOG
-		//if (pMsg != 0x00)
-			//printf("Debug:EnvParameter_task::Ask for temperature answer dev_id=%d\r\n",((DataPackage *)pMsg)->dev_id);
-		#endif
 		if (err != OS_ERR_NONE)
 		{
 			logPrintf(Error,"E:envctrl_task.c::EnvParameter_task()->QSTaskQPend() Dev_id:%d , wait for requests temperature respond err = %d ",ask_dev_id,err);
@@ -266,7 +262,6 @@ void EnvParameter_task(void *p_arg)
 					case SERVER_REQ_ILLUMINANCY:
 						logPrintf (Verbose,"D:envctrl_task.c::EnvParameter_task()->CAN receive data::\r\n");
 						//TODO
-						//printf("Dev_id = %d , Illuminancy = %f lex \r\n",ask_dev_id,);
 						if ((((DataPackage *)pMsg)->err & ILLUMINANCY_SENSOR_ERR) != ILLUMINANCY_SENSOR_ERR)
 						{
 							illuminancyCtrl(ask_dev_id);
@@ -287,7 +282,6 @@ void EnvParameter_task(void *p_arg)
 			OSMemPut ((OS_MEM  *)&mymem,
 					(void    *)pMsg,
 					(OS_ERR  *)&err);
-			//++ask_dev_id;
 			if (err != OS_ERR_NONE)
 			{
 				logPrintf(Error,"E:envctrl_task.c::EnvParameter_task()->OSMemPut() err = %d\r\n",err);

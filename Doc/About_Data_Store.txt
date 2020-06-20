@@ -11,7 +11,7 @@ datas those are used in this project.
 	dataStore.realtimeData.humidityInside[3]
 	dataStore.realtimeData.insideTemperature[3][2]
 	dataStore.realtimeData.outsideTemperature
-	dataStore.realtimeData.boilerTemperature
+	dataStore.realtimeData.boilerPipeTemperature
 	dataStore.realtimeData.illumination[3]
 	dataStore.realtimeData.pressureInside
 	dataStore.realtimeData.dayCycle

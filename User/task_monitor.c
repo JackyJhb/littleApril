@@ -1,6 +1,8 @@
 #include "task_monitor.h"
 #include "debug_config.h"
 #include "sccf.h"
+#include "circleBuffer.h"
+
 OS_TCB MonitorTaskTCB;
 CPU_STK MONITOR_TASK_STK[MONITOR_STK_SIZE];
 
@@ -17,20 +19,13 @@ void readSTM32UniqueID(void)
 {
 	uint8_t i;
 	__IO uint8_t *addr = (__IO uint8_t *)(0x1FFF7A10);
-	#ifdef ENABLE_OUTPUT_LOG
-	printf("Info:task_monitor.c::readSTM32UniqueID()->\r\n");
-	#endif
+	logPrintf(Info,"Info:task_monitor.c::readSTM32UniqueID()->\r\n");
 	for (i = 0;i < STM32_UNIQUE_ID_SIZE;i++)
 	{
 		dataStore.realtimeData.stm32UniqueID[i] = *(addr+i);
-		//++addr;
-		#ifdef ENABLE_OUTPUT_LOG
-		printf("%d ",dataStore.realtimeData.stm32UniqueID[i]);
-		#endif
+		logPrintf(Info,"%d ",dataStore.realtimeData.stm32UniqueID[i]);
 	}
-	#ifdef ENABLE_OUTPUT_LOG
-	printf("\r\n");
-	#endif
+	logPrintf(Info,"\r\n");
 }
 
 ResetSourceType getRstSrcType(void)
@@ -39,58 +34,42 @@ ResetSourceType getRstSrcType(void)
 	if (RCC->CSR & (1<<31))
 	{
 		type = LOWPOWER_RST;
-		#ifdef ENABLE_OUTPUT_LOG
-		printf("Info:task_monitor.c::getRstSrcType()->System reset type is LOWPOWER_RST!\r\n");
-		#endif
+		logPrintf(Info,"Info:task_monitor.c::getRstSrcType()->System reset type is LOWPOWER_RST!\r\n");
 	}
 	else if (RCC->CSR & (1<<30))
 	{
 		type = WWDG_RST;
-		#ifdef ENABLE_OUTPUT_LOG
-		printf("Info:task_monitor.c::getRstSrcType()->System reset type is WWDG_RST!\r\n");
-		#endif
+		logPrintf(Info,"Info:task_monitor.c::getRstSrcType()->System reset type is WWDG_RST!\r\n");
 	}
 	else if (RCC->CSR & (1<<29))
 	{
 		type = IWDG_RST;
-		#ifdef ENABLE_OUTPUT_LOG
-		printf("Info:task_monitor.c::getRstSrcType()->System reset type is IWDG_RST!\r\n");
-		#endif
+		logPrintf(Info,"Info:task_monitor.c::getRstSrcType()->System reset type is IWDG_RST!\r\n");
 	}
 	else if (RCC->CSR & (1<<28))
 	{
 		type = SOFTWARE_RST;
-		#ifdef ENABLE_OUTPUT_LOG
-		printf("Info:task_monitor.c::getRstSrcType()->System reset type is SOFTWARE_RST!\r\n");
-		#endif
+		logPrintf(Info,"Info:task_monitor.c::getRstSrcType()->System reset type is SOFTWARE_RST!\r\n");
 	}
 	else if (RCC->CSR & (1<<27))
 	{
 		type = POR_PDR_RST;
-		#ifdef ENABLE_OUTPUT_LOG
-		printf("Info:task_monitor.c::getRstSrcType()->System reset type is POR_PDR_RST!\r\n");
-		#endif
+		logPrintf(Info,"Info:task_monitor.c::getRstSrcType()->System reset type is POR_PDR_RST!\r\n");
 	}
 	else if (RCC->CSR & (1<<26))
 	{
 		type = NRST_RST;
-		#ifdef ENABLE_OUTPUT_LOG
-		printf("Info:task_monitor.c::getRstSrcType()->System reset type is NRST_RST!\r\n");
-		#endif
+		logPrintf(Info,"Info:task_monitor.c::getRstSrcType()->System reset type is NRST_RST!\r\n");
 	}
 	else if (RCC->CSR & (1<<25))
 	{
 		type = RMVF_RST;
-		#ifdef ENABLE_OUTPUT_LOG
-		printf("Info:task_monitor.c::getRstSrcType()->System reset type is RMVF_RST!\r\n");
-		#endif
+		logPrintf(Info,"Info:task_monitor.c::getRstSrcType()->System reset type is RMVF_RST!\r\n");
 	}
 	else
 	{
 		type = UNKNOWN_RST;
-		#ifdef ENABLE_OUTPUT_LOG
-		printf("Info:task_monitor.c::getRstSrcType()->System reset type is UNKNOWN_RST!\r\n");
-		#endif
+		logPrintf(Info,"Info:task_monitor.c::getRstSrcType()->System reset type is UNKNOWN_RST!\r\n");
 	}
 	RCC->CSR |= (1<<24);
 	return type;
@@ -104,9 +83,7 @@ void watchDogInit(void)
 	IWDG_SetPrescaler(IWDG_Prescaler_256);
 	IWDG_SetReload(100);
 	IWDG_Enable();
-	#ifdef ENABLE_OUTPUT_LOG
-	printf("Info:task_monitor.c::watchDogInit()->Watch dog was initialized!\r\n");
-	#endif
+	logPrintf(Info,"Info:task_monitor.c::watchDogInit()->Watch dog was initialized!\r\n");
 }
 
 void enableWatchDog(uint8_t whichTask)
@@ -139,39 +116,49 @@ uint8_t needToFeedWatchDog(void)
 			if (feedWatchDogBuf[i] == 0)
 			{
 				++dead_task_nums;
-				#ifdef ENABLE_OUTPUT_LOG
-				printf("Fatal:task_monitor.c::needToFeedWatchDog()->");
+				logPrintf(Fatal,"F:task_monitor.c::needToFeedWatchDog()->");
 				switch (i)
 				{
 					case RTC_TASK_WD:
-						printf("rtc_task was dead!!!\r\n");
+						logPrintf(Fatal,"F:rtc_task was dead!!!\r\n");
 						break;
 					case ENVCTRL_TASK_WD:
-						printf("EnvParameter_task was dead!!!\r\n");
+						logPrintf(Fatal,"F:EnvParameter_task was dead!!!\r\n");
 						break;
 					case VENTILATION_TASK_WD:
-						printf("ventilation_task was dead!!!\r\n");
+						logPrintf(Fatal,"F:ventilation_task was dead!!!\r\n");
 						break;
 					case WATCHER_TASK_WD:
-						printf("watcher_task was dead!!!\r\n");
+						logPrintf(Fatal,"F:watcher_task was dead!!!\r\n");
 						break;
 					case TS_TASK_WD:
-						printf("ts_task was dead!!!\r\n");
+						logPrintf(Fatal,"F:ts_task was dead!!!\r\n");
 						break;
 					case LED_TASK_WD:
-						printf("led1_task was dead!!!\r\n");
+						logPrintf(Fatal,"F:led1_task was dead!!!\r\n");
 						break;
 					case SIDE_WINDOW_TASK_WD:
-						printf("SIDE_WINDOW_TASK_WD was dead!!!\r\n");
+						logPrintf(Fatal,"F:sidewindowctl_task was dead!!!\r\n");
+						break;
+					case ALARM_TASK_WD:
+						logPrintf(Fatal,"F:alarm_task was dead!!!\r\n");
 						break;
 					case USART_TASK_WD:
-						printf("USART_TASK_WD was dead!!!\r\n");
+						logPrintf(Fatal,"F:usart_task was dead!!!\r\n");
+						break;
+					case WATERPUMP_TASK_WD:
+						logPrintf(Fatal,"F:waterpumpctrl_task was dead!!!\r\n");
+						break;
+					case BOILERCTRL_TASK_WD:
+						logPrintf(Fatal,"F:boilerctrl_task was dead!!!\r\n");
+						break;
+					case LIGHTCTRL_TASK_WD:
+						logPrintf(Fatal,"F:lightctrl_task was dead!!!\r\n");
 						break;
 					default:
-						printf("Unkown watch dog error occurred!!!\r\n");
+						logPrintf(Fatal,"Unkown watch dog error occurred!!!\r\n");
 						break;
 				}
-				#endif
 			}
 			else
 			{
@@ -200,9 +187,7 @@ void monitor_task(void *p_arg)
 			counter = 0;
 			if (needToFeedWatchDog())
 			{
-				#ifdef ENABLE_OUTPUT_LOG
-				printf("Fatal:task_monitor.c::monitor_task()->System will be reboot latter!\r\n");
-				#endif
+				logPrintf(Fatal,"F:task_monitor.c::monitor_task()->System will be reboot latter!\r\n");
 				while(1);
 			}
 		}

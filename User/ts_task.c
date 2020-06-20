@@ -4,6 +4,7 @@
 #include "rtc.h"
 #include "stm32_flash.h"
 #include "24c02.h"
+#include "circleBuffer.h"
 
 #define HMI_ID  0x07
 #define ISME_ID 0xFF
@@ -88,9 +89,7 @@ void ts_task(void *p_arg)
 							(OS_ERR       *)&err);
 		if (err != OS_ERR_NONE)
 		{
-			#ifdef ENABLE_OUTPUT_LOG
-			printf("Error:ts_task.c::ts_task QSTaskQPend Error. err = %d \r\n",err);
-			#endif
+			logPrintf(Error,"E:ts_task.c::ts_task QSTaskQPend Error. err = %d \r\n",err);
 		}
 		if ((msg_size > 0) && (*pMsg == ISME_ID) && (err == OS_ERR_NONE))
 		{
@@ -125,9 +124,6 @@ void ts_task(void *p_arg)
 						}
 						break;
 					case 3:		//Multiple analogs input	
-						#ifdef ENABLE_OUTPUT_LOG
-						printf("#$$#case 3!!!\r\n");
-						#endif
 						read_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
 						if (addr_offset <= 0x1B)
 						{
@@ -150,12 +146,12 @@ void ts_task(void *p_arg)
 							*(buf_rec+4) = *(header + 2);
 							*(buf_rec+5) = *(header + 1);
 							*(buf_rec+6) = *(header + 0);
-							header = (int8_t *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature;
+							header = (int8_t *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerPipeTemperature;
 							*(buf_rec+7) = *(header + 3);
 							*(buf_rec+8) = *(header + 2);
 							*(buf_rec+9) = *(header + 1);
 							*(buf_rec+10) = *(header + 0);
-							header = (int8_t *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature;
+							header = (int8_t *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerPipeTemperature;
 							*(buf_rec+11) = *(header + 3);
 							*(buf_rec+12) = *(header + 2);
 							*(buf_rec+13) = *(header + 1);
@@ -289,20 +285,11 @@ void ts_task(void *p_arg)
 								dataStore.realtimeData.realDataToSave.key = INIT_KEY;
 								memcpy(&dataStore.realtimeData.realDataToSave.rtcDateStart,&RTC_DateStruct,sizeof(RTC_DateStruct));
 								memcpy(&dataStore.realtimeData.realDataToSave.rtcTimeStart,&RTC_TimeStruct,sizeof(RTC_TimeStruct));
-								if (sysCtrlConfigFileWrite(&dataStore.realtimeData.realDataToSave,sizeof(RealDataStore)))
-								{
-									#ifdef ENABLE_OUTPUT_LOG
-									printf("Error:ts_task.c::ts_task -> Rearing started,write config files to AT24C02 failed.\r\n");
-									#endif
-								}
+								sysCtrlConfigFileWrite(&dataStore.realtimeData.realDataToSave,sizeof(RealDataStore));
 								dataStore.realtimeData.deltaTemperature = 0.0f;
 								//OS_CRITICAL_ENTER();
 								i = 0x89;
 								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								#ifdef ENABLE_OUTPUT_LOG
-								printf("Info:ts_task.c::ts_task ->Init deltaTemperature to %.2f.\r\n",
-											dataStore.realtimeData.deltaTemperature);
-								#endif
 								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
 								//OS_CRITICAL_EXIT();
 								break;
@@ -316,10 +303,6 @@ void ts_task(void *p_arg)
 								dataStore.realtimeData.deltaTemperature -= 0.05;
 								i = 0x89;
 								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-								printf("Info:ts_task.c::ts_task ->Dec change deltaTemperature to %.2f.\r\n",
-											dataStore.realtimeData.deltaTemperature);
-								#endif
 								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
 								AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
 								break;
@@ -328,10 +311,6 @@ void ts_task(void *p_arg)
 								dataStore.realtimeData.deltaTemperature += 0.05;
 								i = 0x89;
 								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-								printf("Info:ts_task.c::ts_task ->Inc change deltaTemperature to %.2f.\r\n",
-											dataStore.realtimeData.deltaTemperature);
-								#endif
 								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
 								break;
 							case 0x17:
@@ -372,43 +351,27 @@ void ts_task(void *p_arg)
 						switch (addr_offset)
 						{
 							case 0x801:
-								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature;
+								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerPipeTemperature;
 								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - 
-															(u8 *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature));
-								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-								printf("Info:ts_task.c::ts_task ->Change startHeatingBoilerTemperature to %.2f.\r\n",
-											dataStore.ctrlParameter.systemOptions.startHeatingBoilerTemperature);
-								#endif
+															(u8 *)&dataStore.ctrlParameter.systemOptions.startHeatingBoilerPipeTemperature));
 								read_len = write_len;
 								break;
 							case 0x803:
-								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature;
+								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerPipeTemperature;
 								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - 
-															(u8 *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature));
-								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-								printf("Info:ts_task.c::ts_task ->Change stopHeatingBoilerTemperature to %.2f.\r\n",
-											dataStore.ctrlParameter.systemOptions.stopHeatingBoilerTemperature);
-								#endif
+															(u8 *)&dataStore.ctrlParameter.systemOptions.stopHeatingBoilerPipeTemperature));
 								read_len = write_len;
 								break;
 							case 0x805:
 								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate;
 								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - 
 															(u8 *)&dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate));				
-								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-								printf("Info:ts_task.c::ts_task ->Change runningTimeOfVentilate to %.2f.\r\n",
-											dataStore.ctrlParameter.systemOptions.runningTimeOfVentilate);
-								#endif
 								read_len = write_len;
 								break;
 							case 0x807:
 								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.stoppedTimeOfVentilate;
 								eeprom_addr = ADDR_CFG_FILE+abs(((u8 *)&dataStore.ctrlParameter - 
 															(u8 *)&dataStore.ctrlParameter.systemOptions.stoppedTimeOfVentilate));
-								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-								printf("Info:ts_task.c::ts_task ->Change stoppedTimeOfVentilate to %.2f.\r\n",
-											dataStore.ctrlParameter.systemOptions.stoppedTimeOfVentilate);
-								#endif
 								read_len = write_len;
 								break;
 							case 0x809:
@@ -457,10 +420,6 @@ void ts_task(void *p_arg)
 								}
 								i = 0x89;
 								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-								printf("Info:ts_task.c::ts_task ->Inc change deltaTemperature to %.2f.\r\n",
-											dataStore.realtimeData.deltaTemperature);
-								#endif
 								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
 								read_len = write_len;
 								break;
@@ -504,9 +463,7 @@ void ts_task(void *p_arg)
 						AT24C02_Write(eeprom_addr,header,write_len);
 						break;
 					default:
-						#ifdef ENABLE_OUTPUT_LOG
-						printf("#$$#\r\n");
-						#endif
+						logPrintf(Info,"I:ts_task.c::ts_task->Receive unknown order.\r\n");
 						//TODO:set the system's configure file to default values and write these values to EEPROM forever!
 						break;
 				}
@@ -526,9 +483,7 @@ void ts_task(void *p_arg)
 							(OS_ERR  *)&err);
 		if (err != OS_ERR_NONE)
 		{
-			#ifdef ENABLE_OUTPUT_LOG
-			printf("Error:ts_task.c::ts_task QSMemPut Error. err = %d \r\n",err);
-			#endif
+			logPrintf(Error,"E:ts_task.c::ts_task QSMemPut Error. err = %d \r\n",err);
 		}
 	}
 }

@@ -4,6 +4,7 @@
 #include "sccf.h"
 #include "pro_wrapper.h"
 #include "ventilation_task.h"
+#include "circleBuffer.h"
 
 CANStruct can1Struct;
 CanRxMsg g_tCanRxMsg;
@@ -175,15 +176,13 @@ void CAN1_RX1_IRQHandler(void)
 	if(CAN_GetITStatus(CAN1,CAN_IT_FMP1) != RESET)
 	{
 		CAN_Receive(CAN1, CAN_FIFO1, &rx1Msg);
-		#ifdef ENABLE_OUTPUT_LOG
-		printf("Info:bsp_can.c::CAN1_RX1_IRQHandler->Free memory blocks total numbers is %d \r\n",
+		logPrintf(Info,"Info:bsp_can.c::CAN1_RX1_IRQHandler->Free memory blocks total numbers is %d \r\n",
 				((OS_MEM      *)&mymem)->NbrFree);
 		#ifdef ENABLE_BLACK_BOX
 		if (((OS_MEM      *)&mymem)->NbrFree < 10)
 		{
 			++dataStore.blackBox.memTooLowTimes;
 		}
-		#endif
 		#endif
 		switch (rx1Msg.StdId)
 		{
@@ -194,9 +193,7 @@ void CAN1_RX1_IRQHandler(void)
 				
 					if (err != OS_ERR_NONE)
 					{
-						#ifdef DEBUG_PRINT_LOG
-						printf("Error:bsp_can.c::CAN1_RX1_IRQHandler->OSMemGet() err = %d \r\n",err);
-						#endif
+						logPrintf(Error,"Error:bsp_can.c::CAN1_RX1_IRQHandler->OSMemGet() err = %d \r\n",err);
 						break;
 					}
 					memcpy(p_mem_blk,rx1Msg.Data,rx1Msg.DLC);
@@ -205,16 +202,14 @@ void CAN1_RX1_IRQHandler(void)
 								(OS_MSG_SIZE  )rx1Msg.DLC,
 								(OS_OPT       )OS_OPT_POST_FIFO,
 								(OS_ERR      *)&err);
-					printf("Info:bsp_can.c::CAN1_RX1_IRQHandler->Relay control respond post \r\n");
+					logPrintf(Info,"Info:bsp_can.c::CAN1_RX1_IRQHandler->Relay control respond post \r\n");
 				}
 				else
 				{
 					p_mem_blk = OSMemGet((OS_MEM *)&mymem,(OS_ERR *)&err);  //���ڴ���� mem ��ȡһ���ڴ��
 					if (err != OS_ERR_NONE)
 					{
-						#ifdef DEBUG_PRINT_LOG
-						printf("Error:bsp_can.c::CAN1_RX1_IRQHandler->OSMemGet() err = %d \r\n",err);
-						#endif
+						logPrintf(Error,"Error:bsp_can.c::CAN1_RX1_IRQHandler->OSMemGet() err = %d \r\n",err);
 						break;
 					}
 					memcpy(p_mem_blk,rx1Msg.Data,rx1Msg.DLC);
@@ -223,13 +218,11 @@ void CAN1_RX1_IRQHandler(void)
 								(OS_MSG_SIZE  )rx1Msg.DLC,
 								(OS_OPT       )OS_OPT_POST_FIFO,
 								(OS_ERR      *)&err);
-					printf("Info:bsp_can.c::CAN1_RX1_IRQHandler->Env parameter ask respond post \r\n");
+					logPrintf(Info,"Info:bsp_can.c::CAN1_RX1_IRQHandler->Env parameter ask respond post \r\n");
 				}
 				if (err != OS_ERR_NONE)
 				{
-					#ifdef DEBUG_PRINT_LOG
-					printf("Error:bsp_can.c::CAN1_RX1_IRQHandler->OSTaskQPost() err = %d \r\n",err);
-					#endif
+					logPrintf(Error,"Error:bsp_can.c::CAN1_RX1_IRQHandler->OSTaskQPost() err = %d \r\n",err);
 					OSMemPut ((OS_MEM *)&mymem,(void *)p_mem_blk,(OS_ERR *)&err);
 				}
 				break;

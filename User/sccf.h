@@ -98,16 +98,22 @@ typedef struct{
 typedef struct {
 	float startHeatingCondition;
 	float stopHeatingCondition;
+
 	float stopColdingCondition;
+	
 	float barometricPressureCondition;
-	float startHeatingBoilerTemperature;
-	float stopHeatingBoilerTemperature;
+	
+	float startHeatingBoilerPipeTemperature;
+	float stopHeatingBoilerPipeTemperature;
+
 	float startFanShaftTemperature;
 	float stopFanShaftTemperature;
 	float startCirculatingPumpTemperature;
 	float stopCirculatingPumpTemperature;
+
 	float runningTimeOfVentilate;
 	float stoppedTimeOfVentilate;
+
 	uint16_t sideWindowDefaultAngle;
 	
 	float waterPumpStartTemperature;
@@ -145,7 +151,8 @@ typedef struct{
 	uint16_t humidityInside[3];
 	float 	 insideTemperature[3][2];
 	float    outsideTemperature;
-	float    boilerTemperature;
+	float	 boilerInsideTemperature;
+	float    boilerPipeTemperature;
 	float 	 illumination[3];
 	float    pressureInside;
 	uint16_t dayCycle;
@@ -165,7 +172,6 @@ typedef struct{
 	uint16_t isSideWindowMotorRunning;
 	uint32_t sensorErrStatus;
 	uint16_t isColding;
-	
 	NetWorkStatus netWorkStatus;
 	uint8_t stm32UniqueID[STM32_UNIQUE_ID_SIZE];
 }RealDataStore;

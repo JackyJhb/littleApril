@@ -28,23 +28,21 @@ void led1_task(void *p_arg)
 			OSTimeDlyHMSM(0,0,2,900,OS_OPT_TIME_DLY,&err);
 			feedWatchDog(LED_TASK_WD);
 			dataStore.blackBox.rebootTimes = 25;
-			#ifdef ENABLE_OUTPUT_LOG
-			printf("-------------------------------------------\r\n");
-			printf("Info:BlackBox store information lists:\r\n");
-			printf("rebootTimes:%d\r\n",dataStore.blackBox.rebootTimes);
-			printf("communicateTimeOutErrTimes: %d %d %d %d\r\n",
+			logPrintf(Info,"-------------------------------------------\r\n");
+			logPrintf(Info,"Info:BlackBox store information lists:\r\n");
+			logPrintf(Info,"rebootTimes:%d\r\n",dataStore.blackBox.rebootTimes);
+			logPrintf(Info,"communicateTimeOutErrTimes: %d %d %d %d\r\n",
 					dataStore.blackBox.communicateTimeOutErrTimes[0],
 					dataStore.blackBox.communicateTimeOutErrTimes[1],
 					dataStore.blackBox.communicateTimeOutErrTimes[2],
 					dataStore.blackBox.communicateTimeOutErrTimes[3]);
-			printf("memAllocErrTimes:%d\r\n",dataStore.blackBox.memAllocErrTimes);
-			printf("memTooLowTimes:%d\r\n",dataStore.blackBox.memTooLowTimes);
-			printf("sensorErrTimes:%d %d %d %d \r\n%d %d %d %d\r\n%d %d %d %d\r\n",
+			logPrintf(Info,"memAllocErrTimes:%d\r\n",dataStore.blackBox.memAllocErrTimes);
+			logPrintf(Info,"memTooLowTimes:%d\r\n",dataStore.blackBox.memTooLowTimes);
+			logPrintf(Info,"sensorErrTimes:%d %d %d %d \r\n%d %d %d %d\r\n%d %d %d %d\r\n",
 					dataStore.blackBox.sensorErrTimes[0][0],dataStore.blackBox.sensorErrTimes[0][1],dataStore.blackBox.sensorErrTimes[0][2],dataStore.blackBox.sensorErrTimes[0][3],
 					dataStore.blackBox.sensorErrTimes[1][0],dataStore.blackBox.sensorErrTimes[1][1],dataStore.blackBox.sensorErrTimes[1][2],dataStore.blackBox.sensorErrTimes[1][3],
 					dataStore.blackBox.sensorErrTimes[2][0],dataStore.blackBox.sensorErrTimes[2][1],dataStore.blackBox.sensorErrTimes[2][2],dataStore.blackBox.sensorErrTimes[2][3]);
-			printf("-------------------------------------------\r\n");
-			#endif
+			logPrintf(Info,"-------------------------------------------\r\n");
 		}
 		else
 		{

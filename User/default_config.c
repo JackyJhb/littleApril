@@ -4,8 +4,8 @@ const SystemOptions systemOptionsDefault = {
 	0.15,//float stopHeatingCondition;
 	0.15,//float stopColdingCondition;
 	-20,//float barometricPressureCondition;
-	58,//float startHeatingBoilerTemperature;
-	55,//float stopHeatingBoilerTemperature;
+	58,//float startHeatingBoilerPipeTemperature;
+	55,//float stopHeatingBoilerPipeTemperature;
 	60,//float startFanShaftTemperature;
 	65,//float stopFanShaftTemperature;
 	60,//float startCirculatingPumpTemperature;

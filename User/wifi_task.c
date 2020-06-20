@@ -3,6 +3,7 @@
 #include "24c02.h"
 #include "sccf.h"
 #include "mqtt.h"
+#include "rtc.h"
 #include "includes.h"
 
 OS_TCB WIFITaskTCB;
@@ -53,7 +54,7 @@ void protocolAnalyze(char *buf,uint16_t len)
 {
 	uint32_t offset = 0;
 	uint16_t len_data = 0;
-	uint8_t order = *buf,rep_res=0x00;
+	uint8_t order = *buf,rep_res=0x00,temp;
 	switch (order)
 	{
 		case ServerRequestAlarmThreshold:
@@ -91,6 +92,12 @@ void protocolAnalyze(char *buf,uint16_t len)
 																 sizeof(dataStore.ctrlParameter.ventilation.ventilationCoefficient),
 																ClientRespondVentilate);
 			break;
+		case ServerRequestBlackBoxData:
+			len_data = getDataPublish(bufWifi,ToServer,
+																(char *)&dataStore.blackBox,
+																 sizeof(dataStore.blackBox),
+																ClientRespondBlackBoxData);
+			break;
 		case ServerSetRefAlarmThreshold:
 			memcpy((char *)&dataStore.ctrlParameter.alarmThresholdOptions,(buf+1),sizeof(AlarmThresholdStore));
 			offset = abs((char *)&dataStore.ctrlParameter - (char *)&dataStore.ctrlParameter.alarmThresholdOptions);
@@ -126,6 +133,29 @@ void protocolAnalyze(char *buf,uint16_t len)
 			offset = abs((char *)&dataStore.ctrlParameter - (char *)dataStore.ctrlParameter.ventilation.ventilationCoefficient);
 			AT24C02_Write(ADDR_CFG_FILE+offset,(uint8_t *)dataStore.ctrlParameter.ventilation.ventilationCoefficient,sizeof(dataStore.ctrlParameter.ventilation.ventilationCoefficient));
 			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetRefVentilate);
+			break;
+		case ServerEnableMQTTLog:
+			break;
+		case ServerCtrlSystem:
+			temp = *(buf+1);
+			if ((temp == 0x68) || (temp == 0xA6) || (temp == 0xA8))
+			{
+				dataStore.realtimeData.realDataToSave.isStarted = temp;
+				if (temp == 0xA6)
+				{
+					dataStore.realtimeData.realDataToSave.cycleDays = 49;
+					dataStore.realtimeData.realDataToSave.key = INIT_KEY;
+					memcpy(&dataStore.realtimeData.realDataToSave.rtcDateStart,&RTC_DateStruct,sizeof(RTC_DateStruct));
+					memcpy(&dataStore.realtimeData.realDataToSave.rtcTimeStart,&RTC_TimeStruct,sizeof(RTC_TimeStruct));
+					rep_res = sysCtrlConfigFileWrite(&dataStore.realtimeData.realDataToSave,sizeof(RealDataStore));
+					len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerCtrlSystem);
+				}
+			}
+			else
+			{
+				rep_res = 0x01;
+				len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerCtrlSystem);
+			}
 			break;
 		default:
 			break;

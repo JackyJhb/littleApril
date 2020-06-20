@@ -4,8 +4,9 @@
 #include "math.h"
 #include "../Keyboard/bsp_button.h"
 #include "debug_config.h"
+#include "circleBuffer.h"
 
-uint8_t hcwOutputCtrl;
+uint8_t hcwOutputCtrl,group3OutputCtrl;
 uint16_t fansOutputCtrl;
 
 typedef struct
@@ -28,6 +29,7 @@ GPIO_Index_Struct littleAprilFanOutputGPIOCS[5] = {
 void littleAprilIOInit(void);
 void clearOutput(void);
 void littleAprilGroupOutput(WhichGroup whichGroup,uint8_t outputData);
+void littleAprilGroup3Ctrl(Group3Define whichOne,OnOrOff onOrOff);
 
 void littleAprilIOInit(void)
 {
@@ -72,6 +74,7 @@ void clearOutput(void)
 	uint8_t i,j;
 	hcwOutputCtrl = 0x00;
 	fansOutputCtrl = 0x0000;
+	group3OutputCtrl = 0x00;
 	for (i = 0;i < 5;i++)
 	{
 		GPIO_SetBits(littleAprilFanOutputGPIOCS[i].GPIOx,
@@ -87,9 +90,7 @@ void clearOutput(void)
 void littleAprilGroupOutput(WhichGroup whichGroup,uint8_t outputData)
 {
 	uint8_t i,temp;
-	#ifdef ENABLE_OUTPUT_LOG
-	printf("Info:bsp_gpio.c::littleAprilGroupOutput()->%d is %d\r\n",whichGroup,outputData);
-	#endif
+	logPrintf(Verbose,"Verbose:bsp_gpio.c::littleAprilGroupOutput()->%d is %d\r\n",whichGroup,outputData);
 	GPIO_SetBits(littleAprilFanOutputGPIOCS[whichGroup].GPIOx,
 								 littleAprilFanOutputGPIOCS[whichGroup].GPIO_Pin);
 	for (i = 0;i < 8;i++)
@@ -127,4 +128,17 @@ void littleApril16FansCtrl(uint32_t relayCtrlGroup)
 	fansOutputCtrl = relayCtrlGroup & 0xFFFF;
 	littleAprilGroupOutput(FansGroup1,fansOutputCtrl&0xFF);
 	littleAprilGroupOutput(FansGroup2,(fansOutputCtrl&0xFF00)>>8);
+}
+
+void littleAprilGroup3Ctrl(Group3Define whichOne,OnOrOff onOrOff)
+{
+	if (onOrOff == On)
+	{
+		group3OutputCtrl |= whichOne;
+	}
+	else
+	{
+		group3OutputCtrl &= ~whichOne;
+	}
+	littleAprilGroupOutput(Group3,group3OutputCtrl);
 }

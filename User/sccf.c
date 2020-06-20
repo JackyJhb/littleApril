@@ -6,6 +6,7 @@
 #include "stm32f4xx.h"
 #include "stdlib.h"
 #include "stdio.h"
+#include "circleBuffer.h"
 //86x8x(3.2+5.9) = 6260.8m^3
 //10.56m^3 ��ֻ����
 //������ȫ����19ֻ����ȫ������30s���
@@ -76,16 +77,12 @@ uint8_t readCtrlConfigFile(void *ptr,unsigned int size)
 	if (temp == 0x89)
 	{
 		AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-		#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-		printf("Info:sccf.c::readCtrlConfigFile -> deltaTemperature real value is %.2f.\r\n",
+		logPrintf(Info,"Info:sccf.c::readCtrlConfigFile -> deltaTemperature real value is %.2f.\r\n",
 						dataStore.realtimeData.deltaTemperature);
-		#endif
 	}
 	else
 	{
-		#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-		printf("Info:sccf.c::readCtrlConfigFile -> deltaTemperature real value is 0.0.\r\n");
-		#endif
+		logPrintf(Info,"Info:sccf.c::readCtrlConfigFile -> deltaTemperature real value is 0.0.\r\n");
 		dataStore.realtimeData.deltaTemperature = 0.0f;
 	}
 	return 0;
@@ -140,8 +137,8 @@ uint8_t sysCtrlConfigFileWrite(RealDataToSave *ptr,uint16_t len)
 		++j;
 		if (j >= 5)
 		{
-			return 2;
+			return 0x01;
 		}
 	}while (res != 0);
-	return 0;
+	return 0x00;
 }

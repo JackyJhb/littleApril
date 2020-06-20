@@ -17,6 +17,8 @@
 #include "debug_config.h"
 #include "sccf.h"
 #include "task_monitor.h"
+#include "circleBuffer.h"
+
 int main()
 {  	
 	OS_ERR err;
@@ -35,9 +37,7 @@ int main()
 	RTC_GetTimes(RTC_Format_BIN);
 	while ((err = sysCtrlConfigFileInit()))
 	{
-		#ifdef ENABLE_OUTPUT_LOG
-		printf("Error:main.c::main() -> sysCtrlConfigFileInit error occurred! Error code is %d\r\n",err);
-		#endif
+		logPrintf(Error,"Error:main.c::main() -> sysCtrlConfigFileInit error occurred! Error code is %d\r\n",err);
 	}
 	if (dataStore.realtimeData.realDataToSave.isStarted == REARING_STARTED)
 	{
@@ -47,25 +47,23 @@ int main()
 					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours,
 					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,
 					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds);
-		#if defined(ENABLE_OUTPUT_LOG) || defined(ENABLE_BASE_LOG)
-		printf("#############################################################\r\n");
-		printf("#                      littleApril core                     #\r\n");
-		printf("#Branch:beta                                                #\r\n");
-		printf("#Version:V2.0.0 (0412E)                                     #\r\n");
-		printf("#Change date:2020/04/12                                     #\r\n");
-		printf("#Ventilation cycle changed.                                 #\r\n");
-		printf("#############################################################\r\n");
-		printf("Info:main.c::System start date:%d year %d month %d day\r\n",
+		logPrintf(Info,"#############################################################\r\n");
+		logPrintf(Info,"#                      littleApril core                     #\r\n");
+		logPrintf(Info,"#Branch:beta                                                #\r\n");
+		logPrintf(Info,"#Version:V2.0.0 (0412E)                                     #\r\n");
+		logPrintf(Info,"#Change date:2020/04/12                                     #\r\n");
+		logPrintf(Info,"#Ventilation cycle changed.                                 #\r\n");
+		logPrintf(Info,"#############################################################\r\n");
+		logPrintf(Info,"Info:main.c::System start date:%d year %d month %d day\r\n",
 				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Year,
 				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Month,
 				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Date);
-		printf("Info:main.c::System start time:%d hour %d minute %d second\r\n",
+		logPrintf(Info,"Info:main.c::System start time:%d hour %d minute %d second\r\n",
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours,
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds);
-		printf("Info:main.c::System days of cycle:%d\r\n",dataStore.realtimeData.dayCycle);
-		printf("#############################################################\r\n");
-		#endif
+		logPrintf(Info,"Info:main.c::System days of cycle:%d\r\n",dataStore.realtimeData.dayCycle);
+		logPrintf(Info,"#############################################################\r\n");
 	}
 	//TODO: Need to add some initilizate code in here to do some necessary jobs for ADC devices and Ds18B20 sensors.
 	ADCx_Init();
