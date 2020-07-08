@@ -4,6 +4,6 @@
 
 #include "system.h"
 
-void My_EXTI_Init(void);
+void ExtiInit(void);
 
 #endif

@@ -188,7 +188,11 @@ void monitor_task(void *p_arg)
 			if (needToFeedWatchDog())
 			{
 				logPrintf(Fatal,"F:task_monitor.c::monitor_task()->System will be reboot latter!\r\n");
-				while(1);
+				//printf(Fatal,"F:task_monitor.c::monitor_task()->System will be reboot latter!\r\n");
+				while(1)
+				{
+					OSTimeDlyHMSM(0,0,0,500,OS_OPT_TIME_DLY,&err);
+				}
 			}
 		}
 		IWDG_ReloadCounter();

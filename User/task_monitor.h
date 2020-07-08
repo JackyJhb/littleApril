@@ -6,14 +6,14 @@
 #include "priolevel.h"
 
 #define RTC_TASK_WD         0
-#define ENVCTRL_TASK_WD 	1
+#define ENVCTRL_TASK_WD 		1
 #define VENTILATION_TASK_WD 2
 #define WATCHER_TASK_WD     3
 #define TS_TASK_WD          4
 #define LED_TASK_WD         5
 #define SIDE_WINDOW_TASK_WD 6
 #define ALARM_TASK_WD       7
-#define USART_TASK_WD		8
+#define USART_TASK_WD				8
 #define WATERPUMP_TASK_WD 	9
 #define BOILERCTRL_TASK_WD  10
 #define LIGHTCTRL_TASK_WD  	11

@@ -7,7 +7,10 @@
 #define    CH1        GPIO_Pin_12
 #define    GROUP_G    GPIOG 
 
-#define    CH2        GPIO_Pin_15
+#define    CH3        GPIO_Pin_15
+#define    GROUP_G    GPIOG
+
+#define		 CH2        GPIO_Pin_10
 #define    GROUP_G    GPIOG
 
 

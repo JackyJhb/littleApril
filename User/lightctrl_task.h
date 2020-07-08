@@ -4,6 +4,8 @@
 #include "includes.h"
 #include "priolevel.h"
 
+#define ENABLE                  1
+#define DISABLE                 0
 #define LIGHTCTRL_STK_SIZE 		512
 
 extern OS_TCB LightCtrlTaskTCB;

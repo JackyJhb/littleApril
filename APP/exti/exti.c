@@ -1,7 +1,7 @@
 #include "exti.h"
 #include "includes.h"
 
-void My_EXTI_Init(void)
+void ExtiInit(void)
 {
 	NVIC_InitTypeDef NVIC_InitStructure;
 	EXTI_InitTypeDef  EXTI_InitStructure;

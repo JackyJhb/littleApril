@@ -12,9 +12,11 @@ uint8_t logArray[LOG_BUFFER_HEIGHT][LOG_BUFFER_WIDTH];
 char loggerBufferArray[CIRCLE_BUFFER_SIZE];
 LoggerBufferStruct rb;
 static char initFlag = 0;
+#else
+char bufPrintf[512];
 #endif
 
-LogLevel logLevel = Error;    
+LogLevel logLevel = Verbose;    
 
 void loggerBufferInit(void);
 int logPrintf(LogLevel level,const char *format,...);
@@ -56,9 +58,8 @@ int logPrintf(LogLevel level,const char *format,...)
 	#ifndef ENABLE_OUTPUT_LOG
 	return 0;
 	#endif
-
+	OS_ERR          err;
   #ifdef ENABLE_WIFI_LOG
-  OS_ERR          err;
   uint16_t len;
   if (level > logLevel)
     return 0;
@@ -81,9 +82,10 @@ int logPrintf(LogLevel level,const char *format,...)
   if (level > logLevel)
     return 0;
   va_start(args,format);
-	vsprintf(p_mem_blk,format,args);
+	vsprintf(bufPrintf,format,args);
 	va_end(args);
-	return printf(format,args);
+	printf(bufPrintf);
+	return 0;
 	#endif
 }
 

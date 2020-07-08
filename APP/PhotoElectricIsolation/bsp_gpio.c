@@ -125,9 +125,22 @@ void littleAprilHCWCtrl(WhichRelay whichOne,OnOrOff onOrOff)
 
 void littleApril16FansCtrl(uint32_t relayCtrlGroup)
 {
+	OS_ERR err;
+	uint16_t lastFansOutputCtrl,i,j;
+	lastFansOutputCtrl = fansOutputCtrl;
 	fansOutputCtrl = relayCtrlGroup & 0xFFFF;
-	littleAprilGroupOutput(FansGroup1,fansOutputCtrl&0xFF);
-	littleAprilGroupOutput(FansGroup2,(fansOutputCtrl&0xFF00)>>8);
+	lastFansOutputCtrl &= fansOutputCtrl;
+	for (i = 0;i < 16;i++)
+	{
+		j = (1 << i);
+		if (((lastFansOutputCtrl & j) == 0) && (fansOutputCtrl & j))
+		{
+			lastFansOutputCtrl |= j;
+			littleAprilGroupOutput(FansGroup1,lastFansOutputCtrl&0xFF);
+			littleAprilGroupOutput(FansGroup2,(lastFansOutputCtrl&0xFF00)>>8);
+			OSTimeDlyHMSM(0,0,0,200,OS_OPT_TIME_DLY,&err);
+		}
+	}
 }
 
 void littleAprilGroup3Ctrl(Group3Define whichOne,OnOrOff onOrOff)

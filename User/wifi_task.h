@@ -10,7 +10,8 @@
 #define   MQTT_SUBSCRIBE              2
 #define   MQTT_SUBSCRIBING            3
 #define   MQTT_CONNECTING             4
-#define   MQTT_CONNECTED              5 
+#define   MQTT_CONNECTED              5
+#define 	MQTT_DISCONNECT             6
 
 extern OS_TCB WIFITaskTCB;
 extern OS_MEM logMalloc;

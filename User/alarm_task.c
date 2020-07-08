@@ -92,7 +92,7 @@ void alarm_task(void *p_arg)
 			if (beep_status)
 			{
 				GPIO_ResetBits(BEEP_Port,BEEP_Pin);
-				logPrintf(Info,"Info:alarm_task.c::alarm_task!Alarm code = %d\r\n",beep_status);
+				logPrintf(Info,"I:alarm_task.c::alarm_task!Alarm code = %d\r\n",beep_status);
 				beep_status = 0x00;
 			}
 			else

@@ -176,7 +176,7 @@ void CAN1_RX1_IRQHandler(void)
 	if(CAN_GetITStatus(CAN1,CAN_IT_FMP1) != RESET)
 	{
 		CAN_Receive(CAN1, CAN_FIFO1, &rx1Msg);
-		logPrintf(Info,"Info:bsp_can.c::CAN1_RX1_IRQHandler->Free memory blocks total numbers is %d \r\n",
+		logPrintf(Info,"I:bsp_can.c::CAN1_RX1_IRQHandler->Free memory blocks total numbers is %d \r\n",
 				((OS_MEM      *)&mymem)->NbrFree);
 		#ifdef ENABLE_BLACK_BOX
 		if (((OS_MEM      *)&mymem)->NbrFree < 10)
@@ -202,7 +202,7 @@ void CAN1_RX1_IRQHandler(void)
 								(OS_MSG_SIZE  )rx1Msg.DLC,
 								(OS_OPT       )OS_OPT_POST_FIFO,
 								(OS_ERR      *)&err);
-					logPrintf(Info,"Info:bsp_can.c::CAN1_RX1_IRQHandler->Relay control respond post \r\n");
+					logPrintf(Info,"I:bsp_can.c::CAN1_RX1_IRQHandler->Relay control respond post \r\n");
 				}
 				else
 				{
@@ -218,7 +218,7 @@ void CAN1_RX1_IRQHandler(void)
 								(OS_MSG_SIZE  )rx1Msg.DLC,
 								(OS_OPT       )OS_OPT_POST_FIFO,
 								(OS_ERR      *)&err);
-					logPrintf(Info,"Info:bsp_can.c::CAN1_RX1_IRQHandler->Env parameter ask respond post \r\n");
+					logPrintf(Info,"I:bsp_can.c::CAN1_RX1_IRQHandler->Env parameter ask respond post \r\n");
 				}
 				if (err != OS_ERR_NONE)
 				{

@@ -8,6 +8,7 @@
 #include "protocol.h"
 #include "mqtt.h"
 #include "debug_config.h"
+#include "circleBuffer.h"
 
 char receiveBuf[WIFI_BUF_SIZE],tempLen[5];
 volatile uint16_t wifiBytesCount;
@@ -68,7 +69,7 @@ int16_t getWifiRecDatas(char *saveBufPtr)
 {
 	OS_ERR err;
 	uint16_t len_rec;
-	char *ptrLenHead,tempLen[5],*ptrData;
+	char *ptrLenHead,tempLen[5],*ptrData,loopTimes=0x00;
 	ptrLenHead = strstr(receiveBuf,"+IPD,0,");
 	if (ptrLenHead != NULL)
 	{
@@ -80,22 +81,35 @@ int16_t getWifiRecDatas(char *saveBufPtr)
 		{
 			memcpy(tempLen,ptrLenHead,abs(ptrData-ptrLenHead));
 			len_rec = atoi(tempLen);
-			OSTimeDlyHMSM(0,0,0,100,OS_OPT_TIME_DLY,&err);
+			while (loopTimes++ < 40)
+			{
+				OSTimeDlyHMSM(0,0,0,10,OS_OPT_TIME_DLY,&err);
+				if (wifiBytesCount >= len_rec + abs(ptrData-receiveBuf))
+				{
+					loopTimes = 0x50;
+					break;
+				}
+			}
+			if (loopTimes != 0x50)
+			{
+				len_rec = 0x00;
+			}
 			++ptrData;
 			memcpy(saveBufPtr,ptrData,len_rec);
 			clearBuf();
-			printf("HB4\r\n");
 			return len_rec;
 		}
 	}
 	ptrLenHead = strstr(receiveBuf,"CLOSED");
 	if (ptrLenHead != NULL)
 	{
+		dataStore.realtimeData.netWorkStatus = ConnectingToServer;
 		return -1;
 	}
 	ptrLenHead = strstr(receiveBuf,"link is not valid");
 	if (ptrLenHead != NULL)
 	{
+		dataStore.realtimeData.netWorkStatus = ConnectingToServer;
 		return -2;
 	}
 	return 0;
@@ -105,9 +119,6 @@ void clearBuf(void)
 {
 	wifiBytesCount = 0;
 	memset(receiveBuf,0x00,sizeof(receiveBuf));
-	#ifdef ENABLE_WIFI_LOG
-	//printf("Info:wifi clearBuf.\r\n");
-	#endif
 }
 
 void sendChar(uint8_t ch)
@@ -253,80 +264,62 @@ void WIFI_Server_Init(void)
 		switch (dataStore.realtimeData.netWorkStatus)
 		{ //link is builded
 			case NotFoundESP8266:
-				#ifdef ENABLE_WIFI_LOG
-				printf("Info:wifi Step0->Searching ESP8266\r\n");
-				#endif
+				//logPrintf(Info,"I:wifi Step0->Searching ESP8266\r\n");
 				//if (searchESP8266() == NO_ERR)
 				{
 					dataStore.realtimeData.netWorkStatus = SettingCWMODE;
 				}
 				break;
 			case SettingCWMODE:
-				#ifdef ENABLE_WIFI_LOG
-				printf("Info:wifi Step1->Switch mode of ESP8266\r\n");
-				#endif
+				//logPrintf(Info,"I:wifi Step1->Switch mode of ESP8266\r\n");
 				if (switchESP8266Mode() == NO_ERR)
 				{
 					dataStore.realtimeData.netWorkStatus = Reseting;
 				}
 				break;
 			case Reseting:
-				#ifdef ENABLE_WIFI_LOG
-				printf("Info:wifi Step2->Reset ESP8266\r\n");
-				#endif
+				//logPrintf(Info,"I:wifi Step2->Reset ESP8266\r\n");
 				if (resetESP8266() == NO_ERR)
 				{
 					dataStore.realtimeData.netWorkStatus = TurnOffEcho;
 				}
 				break;
 			case TurnOffEcho:
-				#ifdef ENABLE_WIFI_LOG
-				printf("Info:wifi Step3->Reset ESP8266\r\n");
-				#endif
+				//logPrintf(Info,"I:wifi Step3->Reset ESP8266\r\n");
 				if (resetESP8266() == NO_ERR)
 				{
 					dataStore.realtimeData.netWorkStatus = FoundRouter;
 				}
 			case FoundRouter:
-				#ifdef ENABLE_WIFI_LOG
-				printf("Info:wifi Step4->Search router\r\n");
-				#endif
+				//logPrintf(Info,"I:wifi Step4->Search router\r\n");
 				if (searchRouter() == NO_ERR)
 				{
 					dataStore.realtimeData.netWorkStatus = ConnectingToRouter;
 				}
 				break;
 			case ConnectingToRouter:
-				#ifdef ENABLE_WIFI_LOG
-				printf("Info:wifi Step5->Connecct to router name:%s,passwd=%s\r\n",
-						dataStore.ctrlParameter.esp8266Options.routerName,
-						dataStore.ctrlParameter.esp8266Options.routerPasswd);
-				#endif
+				//logPrintf(Info,"I:wifi Step5->Connecct to router name:%s,passwd=%s\r\n",
+				//		dataStore.ctrlParameter.esp8266Options.routerName,
+				//		dataStore.ctrlParameter.esp8266Options.routerPasswd);
 				if (connectToRouter() == NO_ERR)
 				{
 					dataStore.realtimeData.netWorkStatus = ConnectingToServer;
 				}
 				break;
 			case ConnectingToServer:
-				#ifdef ENABLE_WIFI_LOG
-				printf("Info:wifi Step6->Set mux connection\r\n");
-				#endif
+				//logPrintf(Info,"I:wifi Step6->Set mux connection\r\n");
 				if (setMuxConnection() != NO_ERR)
 				{
 					return;
 				}
-				#ifdef ENABLE_WIFI_LOG
-				printf("Info:wifi Step7->Set server mode\r\n");
-				#endif
+				//logPrintf(Info,"I:wifi Step7->Set server mode\r\n");
 				if (setServerMode() != NO_ERR)
 				{
 					return;
 				}
-				#ifdef ENABLE_WIFI_LOG
-				printf("Info:wifi Step8->Connecting to the service->IP = %s,port = %s\r\n",
-							dataStore.ctrlParameter.esp8266Options.serverIP,
-							dataStore.ctrlParameter.esp8266Options.serverPort);
-				#endif
+				//logPrintf(Info,"I:wifi Step8->Connecting to the service->IP = %s,port = %s\r\n",
+				//			dataStore.ctrlParameter.esp8266Options.serverIP,
+				//			dataStore.ctrlParameter.esp8266Options.serverPort);
 				if (connectToServer() != NO_ERR)
 				{
 					return;

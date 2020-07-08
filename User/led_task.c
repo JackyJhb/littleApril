@@ -29,16 +29,16 @@ void led1_task(void *p_arg)
 			feedWatchDog(LED_TASK_WD);
 			dataStore.blackBox.rebootTimes = 25;
 			logPrintf(Info,"-------------------------------------------\r\n");
-			logPrintf(Info,"Info:BlackBox store information lists:\r\n");
-			logPrintf(Info,"rebootTimes:%d\r\n",dataStore.blackBox.rebootTimes);
-			logPrintf(Info,"communicateTimeOutErrTimes: %d %d %d %d\r\n",
+			logPrintf(Info,"I:BlackBox store information lists:\r\n");
+			logPrintf(Info,"I:rebootTimes:%d\r\n",dataStore.blackBox.rebootTimes);
+			logPrintf(Info,"I:communicateTimeOutErrTimes: %d %d %d %d\r\n",
 					dataStore.blackBox.communicateTimeOutErrTimes[0],
 					dataStore.blackBox.communicateTimeOutErrTimes[1],
 					dataStore.blackBox.communicateTimeOutErrTimes[2],
 					dataStore.blackBox.communicateTimeOutErrTimes[3]);
-			logPrintf(Info,"memAllocErrTimes:%d\r\n",dataStore.blackBox.memAllocErrTimes);
-			logPrintf(Info,"memTooLowTimes:%d\r\n",dataStore.blackBox.memTooLowTimes);
-			logPrintf(Info,"sensorErrTimes:%d %d %d %d \r\n%d %d %d %d\r\n%d %d %d %d\r\n",
+			logPrintf(Info,"I:memAllocErrTimes:%d\r\n",dataStore.blackBox.memAllocErrTimes);
+			logPrintf(Info,"I:memTooLowTimes:%d\r\n",dataStore.blackBox.memTooLowTimes);
+			logPrintf(Info,"I:sensorErrTimes:%d %d %d %d \r\n%d %d %d %d\r\n%d %d %d %d\r\n",
 					dataStore.blackBox.sensorErrTimes[0][0],dataStore.blackBox.sensorErrTimes[0][1],dataStore.blackBox.sensorErrTimes[0][2],dataStore.blackBox.sensorErrTimes[0][3],
 					dataStore.blackBox.sensorErrTimes[1][0],dataStore.blackBox.sensorErrTimes[1][1],dataStore.blackBox.sensorErrTimes[1][2],dataStore.blackBox.sensorErrTimes[1][3],
 					dataStore.blackBox.sensorErrTimes[2][0],dataStore.blackBox.sensorErrTimes[2][1],dataStore.blackBox.sensorErrTimes[2][2],dataStore.blackBox.sensorErrTimes[2][3]);

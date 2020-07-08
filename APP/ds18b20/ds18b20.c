@@ -5,7 +5,7 @@
 #define    DS18B20_DQ_L(GROUP,CH)            GPIO_ResetBits(GROUP,CH)
 #define    DS18B20_DQ_ReadPin(GROUP,CH)  	   GPIO_ReadInputDataBit(GROUP,CH)
 
-void DS18B20_DQ_DDR(uint8_t ddr);
+void DS18B20_DQ_DDR(uint8_t ddr,uint16_t whichOne);
 int DS18B20_reset(uint16_t whichOne);
 void DS18B20_Wbyte(uint8_t xbyte,uint16_t whichOne);
 uint8_t DS18B20_Rbit(uint16_t whichOne);
@@ -23,13 +23,13 @@ void delays_us(uint32_t delay)
 
 void DS18B20_GPIO_Init(void)
 {
-    RCC_APB2PeriphClockCmd(RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOE,ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_AHB1Periph_GPIOG,ENABLE);
 }
 
-void DS18B20_DQ_DDR(uint8_t ddr)
+void DS18B20_DQ_DDR(uint8_t ddr,uint16_t whichOne)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
-	GPIO_InitStructure.GPIO_Pin		= CH1;
+	GPIO_InitStructure.GPIO_Pin		= whichOne;
 	GPIO_InitStructure.GPIO_Speed	= GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_PuPd	= GPIO_PuPd_UP;
 	if (ddr)
@@ -43,7 +43,7 @@ void DS18B20_DQ_DDR(uint8_t ddr)
 	}
 	GPIO_Init(GROUP_G,&GPIO_InitStructure);
 	
-	GPIO_InitStructure.GPIO_Pin		= CH2;
+	/*GPIO_InitStructure.GPIO_Pin		= CH2;
 	GPIO_InitStructure.GPIO_Speed	= GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_PuPd	= GPIO_PuPd_UP;
 	if (ddr)
@@ -56,6 +56,20 @@ void DS18B20_DQ_DDR(uint8_t ddr)
 		GPIO_InitStructure.GPIO_Mode	= GPIO_Mode_IN;
 	}
 	GPIO_Init(GROUP_G,&GPIO_InitStructure);
+	
+	GPIO_InitStructure.GPIO_Pin		= CH3;
+	GPIO_InitStructure.GPIO_Speed	= GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_PuPd	= GPIO_PuPd_UP;
+	if (ddr)
+	{
+		GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+		GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	}
+	else
+	{
+		GPIO_InitStructure.GPIO_Mode	= GPIO_Mode_IN;
+	}
+	GPIO_Init(GROUP_G,&GPIO_InitStructure);*/
 }
 
 int DS18B20_reset(uint16_t whichOne) 
@@ -64,14 +78,14 @@ int DS18B20_reset(uint16_t whichOne)
 	GPIO_TypeDef *group;
 	
 	group = GROUP_G;
-	DS18B20_DQ_DDR(1);
+	DS18B20_DQ_DDR(1,whichOne);
 	DS18B20_DQ_H(group,whichOne);
 	delays_us(100);
 	DS18B20_DQ_L(group,whichOne);
 	delays_us(300);
 	DS18B20_DQ_H(group,whichOne);
 	
-	DS18B20_DQ_DDR(0);
+	DS18B20_DQ_DDR(0,whichOne);
 	while(DS18B20_DQ_ReadPin(group,whichOne) == 1 && ++x < 0x100)
 	{
 		delays_us(1);
@@ -98,7 +112,7 @@ void DS18B20_Wbyte(uint8_t xbyte,uint16_t whichOne)
 	GPIO_TypeDef *group;
 	
 	group = GROUP_G;
-	DS18B20_DQ_DDR(1);
+	DS18B20_DQ_DDR(1,whichOne);
 	for(i = 1; i <= 8; i++)
 	{
 		x = xbyte & 0x01;
@@ -126,11 +140,11 @@ uint8_t DS18B20_Rbit(uint16_t whichOne)
 	GPIO_TypeDef *group;
 	
 	group = GROUP_G;
-	DS18B20_DQ_DDR(1);
+	DS18B20_DQ_DDR(1,whichOne);
 	DS18B20_DQ_L(group,whichOne);
 	delays_us(2);
 	DS18B20_DQ_H(group,whichOne);
-	DS18B20_DQ_DDR(0);
+	DS18B20_DQ_DDR(0,whichOne);
 	delays_us(11);
 	x = DS18B20_DQ_ReadPin(group,whichOne);
 	if(x)

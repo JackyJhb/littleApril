@@ -37,17 +37,17 @@ The meaning of sccf is System Control Configuration File.
 
 #define DAY_CYCLE_DEFAULT                   0x00
 #define CYCLE_DAYS_DEFAULT                  49
-#define START_RTC_YEAR_DEFAULT           	20
-#define START_RTC_MONTH_DEFAULT             5
-#define START_RTC_DATE_DEFAULT              21
-#define START_RTC_WEEKDAY_DEFAULT           4
-#define START_RTC_HOURS_DEFAULT             6
-#define START_RTC_MINUTES_DEFAULT           00
+#define START_RTC_YEAR_DEFAULT           		20
+#define START_RTC_MONTH_DEFAULT             6
+#define START_RTC_DATE_DEFAULT              13
+#define START_RTC_WEEKDAY_DEFAULT           6
+#define START_RTC_HOURS_DEFAULT             5
+#define START_RTC_MINUTES_DEFAULT           18
 #define START_RTC_SECONDS_DEFAULT           00
 
 extern const CoolDownGrade coolDownGradeDefault[16];
 extern const float ambientTemperatureDefault[50];
-extern const float illuminationStrengthDefault[50];
+extern const LightingControl illuminationStrengthDefault[50];
 extern const VentilationCoefficient ventilationCoefficientDefault[50] ;
 extern const uint8_t humidityDefault[50];
 extern const VentilateGrade ventilateGradeDefault[5];

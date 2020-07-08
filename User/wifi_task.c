@@ -5,6 +5,7 @@
 #include "mqtt.h"
 #include "rtc.h"
 #include "includes.h"
+#include "circleBuffer.h"
 
 OS_TCB WIFITaskTCB;
 CPU_STK WIFI_TASK_STK[WIFI_STK_SIZE];
@@ -98,6 +99,12 @@ void protocolAnalyze(char *buf,uint16_t len)
 																 sizeof(dataStore.blackBox),
 																ClientRespondBlackBoxData);
 			break;
+		case ServerRequestIlluminationStrength:
+			len_data = getDataPublish(bufWifi,ToServer,
+																(char *)dataStore.ctrlParameter.illuminationStrength,
+																 sizeof(dataStore.ctrlParameter.illuminationStrength),
+																ClientRespondIlluminationStrength);
+			break;
 		case ServerSetRefAlarmThreshold:
 			memcpy((char *)&dataStore.ctrlParameter.alarmThresholdOptions,(buf+1),sizeof(AlarmThresholdStore));
 			offset = abs((char *)&dataStore.ctrlParameter - (char *)&dataStore.ctrlParameter.alarmThresholdOptions);
@@ -133,6 +140,12 @@ void protocolAnalyze(char *buf,uint16_t len)
 			offset = abs((char *)&dataStore.ctrlParameter - (char *)dataStore.ctrlParameter.ventilation.ventilationCoefficient);
 			AT24C02_Write(ADDR_CFG_FILE+offset,(uint8_t *)dataStore.ctrlParameter.ventilation.ventilationCoefficient,sizeof(dataStore.ctrlParameter.ventilation.ventilationCoefficient));
 			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetRefVentilate);
+			break;
+		case ServerSetIlluminationStrength:
+			memcpy((char *)dataStore.ctrlParameter.illuminationStrength,(buf+1),sizeof(dataStore.ctrlParameter.illuminationStrength));
+			offset = abs((char *)&dataStore.ctrlParameter - (char *)dataStore.ctrlParameter.illuminationStrength);
+			AT24C02_Write(ADDR_CFG_FILE+offset,(uint8_t *)dataStore.ctrlParameter.illuminationStrength,sizeof(dataStore.ctrlParameter.illuminationStrength));
+			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetIlluminationStrength);
 			break;
 		case ServerEnableMQTTLog:
 			break;
@@ -193,6 +206,7 @@ void ipdDeal(char *buf,uint16_t len)
 			protocolAnalyze(ptr,real_len);
 			break;
 		case 0xE0:
+			
 			break;
 		case 0x90:         //Response to subscribe
 			mqttStatus = MQTT_CONNECTED;
@@ -236,6 +250,11 @@ void WIFI_task(void *p_arg)
 					if (timer == 20)
 					{
 						mqttStatus = MQTT_INIT;
+						len = getDataDisconnect(bufWifi);
+						sendDatas(bufWifi,len);
+						mqttStatus = MQTT_INIT;
+						OSTimeDlyHMSM(0,0,0,200,OS_OPT_TIME_DLY,&err);
+						logPrintf(Error,"E:wifi_task.c::WIFI_task()->Wait for connecting answer timeout!\r\n");
 					}
 					break;
 				case MQTT_SUBSCRIBE:
@@ -248,6 +267,7 @@ void WIFI_task(void *p_arg)
 					if (timer == 20)
 					{
 						mqttStatus = MQTT_INIT;
+						logPrintf(Error,"E:wifi_task.c::WIFI_task()->Wait for subscribe answer timeout!\r\n");
 					}
 					break;
 				case MQTT_CONNECTED:
@@ -265,12 +285,15 @@ void WIFI_task(void *p_arg)
 						//sendLogStream();
 					}
 					break;
+				case MQTT_DISCONNECT:
+					break;
 				default:
 					break;
 			}
 			if (getWifiRecDatas(bufWifi))
 			{
 				ipdDeal(bufWifi,len);
+				logPrintf(Info,"I:wifi_task.c::WIFI_task()->Deal with receive datas!\r\n");
 			}
 		}
 	}

@@ -77,12 +77,12 @@ uint8_t readCtrlConfigFile(void *ptr,unsigned int size)
 	if (temp == 0x89)
 	{
 		AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-		logPrintf(Info,"Info:sccf.c::readCtrlConfigFile -> deltaTemperature real value is %.2f.\r\n",
+		logPrintf(Info,"I:sccf.c::readCtrlConfigFile -> deltaTemperature real value is %.2f.\r\n",
 						dataStore.realtimeData.deltaTemperature);
 	}
 	else
 	{
-		logPrintf(Info,"Info:sccf.c::readCtrlConfigFile -> deltaTemperature real value is 0.0.\r\n");
+		logPrintf(Info,"I:sccf.c::readCtrlConfigFile -> deltaTemperature real value is 0.0.\r\n");
 		dataStore.realtimeData.deltaTemperature = 0.0f;
 	}
 	return 0;
@@ -103,7 +103,7 @@ void persistConfigFileToDefault(RealDataStore *ptr)
 
 uint8_t sysCtrlConfigFileInit(void)
 {
-	uint8_t err_code = 0;
+	uint8_t err_code = 0,i;
 	AT24C02_Init();
 	memset(&dataStore.realtimeData,0x00,sizeof(RealDataStore));
 	readCtrlConfigFile(&dataStore.realtimeData.realDataToSave,sizeof(RealDataToSave));
@@ -119,6 +119,11 @@ uint8_t sysCtrlConfigFileInit(void)
 	{
 		memset(&dataStore.ctrlParameter,0x00,sizeof(ControlParameterStore));
 		err_code = setControlParametersToDefault();
+	}
+	logPrintf(Verbose,"V:CtrlParameter value list:\r\n");
+	for (i = 0;i < 50;i++)
+	{
+		logPrintf(Verbose,"Day %d:%.2f \r\n",i,dataStore.ctrlParameter.ambientTemperature[i]);
 	}
 	err_code = 0;
 	return err_code;

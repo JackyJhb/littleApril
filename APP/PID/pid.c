@@ -15,16 +15,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 	static int8_t level_last = -1;
 	static uint16_t cooding_down_fans = 0x0000;
 	float temperature_difference,average_temperature;
-	if (which_one == 2)
-	{
-		average_temperature = 0;
-		for(i = 0;i < 6;i++)
-		{
-			average_temperature += *((float *)dataStore.realtimeData.insideTemperature +i);
-		}
-		average_temperature /= 6;
-		logPrintf(Verbose,"V:pid.c::pidControlTemperature()->average temperature is %.2f\r\n",average_temperature);
-	}
+	
 	dataStore.ctrlParameter.pidParameter.setTemperature = set_temperature;
 	dataStore.realtimeData.currentSetTemperature = set_temperature;
 	logPrintf(Verbose,"V:pid.c::pidControlTemperature()->%d's area set temperature is %.2f.\r\n",which_one,dataStore.ctrlParameter.pidParameter.setTemperature);
@@ -72,31 +63,37 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 			logPrintf(Verbose,"V:pid.c::pidControlTemperature()->Fine tuning.Area %d heating stopped.\r\n",which_one);
 			#endif
 		}
-		#ifdef ENABLE_OUTPUT_LOG
 		logPrintf(Verbose,"V:pid.c::pidControlTemperature()->which_one = %d,dataStore.realtimeData.heatingColdingStatus=%d!dataStore.ctrlParameter.systemOptions.stopHeatingCondition = %.2f\r\n",
 				which_one,
 				dataStore.realtimeData.heatingColdingStatus,
 				dataStore.ctrlParameter.systemOptions.stopHeatingCondition);
-		#endif
 	}
 
 	if (which_one != 2)
 		return;
-	#ifdef ENABLE_OUTPUT_LOG
-	logPrintf(Verbose,"V:pid.c::pidControlTemperature()->Outside temperature is %.2f,inside temperature is %.2f,threshold of temperature is %.2f.\r\n",
-				dataStore.realtimeData.outsideTemperature,
-				actual_temperature,
-				dataStore.ctrlParameter.waterPumpStartTemperatureDifference);
-	#endif
+
+	average_temperature = 0;
+	for(i = 0;i < 6;i++)
+	{
+		average_temperature += *((float *)dataStore.realtimeData.insideTemperature +i);
+	}
+	average_temperature /= 6;
+
 	temperature_difference = average_temperature - dataStore.ctrlParameter.pidParameter.setTemperature;
+	logPrintf(Debug,"D:pid.c::pidControlTemperature()->average temperature is %.2f,set temperature is %.2f,temperature_difference is %.2f\r\n",
+						average_temperature,
+						dataStore.ctrlParameter.pidParameter.setTemperature,
+						temperature_difference);
 	if (level_last != -1)
 	{
-		if (dataStore.ctrlParameter.coolDownGrade[0].temperatureDifference/2 > temperature_difference)
+		if (dataStore.ctrlParameter.pidParameter.setTemperature >= 
+				(average_temperature+dataStore.ctrlParameter.coolDownGrade[0].temperatureDifference/2))
 		{
 			level_last = -1;
 			dataStore.realtimeData.isColding = false;
 			dataStore.realtimeData.workingVentilators = 0x0000;
 			littleApril16FansCtrl(dataStore.realtimeData.workingVentilators);
+			logPrintf(Debug,"D:pid.c::pidControlTemperature()->Stopped colding!\r\n");
 			return;
 		}
 	}
@@ -107,29 +104,31 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 	}
 	
 	grade_nums = sizeof(dataStore.ctrlParameter.coolDownGrade)/sizeof(CoolDownGrade);
-	level = 0;
-	for (i = 0;i < (grade_nums - 1);i++)
+	if (temperature_difference > dataStore.ctrlParameter.coolDownGrade[0].temperatureDifference/2)
 	{
-		if ((temperature_difference >= dataStore.ctrlParameter.coolDownGrade[i].temperatureDifference) && 
-			(temperature_difference < dataStore.ctrlParameter.coolDownGrade[i+1].temperatureDifference))
-		{
-			level = i;
-			break;
-		}
-		if (i == (grade_nums-2))
-		{
-			level = grade_nums -1;
-			logPrintf(Info,"Info:pid.c::pidControlTemperature()->Cool down grade is %d that is too high,it's terrible!\r\n",level);
-		}
+		level = 0;
 	}
-	logPrintf(Info,"Info:pid.c::pidControlTemperature()->Calculate cool down grade result is %d!\r\n",level);
+	else
+	{
+		for (i = 0;i < (grade_nums - 1);i++)
+		{
+			if ((temperature_difference >= dataStore.ctrlParameter.coolDownGrade[i].temperatureDifference) && 
+				(temperature_difference < dataStore.ctrlParameter.coolDownGrade[i+1].temperatureDifference))
+			{
+				break;
+			}
+		}
+		level = i;
+	}
 	if ((level_last > level) && 
 		(temperature_difference > 
 					(dataStore.ctrlParameter.coolDownGrade[level].temperatureDifference + 
-					 dataStore.ctrlParameter.coolDownGrade[level_last].temperatureDifference)/2))
+					 dataStore.ctrlParameter.coolDownGrade[level+1].temperatureDifference)/2))
 	{
+		logPrintf(Verbose,"V:pid.c::pidControlTemperature()->Do not need to change level of cold down!\r\n");
 		return ;
 	}
+	logPrintf(Info,"I:pid.c::pidControlTemperature()->Calculate cool down grade result is %d!\r\n",level);
 	dataStore.realtimeData.workingVentilators = 0x0000;
 	cooding_down_fans =  dataStore.ctrlParameter.coolDownGrade[level].runningFansBits;
 	dataStore.realtimeData.workingVentilators = cooding_down_fans;

@@ -33,7 +33,7 @@ typedef enum{
 typedef enum{
 	FanShaft_Group3      = 0x01,
 	CirculatePump_Group3 = 0x02,
-	Reserved0_Group3     = 0x04,
+	Lighting_Group3	     = 0x04,
 	Reserved1_Group3     = 0x08,
 	Reserved2_Group3     = 0x10,
 	Reserved3_Group3	 = 0x20,
