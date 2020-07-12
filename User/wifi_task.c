@@ -276,7 +276,7 @@ void WIFI_task(void *p_arg)
 						heartBeat();
 						timer = 0x00;
 					}
-					else if ((timer % 500) == 0)
+					else if ((timer % 200) == 0)
 					{
 						publishRealTimeData();
 					}

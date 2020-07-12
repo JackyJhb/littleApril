@@ -90,7 +90,7 @@ void clearOutput(void)
 void littleAprilGroupOutput(WhichGroup whichGroup,uint8_t outputData)
 {
 	uint8_t i,temp;
-	logPrintf(Verbose,"Verbose:bsp_gpio.c::littleAprilGroupOutput()->%d is %d\r\n",whichGroup,outputData);
+	logPrintf(Verbose,"V:bsp_gpio.c::littleAprilGroupOutput()->%d is %d\r\n",whichGroup,outputData);
 	GPIO_SetBits(littleAprilFanOutputGPIOCS[whichGroup].GPIOx,
 								 littleAprilFanOutputGPIOCS[whichGroup].GPIO_Pin);
 	for (i = 0;i < 8;i++)
@@ -126,21 +126,30 @@ void littleAprilHCWCtrl(WhichRelay whichOne,OnOrOff onOrOff)
 void littleApril16FansCtrl(uint32_t relayCtrlGroup)
 {
 	OS_ERR err;
-	uint16_t lastFansOutputCtrl,i,j;
-	lastFansOutputCtrl = fansOutputCtrl;
+	uint16_t currentFansOutput,i,j;
+	currentFansOutput = fansOutputCtrl;
 	fansOutputCtrl = relayCtrlGroup & 0xFFFF;
-	lastFansOutputCtrl &= fansOutputCtrl;
+	if (currentFansOutput == fansOutputCtrl)
+	{
+		logPrintf(Verbose,"bsp_gpio.c::littleApril16FansCtrl()->State of output do not changed ,return!\r\n");
+		return;
+	}
+	currentFansOutput &= fansOutputCtrl;
 	for (i = 0;i < 16;i++)
 	{
 		j = (1 << i);
-		if (((lastFansOutputCtrl & j) == 0) && (fansOutputCtrl & j))
+		if ((currentFansOutput & j) == 0)
 		{
-			lastFansOutputCtrl |= j;
-			littleAprilGroupOutput(FansGroup1,lastFansOutputCtrl&0xFF);
-			littleAprilGroupOutput(FansGroup2,(lastFansOutputCtrl&0xFF00)>>8);
-			OSTimeDlyHMSM(0,0,0,200,OS_OPT_TIME_DLY,&err);
+			if (fansOutputCtrl & j)
+			{
+				currentFansOutput |= j;
+				OSTimeDlyHMSM(0,0,0,200,OS_OPT_TIME_DLY,&err);
+			}
 		}
+		littleAprilGroupOutput(FansGroup1,currentFansOutput&0xFF);
+		littleAprilGroupOutput(FansGroup2,(currentFansOutput&0xFF00)>>8);
 	}
+	logPrintf(Verbose,"currentFansOutput = %d,fansOutputCtrl = %d\r\n",currentFansOutput,fansOutputCtrl);
 }
 
 void littleAprilGroup3Ctrl(Group3Define whichOne,OnOrOff onOrOff)

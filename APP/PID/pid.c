@@ -80,14 +80,15 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 	average_temperature /= 6;
 
 	temperature_difference = average_temperature - dataStore.ctrlParameter.pidParameter.setTemperature;
-	logPrintf(Debug,"D:pid.c::pidControlTemperature()->average temperature is %.2f,set temperature is %.2f,temperature_difference is %.2f\r\n",
+	logPrintf(Debug,"D:pid.c::pidControlTemperature()->average temperature is %.2f,set temperature is %.2f,temperature_difference is %.2f,level_last is %d\r\n",
 						average_temperature,
 						dataStore.ctrlParameter.pidParameter.setTemperature,
-						temperature_difference);
+						temperature_difference,
+						level_last);
 	if (level_last != -1)
 	{
 		if (dataStore.ctrlParameter.pidParameter.setTemperature >= 
-				(average_temperature+dataStore.ctrlParameter.coolDownGrade[0].temperatureDifference/2))
+				(average_temperature-dataStore.ctrlParameter.coolDownGrade[0].temperatureDifference/2))
 		{
 			level_last = -1;
 			dataStore.realtimeData.isColding = false;
@@ -104,7 +105,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 	}
 	
 	grade_nums = sizeof(dataStore.ctrlParameter.coolDownGrade)/sizeof(CoolDownGrade);
-	if (temperature_difference > dataStore.ctrlParameter.coolDownGrade[0].temperatureDifference/2)
+	if (temperature_difference <dataStore.ctrlParameter.coolDownGrade[0].temperatureDifference)
 	{
 		level = 0;
 	}
@@ -120,13 +121,21 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 		}
 		level = i;
 	}
-	if ((level_last > level) && 
-		(temperature_difference > 
-					(dataStore.ctrlParameter.coolDownGrade[level].temperatureDifference + 
-					 dataStore.ctrlParameter.coolDownGrade[level+1].temperatureDifference)/2))
+	logPrintf(Verbose,"V:pid.c::pidControlTemperature()->Level first is %d\r\n",level);
+	if (level_last > level)
 	{
-		logPrintf(Verbose,"V:pid.c::pidControlTemperature()->Do not need to change level of cold down!\r\n");
-		return ;
+		if ((temperature_difference > dataStore.ctrlParameter.coolDownGrade[0].temperatureDifference/2) &&
+					(temperature_difference <=((dataStore.ctrlParameter.coolDownGrade[0].temperatureDifference + 
+																		dataStore.ctrlParameter.coolDownGrade[1].temperatureDifference)/2)))
+		{
+			level = 0;
+		}
+		else if (temperature_difference > 
+					(dataStore.ctrlParameter.coolDownGrade[level].temperatureDifference + 
+					 dataStore.ctrlParameter.coolDownGrade[level+1].temperatureDifference)/2)
+		{
+			level += 1;
+		}
 	}
 	logPrintf(Info,"I:pid.c::pidControlTemperature()->Calculate cool down grade result is %d!\r\n",level);
 	dataStore.realtimeData.workingVentilators = 0x0000;
