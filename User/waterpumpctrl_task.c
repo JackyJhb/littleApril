@@ -32,18 +32,7 @@ void waterpump_task(void *p_arg)
 		}
 		average_temperature /= 6;
 		
-		if ((isRunning == true) && 
-			(average_temperature < 
-				dataStore.ctrlParameter.systemOptions.waterPumpStopTemperature))
-		{
-			isRunning = false;
-			littleAprilIOCtrl(Colding,Off);
-			#ifdef ENABLE_OUTPUT_LOG
-			printf("Info:waterpumpctrl_task.c::waterpump_task()->Pump disable,stopTemperature = %.1f!\r\n",
-							dataStore.ctrlParameter.systemOptions.waterPumpStopTemperature);
-			#endif
-		}
-		else if ((isRunning == false) &&
+		if ((isRunning == false) &&
 			(average_temperature > 
 				dataStore.ctrlParameter.systemOptions.waterPumpStartTemperature))
 		{
@@ -63,9 +52,8 @@ void waterpump_task(void *p_arg)
 			if ((pumpStatus == false) && 
 					(counter > dataStore.ctrlParameter.systemOptions.waterPumpStoppedTime))
 			{
-				littleAprilIOCtrl(Colding,On);
 				counter = 0x00;
-				pumpStatus = true;
+				isRunning = false;
 				#ifdef ENABLE_OUTPUT_LOG
 				printf("Info:waterpumpctrl_task.c::waterpump_task()->Pump working!Working delay=%f\r\n",
 								dataStore.ctrlParameter.systemOptions.waterPumpRunningTime);
