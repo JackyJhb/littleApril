@@ -125,6 +125,7 @@ uint8_t sysCtrlConfigFileInit(void)
 	{
 		logPrintf(Verbose,"Day %d:%.2f \r\n",i,dataStore.ctrlParameter.ambientTemperature[i]);
 	}
+	dataStore.realtimeData.sequenceID =0x00000000;
 	err_code = 0;
 	return err_code;
 }

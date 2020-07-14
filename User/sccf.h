@@ -170,8 +170,9 @@ typedef struct{
 	uint16_t second;
 	float currentSetTemperature;
 	float deltaTemperature;
-	short deltaActionCycle;
-	short deltaActionTimeSpan;
+	/*short deltaActionCycle;
+	short deltaActionTimeSpan;*/
+	uint32_t sequenceID;
 	uint16_t volatageABC[3];
 	uint16_t workingVentilators;
 	uint16_t heatingColdingStatus;

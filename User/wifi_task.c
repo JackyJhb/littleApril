@@ -40,6 +40,7 @@ void sendLogStream(void)
 void publishRealTimeData(void)
 {
 	uint16_t len;
+	++dataStore.realtimeData.sequenceID;
 	len = getDataPublish(bufWifi,ToServer,(char *)&dataStore.realtimeData,
 											 sizeof(dataStore.realtimeData),ClientBroadcastRealTimeStatus);
 	sendDatas(bufWifi,len);

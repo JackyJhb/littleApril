@@ -77,7 +77,6 @@ void ts_task(void *p_arg)
 	p_arg = p_arg;
 	char *pMsg,msg_size,buf_rec[200],i;
 	char *store,*header;
-	static char isFirst = 1;
 	CPU_SR_ALLOC();
 	cpu_clk_freq = BSP_CPU_ClkFreq();
 	while(1)
@@ -312,34 +311,6 @@ void ts_task(void *p_arg)
 								i = 0x89;
 								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
 								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
-								break;
-							case 0x17:
-								--dataStore.realtimeData.deltaActionCycle;
-								break;
-							case 0x18:
-								++dataStore.realtimeData.deltaActionCycle;
-								break;
-							case 0x19:
-								if (isFirst)
-								{
-									isFirst = 0;
-									--dataStore.realtimeData.deltaActionTimeSpan;
-								}
-								else
-								{
-									isFirst = 1;
-								}
-								break;
-							case 0x1A:
-								if (isFirst)
-								{
-									isFirst = 0;
-									++dataStore.realtimeData.deltaActionTimeSpan;
-								}
-								else
-								{
-									isFirst = 1;
-								}
 								break;
 							case 0x7FF:
 								break;
