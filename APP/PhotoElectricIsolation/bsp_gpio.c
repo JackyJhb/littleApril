@@ -5,6 +5,7 @@
 #include "../Keyboard/bsp_button.h"
 #include "debug_config.h"
 #include "circleBuffer.h"
+#include "task_monitor.h"
 
 uint8_t hcwOutputCtrl,group3OutputCtrl;
 uint16_t fansOutputCtrl;
@@ -123,7 +124,7 @@ void littleAprilHCWCtrl(WhichRelay whichOne,OnOrOff onOrOff)
 	littleAprilGroupOutput(HCWGroup0,hcwOutputCtrl);
 }
 
-void littleApril16FansCtrl(uint32_t relayCtrlGroup)
+void littleApril16FansCtrl(uint32_t relayCtrlGroup,uint8_t whichTask)
 {
 	OS_ERR err;
 	uint16_t currentFansOutput,i,j;
@@ -143,7 +144,8 @@ void littleApril16FansCtrl(uint32_t relayCtrlGroup)
 			if (fansOutputCtrl & j)
 			{
 				currentFansOutput |= j;
-				OSTimeDlyHMSM(0,0,0,200,OS_OPT_TIME_DLY,&err);
+				//OSTimeDlyHMSM(0,0,0,200,OS_OPT_TIME_DLY,&err);
+				feedWatchDog(whichTask);
 			}
 		}
 		littleAprilGroupOutput(FansGroup1,currentFansOutput&0xFF);

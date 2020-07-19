@@ -74,7 +74,7 @@ uint8_t RTC_Configuration(void)
   RTC_InitStructure.RTC_SynchPrediv  = 0xFF;
   RTC_InitStructure.RTC_HourFormat   = RTC_HourFormat_24;
   RTC_Init(&RTC_InitStructure);
-	RTC_SetTimes(20,7,12,19,19,30);
+	RTC_SetTimes(20,7,18,11,42,30);
 	return 0;
 }
 
@@ -112,8 +112,8 @@ void RTC_SetWakeUp(uint32_t wktime,uint16_t autodata)
 	EXTI_Init(&EXTI_InitStructure);
 
 	NVIC_InitStructure.NVIC_IRQChannel = RTC_WKUP_IRQn; 
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x02;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }
@@ -149,8 +149,8 @@ void RTC_SetAlarmA(uint8_t week,uint8_t hour,uint8_t min,uint8_t sec)
 	EXTI_Init(&EXTI_InitStructure);
 
 	NVIC_InitStructure.NVIC_IRQChannel = RTC_Alarm_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x02;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }

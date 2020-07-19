@@ -55,7 +55,7 @@ typedef enum{
 extern void littleAprilIOInit(void);
 extern void littleAprilGroupOutput(WhichGroup whichGroup,uint8_t outputData);
 extern void littleAprilHCWCtrl(WhichRelay whichOne,OnOrOff onOrOff);
-extern void littleApril16FansCtrl(uint32_t relayCtrlGroup);
+extern void littleApril16FansCtrl(uint32_t relayCtrlGroup,uint8_t whichTask);
 extern void littleAprilGroup3Ctrl(Group3Define whichOne,OnOrOff onOrOff);
 
 #endif

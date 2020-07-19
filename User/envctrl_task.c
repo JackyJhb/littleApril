@@ -194,7 +194,7 @@ void EnvParameter_task(void *p_arg)
 		}
 		ts_start = OS_TS_GET();
 		OS_CRITICAL_ENTER();
-		updateData();
+		//updateData();
 		OS_CRITICAL_EXIT();
 		ts_end = OS_TS_GET();
 		logPrintf(Verbose,"V:envctrl_task.c::EnvParameter_task()->It took %dns to get temperature.\r\n",

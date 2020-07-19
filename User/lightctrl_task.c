@@ -3,6 +3,8 @@
 #include "bsp_gpio.h"
 #include "sccf.h"
 #include "exti.h"
+#include "timer.h"
+#include "led.h"
 
 OS_TCB LightCtrlTaskTCB;
 CPU_STK LIGHTCTRL_TASK_STK[LIGHTCTRL_STK_SIZE];
@@ -37,6 +39,8 @@ void lightctrl_task(void *p_arg)
 	CPU_SR_ALLOC();
 	cpu_clk_freq = BSP_CPU_ClkFreq();
 	ExtiInit();
+	SCR_Init();
+	Timer9Init(10,8400);
 	enableWatchDog(LIGHTCTRL_TASK_WD);
 	while(1)
 	{

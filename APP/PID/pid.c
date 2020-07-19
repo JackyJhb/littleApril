@@ -5,6 +5,7 @@
 #include "includes.h"
 #include "task_monitor.h"
 #include "circleBuffer.h"
+#include "task_monitor.h"
 
 PIDValue pid[3];
 
@@ -93,7 +94,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 			level_last = -1;
 			dataStore.realtimeData.isColding = false;
 			dataStore.realtimeData.workingVentilators = 0x0000;
-			littleApril16FansCtrl(dataStore.realtimeData.workingVentilators);
+			littleApril16FansCtrl(dataStore.realtimeData.workingVentilators,ENVCTRL_TASK_WD);
 			logPrintf(Debug,"D:pid.c::pidControlTemperature()->Stopped colding!\r\n");
 			return;
 		}
@@ -141,7 +142,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 	dataStore.realtimeData.workingVentilators = 0x0000;
 	cooding_down_fans =  dataStore.ctrlParameter.coolDownGrade[level].runningFansBits;
 	dataStore.realtimeData.workingVentilators = cooding_down_fans;
-	littleApril16FansCtrl(dataStore.realtimeData.workingVentilators);
+	littleApril16FansCtrl(dataStore.realtimeData.workingVentilators,ENVCTRL_TASK_WD);
 	dataStore.realtimeData.isColding = true;
 	level_last = level;
 }

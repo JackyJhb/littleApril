@@ -60,52 +60,6 @@ void CAN1_Init(void)
 	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
 	CAN_FilterInit(&CAN_FilterInitStructure);
 
-	/*CAN_FilterInitStructure.CAN_FilterNumber = 1;									//������1
-	CAN_FilterInitStructure.CAN_FilterMode   = CAN_FilterMode_IdList; 
-	CAN_FilterInitStructure.CAN_FilterScale  = CAN_FilterScale_32bit; 		//32λ 
-	//CAN_FilterInitStructure.CAN_FilterIdHigh = (uint32_t)ENV_PAR_SEND<<5;   //0x0581~0x0584
-	//CAN_FilterInitStructure.CAN_FilterIdLow  = (((uint32_t)ENV_PAR_SEND<<21)|CAN_ID_STD|CAN_RTR_DATA)&0xFFFF;//0x0000; 
-	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;						//32λMASK
-	CAN_FilterInitStructure.CAN_FilterMaskIdLow  = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_Filter_FIFO0;//������0������FIFO0
-	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;						//���������0
-	CAN_FilterInit(&CAN_FilterInitStructure);												//�˲�����ʼ��
-
-	CAN_FilterInitStructure.CAN_FilterNumber = 2;									//������2
-	CAN_FilterInitStructure.CAN_FilterMode   = CAN_FilterMode_IdList; 
-	CAN_FilterInitStructure.CAN_FilterScale  = CAN_FilterScale_32bit;		//32λ 
-	//CAN_FilterInitStructure.CAN_FilterIdHigh = (uint32_t)MOTOR_RIGHT_QUICPSTOP_GET<<5;   //0x0581~0x0584
-	//CAN_FilterInitStructure.CAN_FilterIdLow  = (((uint32_t)MOTOR_RIGHT_QUICPSTOP_GET<<21)|CAN_ID_STD|CAN_RTR_DATA)&0xFFFF;//0x0000; 
-	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;						//32λMASK
-	CAN_FilterInitStructure.CAN_FilterMaskIdLow  = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_Filter_FIFO0;//������0������FIFO0
-	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;						//���������0
-	CAN_FilterInit(&CAN_FilterInitStructure);												//�˲�����ʼ��
-	
-	CAN_FilterInitStructure.CAN_FilterNumber = 3;									//������3
-	CAN_FilterInitStructure.CAN_FilterMode   = CAN_FilterMode_IdList; 
-	CAN_FilterInitStructure.CAN_FilterScale  = CAN_FilterScale_32bit;		//32λ 
-	//CAN_FilterInitStructure.CAN_FilterIdHigh = (uint32_t)MOTOR_LEFT_QUICKSTOP_GET<<5;   //0x0581~0x0584
-	//CAN_FilterInitStructure.CAN_FilterIdLow  = (((uint32_t)MOTOR_LEFT_QUICKSTOP_GET<<21)|CAN_ID_STD|CAN_RTR_DATA)&0xFFFF;//0x0000; 
-	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;						//32λMASK
-	CAN_FilterInitStructure.CAN_FilterMaskIdLow  = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_Filter_FIFO0;//������0������FIFO0
-	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;						//���������0
-	CAN_FilterInit(&CAN_FilterInitStructure);												//�˲�����ʼ��
-	
-	CAN_ITConfig(CAN1,CAN_IT_FMP0,ENABLE);//FIFO0��Ϣ�Һ��ж�����.	
-
-	CAN_FilterInitStructure.CAN_FilterNumber = 4;
-	CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdList;//CAN_FilterMode_IdList;
-	CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_32bit;
-	//CAN_FilterInitStructure.CAN_FilterIdHigh = GYRO_SENSOR_SEND_ID<<5; //�ŵ���������ID
-	//CAN_FilterInitStructure.CAN_FilterIdLow = (((uint32_t)GYRO_SENSOR_SEND_ID<<21)|CAN_ID_STD|CAN_RTR_DATA)&0xFFFF; 
-	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FilterFIFO1;
-	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
-	CAN_FilterInit(&CAN_FilterInitStructure);*/
-
 	CAN_FilterInitStructure.CAN_FilterNumber = 5;
 	CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdList;
 	CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_32bit;
@@ -118,14 +72,14 @@ void CAN1_Init(void)
 	CAN_FilterInit(&CAN_FilterInitStructure);
 
 	NVIC_InitStructure.NVIC_IRQChannel = CAN1_RX0_IRQn;
-  	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
 	NVIC_InitStructure.NVIC_IRQChannel = CAN1_RX1_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
@@ -137,18 +91,6 @@ void CAN1_Init(void)
 	can1Struct.TxBuf_Out = 0;
 }
 
-/*
-*********************************************************************************************************
-*	�� �� ��: can_ISR
-*	����˵��: CAN�жϷ������. ��������� stm32f4xx_it.c�б�����
-*	��    �Σ���
-*	�� �� ֵ: ��
-* �޸�˵����2017/11/20
-*           1����if���ƽṹ�޸�Ϊswitch ... case ...�ṹ��
-*           2������Ŷ���ߵ����������ݽ��շ��ʹ������̣�
-*              ͨ����Ϣ���з��͸����߿��ƹ��̣�
-*********************************************************************************************************
-*/ 
 void CAN1_RX0_IRQHandler(void)
 {
 	if(CAN_GetITStatus(CAN1,CAN_IT_FMP0) != RESET)

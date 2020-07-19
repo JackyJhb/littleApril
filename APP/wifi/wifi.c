@@ -30,9 +30,9 @@ volatile uint16_t wifiBytesCount;
 /*char routerName[]      = "Nokia 7";
 char routerPasswd[]    = "lianke611";
 char serverIP[]        = "192.168.43.102";
-char serverPort[]      = "8080";
-char routerName[]      = "niuniu";
-char routerPasswd[]    = "niuniu20090317";*/
+char serverPort[]      = "8080";*/
+//char routerName[]      = "niuniu";
+//char routerPasswd[]    = "niuniu20090317";
 
 char routerName[]      = "ChinaNet-mWvK";
 char routerPasswd[]    = "jtpsehgi";
@@ -239,8 +239,8 @@ void usartWifiInit(u32 bound)
 	USART_ClearFlag(USART6, USART_FLAG_TC);
 	USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);
 	NVIC_InitStructure.NVIC_IRQChannel = USART6_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority =4;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority =0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }

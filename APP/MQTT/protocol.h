@@ -56,27 +56,4 @@ typedef struct {
 	char packageType;
 }ReceiveMsgHeader;
 
-/*typedef struct {
-	uint8_t isStarted;
-	uint8_t cycleDays;
-	uint8_t yearSystemStart;
-	uint8_t monthSystemStart;
-	uint8_t daySystemStart;
-	uint8_t hourSystemStart;
-	uint8_t minuteSystemStart;
-	uint8_t secondSystemStart;
-	uint8_t realSideWindowsAngle[2];
-	uint8_t humidityInside[3];
-	float insideTemperature[3];
-	float outsideTemperature;
-	float boilerTemperature;
-	float illumination[3];
-	float pressureInside;
-	float currentSetTemperature;
-	float deltaTemperature;
-	uint16_t workingVentilators;
-	uint16_t heatingColdingStatus;
-	uint32_t sensorErrStatus;
-}ClientRealData;*/
-
 #endif

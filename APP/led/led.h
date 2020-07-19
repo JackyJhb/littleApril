@@ -11,6 +11,7 @@
 
 
 void LED_Init(void);
+void SCR_Init(void);
 
 
 #endif
