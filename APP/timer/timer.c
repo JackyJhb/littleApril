@@ -20,7 +20,7 @@ void Timer9Init(uint16_t psc,uint16_t arr)
     nvicInitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&nvicInitStructure);
     
-    //TIM_Cmd(TIM9,ENABLE);
+    TIM_Cmd(TIM9,ENABLE);
 }
 
 void TIM1_BRK_TIM9_IRQHandler(void)

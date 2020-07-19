@@ -194,20 +194,29 @@ void EnvParameter_task(void *p_arg)
 		}
 		ts_start = OS_TS_GET();
 		OS_CRITICAL_ENTER();
-		//updateData();
+		updateData();
 		OS_CRITICAL_EXIT();
 		ts_end = OS_TS_GET();
 		logPrintf(Verbose,"V:envctrl_task.c::EnvParameter_task()->It took %dns to get temperature.\r\n",
 							(ts_end-ts_start)*14);
 		
 		order_ptr->type = ask_status;
-		CAN1_Send_Msg(ENV_PAR_RECEIVE_ID|ask_dev_id,buf,sizeof(ServerOrder),0);
-		logPrintf(Debug,"D:envctrl_task.c::EnvParameter_task()->Ask for temperature dev_id=%d\r\n",ask_dev_id);
-		pMsg = OSTaskQPend ((OS_TICK        )3000,
+		pMsg = OSTaskQPend ((OS_TICK        )0,
+							(OS_OPT         )OS_OPT_PEND_NON_BLOCKING,
+							(OS_MSG_SIZE   *)&msg_size,
+							(CPU_TS        *)0,
+							(OS_ERR       *)&err);
+		if (pMsg == NULL)
+		{
+			CAN1_Send_Msg(ENV_PAR_RECEIVE_ID|ask_dev_id,buf,sizeof(ServerOrder),10);
+			logPrintf(Debug,"D:envctrl_task.c::EnvParameter_task()->Ask for temperature dev_id=%d\r\n",ask_dev_id);
+			pMsg = OSTaskQPend ((OS_TICK        )3000,
 							(OS_OPT         )OS_OPT_PEND_BLOCKING,
 							(OS_MSG_SIZE   *)&msg_size,
 							(CPU_TS        *)0,
 							(OS_ERR       *)&err);
+		}
+		
 		if (err != OS_ERR_NONE)
 		{
 			logPrintf(Error,"E:envctrl_task.c::EnvParameter_task()->QSTaskQPend() Dev_id:%d , wait for requests temperature respond err = %d ",ask_dev_id,err);
