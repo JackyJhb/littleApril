@@ -1,11 +1,16 @@
+#include "stm32f4xx.h"
 #include "lightctrl_task.h"
 #include "task_monitor.h"
 #include "bsp_gpio.h"
 #include "sccf.h"
 #include "exti.h"
-#include "timer.h"
+#include "pwm.h"
 #include "led.h"
+#include "circleBuffer.h"
+#include "ds18b20.h"
 
+extern OS_SEM zeroSem;
+uint8_t isLighting = true;
 OS_TCB LightCtrlTaskTCB;
 CPU_STK LIGHTCTRL_TASK_STK[LIGHTCTRL_STK_SIZE];
 void lightctrl_task(void *p_arg);
@@ -34,39 +39,51 @@ void lightctrl_task(void *p_arg)
 	OS_ERR err;
 	OS_MSG_SIZE    msg_size;
 	CPU_INT32U     cpu_clk_freq;
-	uint8_t isLightingOff = 0,minutes,minutesLast,offTimeMinutes;
+	uint16_t offCounter,lastMiniute;
 	p_arg = p_arg;
 	CPU_SR_ALLOC();
 	cpu_clk_freq = BSP_CPU_ClkFreq();
 	ExtiInit();
 	SCR_Init();
-	Timer9Init(10,8400);
-	enableWatchDog(LIGHTCTRL_TASK_WD);
+	Timer9Init(1000,1680);     //500KHz/2.5K 200Hz
+	//enableWatchDog(LIGHTCTRL_TASK_WD);
 	while(1)
 	{
-		feedWatchDog(LIGHTCTRL_TASK_WD);
-		if (isLightingOff == 0)
+		//feedWatchDog(LIGHTCTRL_TASK_WD);
+		OSSemPend(&zeroSem,200,OS_OPT_PEND_BLOCKING,0,&err);
+		if (err != OS_ERR_NONE)
 		{
-			if (dataStore.realtimeData.hour == dataStore.ctrlParameter.illuminationStrength[dataStore.realtimeData.dayCycle].lightingOffTime)
+			logPrintf(Error,"E:lightctrl_task->lightctrl_task()::Wait Sem error :%d!\r\n",err);
+		}
+		else
+		{
+			delays_us(30);
+			GPIO_ResetBits(GPIOE,GPIO_Pin_6);
+		}
+		
+		if (isLighting == true)
+		{
+			if (dataStore.ctrlParameter.illuminationStrength[dataStore.realtimeData.dayCycle].lightingOffTime ==
+					dataStore.realtimeData.hour)
 			{
-				isLightingOff = 1;
-				offTimeMinutes = dataStore.ctrlParameter.illuminationStrength[dataStore.realtimeData.dayCycle].lightingOffMinutes;
-				minutesLast = dataStore.realtimeData.minute;
-				minutes = 0x00;
-				enLighting(ENABLE);
-				setPluseWidth(dataStore.ctrlParameter.illuminationStrength[dataStore.realtimeData.dayCycle].pluseWidth);
+				if (dataStore.realtimeData.minute == 0x14)
+				{
+					isLighting = false;
+					offCounter = 0;
+					lastMiniute = dataStore.realtimeData.minute;
+				}
 			}
 		}
-		if ((isLightingOff) && (minutesLast != dataStore.realtimeData.minute))
+		else
 		{
-			++minutes;
-			minutesLast = dataStore.realtimeData.minute;
-			if (minutes >= offTimeMinutes)
+			if (lastMiniute != dataStore.realtimeData.minute)
 			{
-				isLightingOff = 0;
-				enLighting(DISABLE);
+				++offCounter;
+				lastMiniute = dataStore.realtimeData.minute;
+				if (offCounter >= dataStore.ctrlParameter.illuminationStrength[dataStore.realtimeData.dayCycle].lightingOffMinutes)
+					isLighting = true;
 			}
 		}
-		OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
+		
 	}
 }

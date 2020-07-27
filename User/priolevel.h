@@ -15,6 +15,6 @@
 #define WATCHER_TASK_PRIO					13
 #define LED1_TASK_PRIO						14
 #define BOILERCTRL_TASK_PRIO                15
-#define LIGHTCTRL_TASK_PRIO                 16
+#define LIGHTCTRL_TASK_PRIO                 2
 
 #endif

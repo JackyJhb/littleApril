@@ -6,8 +6,8 @@
 OS_TCB MonitorTaskTCB;
 CPU_STK MONITOR_TASK_STK[MONITOR_STK_SIZE];
 
-static uint8_t feedWatchDogBuf[16];
-static uint16_t enableWatchDogBits = 0x00;
+static uint8_t feedWatchDogBuf[32];
+static uint32_t enableWatchDogBits = 0x00;
 void readSTM32UniqueID(void);
 ResetSourceType getRstSrcType(void);
 void enableWatchDog(uint8_t whichTask);
@@ -188,7 +188,6 @@ void monitor_task(void *p_arg)
 			if (needToFeedWatchDog())
 			{
 				logPrintf(Fatal,"F:task_monitor.c::monitor_task()->System will be reboot latter!\r\n");
-				//printf(Fatal,"F:task_monitor.c::monitor_task()->System will be reboot latter!\r\n");
 				while(1)
 				{
 					OSTimeDlyHMSM(0,0,0,500,OS_OPT_TIME_DLY,&err);

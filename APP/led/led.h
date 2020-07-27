@@ -9,9 +9,5 @@
 #define Led3 PGout(9)*/
 #define Led1 PFout(10)
 
-
 void LED_Init(void);
-void SCR_Init(void);
-
-
 #endif

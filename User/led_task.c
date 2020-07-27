@@ -27,7 +27,6 @@ void led1_task(void *p_arg)
 			GPIO_SetBits(GPIOF,GPIO_Pin_9);
 			OSTimeDlyHMSM(0,0,2,900,OS_OPT_TIME_DLY,&err);
 			feedWatchDog(LED_TASK_WD);
-			dataStore.blackBox.rebootTimes = 25;
 			logPrintf(Info,"-------------------------------------------\r\n");
 			logPrintf(Info,"I:BlackBox store information lists:\r\n");
 			logPrintf(Info,"I:rebootTimes:%d\r\n",dataStore.blackBox.rebootTimes);

@@ -16,6 +16,7 @@
 #include "lightctrl_task.h"
 
 OS_MEM mymem;
+OS_SEM zeroSem;
 uint8_t ucArray [ 20 ] [ 40];
 OS_TCB StartTaskTCB;
 CPU_STK START_TASK_STK[START_STK_SIZE];
@@ -53,6 +54,11 @@ void start_task(void *p_arg)
 				(OS_MEM_QTY   )20,
 				(OS_MEM_SIZE  )40,
 				(OS_ERR      *)&err);
+			
+	OSSemCreate((OS_SEM *)&zeroSem,
+				(CPU_CHAR *)"zeroSem",
+				(OS_SEM_CTR)1,
+				(OS_ERR *)&err);
                 
 
 	OSTaskCreate((OS_TCB 	* )&VentilationTaskTCB,		

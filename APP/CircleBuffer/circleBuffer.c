@@ -16,7 +16,7 @@ static char initFlag = 0;
 char bufPrintf[512];
 #endif
 
-LogLevel logLevel = Verbose;    
+LogLevel logLevel = Error;    
 
 void loggerBufferInit(void);
 int logPrintf(LogLevel level,const char *format,...);

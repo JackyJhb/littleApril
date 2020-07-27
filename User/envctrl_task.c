@@ -158,7 +158,6 @@ void EnvParameter_task(void *p_arg)
 		else
 		{
 			logPrintf(Error,"E:envctrl_task.c::EnvParameter_task()->mymem is too low NbrFree = %d\r\n",((OS_MEM      *)&mymem)->NbrFree);
-			//printf("E:envctrl_task.c::EnvParameter_task()->mymem is too low NbrFree = %d\r\n",((OS_MEM      *)&mymem)->NbrFree);
 		}
 		if (ask_dev_id == 0x03)
 		{
@@ -175,27 +174,13 @@ void EnvParameter_task(void *p_arg)
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours,
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds);
-			/*printf("V:envctrl_task.c::EnvParameter_task()->System days of cycle:%d\r\n",dataStore.realtimeData.dayCycle);
-			printf("V:envctrl_task.c::EnvParameter_task()->20%d.%d.%d--->",
-			RTC_DateStruct.RTC_Year,RTC_DateStruct.RTC_Month,RTC_DateStruct.RTC_Date);
-			printf("V:envctrl_task.c::EnvParameter_task()->%d:%d:%d\r\n",
-			RTC_TimeStruct.RTC_Hours,RTC_TimeStruct.RTC_Minutes,RTC_TimeStruct.RTC_Seconds);
-			printf("V:envctrl_task.c::EnvParameter_task()->System start date:%d year %d month %d day\r\n",
-				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Year,
-				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Month,
-				dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Date);
-			printf("V:envctrl_task.c::EnvParameter_task()->System start time:%d hour %d minute %d second\r\n",
-				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours,
-				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,
-				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds);
-			printf("V:envctrl_task.c::EnvParameter_task()->System days of cycle:%d\r\n",dataStore.realtimeData.dayCycle);*/
 			OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
 			ask_dev_id = 0x00;
 		}
 		ts_start = OS_TS_GET();
-		OS_CRITICAL_ENTER();
+		//OS_CRITICAL_ENTER();
 		updateData();
-		OS_CRITICAL_EXIT();
+		//OS_CRITICAL_EXIT();
 		ts_end = OS_TS_GET();
 		logPrintf(Verbose,"V:envctrl_task.c::EnvParameter_task()->It took %dns to get temperature.\r\n",
 							(ts_end-ts_start)*14);
@@ -220,7 +205,6 @@ void EnvParameter_task(void *p_arg)
 		if (err != OS_ERR_NONE)
 		{
 			logPrintf(Error,"E:envctrl_task.c::EnvParameter_task()->QSTaskQPend() Dev_id:%d , wait for requests temperature respond err = %d ",ask_dev_id,err);
-			//printf("E:envctrl_task.c::EnvParameter_task()->QSTaskQPend() Dev_id:%d , wait for requests temperature respond err = %d ",ask_dev_id,err);
 			#ifdef ENABLE_BLACK_BOX
 			if (err == OS_ERR_TIMEOUT)
 			{

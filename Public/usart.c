@@ -2,13 +2,13 @@
 #include "stdlib.h"
 #include "debug_config.h"
 #include "sccf.h"
+#include "circleBuffer.h"
 
 //接收缓存区 	
 //接收缓存区 	
 uint8_t RS485_receive_str[128];   //接收缓冲,最大128个字节.
 uint8_t uart_byte_count=0,usart_timer;        //接收到的数据长度
-
-
+uint16_t lightLevel=160;
 int fputc(int ch,FILE *p)  //函数默认的，在使用printf函数时自动调用
 {
 	USART_SendData(USART1,(u8)ch);	
@@ -69,12 +69,51 @@ void USART1_Init(u32 bound)
 void USART1_IRQHandler(void)                	//串口1中断服务程序
 {
 	char *   p_mem_blk,dat;
-	OSIntEnter(); 	     //进入中断
+	//OSIntEnter(); 	     //进入中断
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)  
 	{
 		dat = USART_ReceiveData(USART1);
+		switch (dat)
+		{
+			case 'f':
+			case 'F':
+				setLogLevel(Fatal);
+				break;
+			case 'e':
+			case 'E':
+				setLogLevel(Error);
+				break;
+			case 'w':
+			case 'W':
+				setLogLevel(Warning);
+				break;
+			case 'd':
+			case 'D':
+				setLogLevel(Debug);
+				break;
+			case 'i':
+			case 'I':
+				setLogLevel(Info);
+				break;
+			case 'v':
+			case 'V':
+				setLogLevel(Verbose);
+				break;
+			case '+':
+				if (lightLevel < 160)
+					++lightLevel;
+				lightLevel = 160;
+				break;
+			case '-':
+				if (lightLevel > 50)
+					--lightLevel;
+				lightLevel = 80;
+				break;
+			default:
+				break;
+		}
 	} 
-	OSIntExit();	        //退出中断
+	//OSIntExit();	        //退出中断
 } 	
 										 
 //初始化IO 串口2   bound:波特率	
