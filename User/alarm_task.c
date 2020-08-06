@@ -7,6 +7,7 @@
 #include "rtc.h"
 #include "stm32f4xx.h"                  // Device header
 #include "circleBuffer.h"
+#include "bsp_gpio.h"
 
 OS_TCB AlarmTaskTCB;
 CPU_STK ALARM_TASK_STK[ALARM_STK_SIZE];
@@ -91,19 +92,22 @@ void alarm_task(void *p_arg)
 		{
 			if (beep_status)
 			{
-				GPIO_ResetBits(BEEP_Port,BEEP_Pin);
+				//GPIO_ResetBits(BEEP_Port,BEEP_Pin);
+				littleAprilGroup3Ctrl(Warning_Group3,On);
 				logPrintf(Info,"I:alarm_task.c::alarm_task!Alarm code = %d\r\n",beep_status);
 				beep_status = 0x00;
 			}
 			else
 			{
-				GPIO_SetBits(BEEP_Port,BEEP_Pin);
+				//GPIO_SetBits(BEEP_Port,BEEP_Pin);
+				littleAprilGroup3Ctrl(Warning_Group3,Off);
 				beep_status = 0x01;
 			}
 		}
 		else
 		{
-			GPIO_SetBits(BEEP_Port,BEEP_Pin);
+			//GPIO_SetBits(BEEP_Port,BEEP_Pin);
+			littleAprilGroup3Ctrl(Warning_Group3,Off);
 		}
 		OSTimeDlyHMSM(0,0,0,300,OS_OPT_TIME_DLY,&err);
 	}

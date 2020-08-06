@@ -21,25 +21,24 @@ void ExtiInit(void)
 	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG,ENABLE);
 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOF,EXTI_PinSource3);
-	
-	//EXTI3 NVIC 配置
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn;//EXTI3中断通道
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=2;//抢占优先级
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority =1;		//子优先级
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
-	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器
-	
+
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=2;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority =1;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+
 	EXTI_InitStructure.EXTI_Line=EXTI_Line3;
 	EXTI_InitStructure.EXTI_Mode=EXTI_Mode_Interrupt;
 	EXTI_InitStructure.EXTI_Trigger=EXTI_Trigger_Rising;
 	EXTI_InitStructure.EXTI_LineCmd=ENABLE;
 	EXTI_Init(&EXTI_InitStructure);
-	
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn;//EXTI3中断通道
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=2;//抢占优先级
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority =1;		//子优先级
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
-	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器
+
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=2;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority =1;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
 }
 
 void EXTI3_IRQHandler(void)

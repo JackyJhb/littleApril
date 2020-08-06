@@ -73,7 +73,7 @@ uint8_t readCtrlConfigFile(void *ptr,unsigned int size)
 {
 	uint8_t temp;
 	AT24C02_Read(ADDR_RTD_FILE,(u8 *)ptr,size);
-	AT24C02_Read(104,&temp,sizeof(uint8_t));
+	/*AT24C02_Read(104,&temp,sizeof(uint8_t));
 	if (temp == 0x89)
 	{
 		AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
@@ -84,7 +84,7 @@ uint8_t readCtrlConfigFile(void *ptr,unsigned int size)
 	{
 		logPrintf(Info,"I:sccf.c::readCtrlConfigFile -> deltaTemperature real value is 0.0.\r\n");
 		dataStore.realtimeData.deltaTemperature = 0.0f;
-	}
+	}*/
 	return 0;
 }
 

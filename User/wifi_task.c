@@ -56,7 +56,9 @@ void protocolAnalyze(char *buf,uint16_t len)
 {
 	uint32_t offset = 0;
 	uint16_t len_data = 0;
-	uint8_t order = *buf,rep_res=0x00,temp;
+	uint8_t order = *buf,temp;
+	ErrorStatus err;
+	char rep_res=0x00;
 	switch (order)
 	{
 		case ServerRequestAlarmThreshold:
@@ -152,24 +154,46 @@ void protocolAnalyze(char *buf,uint16_t len)
 			break;
 		case ServerCtrlSystem:
 			temp = *(buf+1);
-			if ((temp == 0x68) || (temp == 0xA6) || (temp == 0xA8))
+			if ((temp == HEATING_STARTED) || (temp == REARING_STARTED) || (temp == REARING_STOPPED))
 			{
-				dataStore.realtimeData.realDataToSave.isStarted = temp;
-				if (temp == 0xA6)
+				if (temp == REARING_STARTED)
 				{
+					dataStore.realtimeData.realDataToSave.isStarted = REARING_STARTED;
 					dataStore.realtimeData.realDataToSave.cycleDays = 49;
 					dataStore.realtimeData.realDataToSave.key = INIT_KEY;
 					memcpy(&dataStore.realtimeData.realDataToSave.rtcDateStart,&RTC_DateStruct,sizeof(RTC_DateStruct));
 					memcpy(&dataStore.realtimeData.realDataToSave.rtcTimeStart,&RTC_TimeStruct,sizeof(RTC_TimeStruct));
 					rep_res = sysCtrlConfigFileWrite(&dataStore.realtimeData.realDataToSave,sizeof(RealDataStore));
-					len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerCtrlSystem);
+				}
+				else if (temp == REARING_STOPPED)
+				{
+					dataStore.realtimeData.realDataToSave.isStarted = REARING_STOPPED;
+				}
+				else
+				{
+					if (dataStore.realtimeData.realDataToSave.isStarted == REARING_STARTED)
+					{
+						rep_res = 0x01;
+					}
+					else
+					{
+						dataStore.realtimeData.realDataToSave.isStarted = HEATING_STARTED;
+					}
 				}
 			}
 			else
 			{
 				rep_res = 0x01;
-				len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerCtrlSystem);
 			}
+			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerCtrlSystem);
+			break;
+		case ServerSetDate:
+			err = RTC_SetTimes(*(buf+1),*(buf+2),*(buf+3),*(buf+4),*(buf+5),*(buf+6));
+			if (err == ERROR)
+			{
+				rep_res = 0x01;
+			}
+			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetDate);
 			break;
 		default:
 			break;

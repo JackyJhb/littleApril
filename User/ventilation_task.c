@@ -61,7 +61,10 @@ void ventilation_task(void *p_arg)
 					//logPrintf("###############################################\r\n");
 					work_timer_counter = 0x00;
 					dataStore.realtimeData.workingVentilators = dataStore.ctrlParameter.ventilation.ventilateGrade[level].runningFansBits;
-					littleApril16FansCtrl(dataStore.realtimeData.workingVentilators,VENTILATION_TASK_WD);
+					if (fan_work_seconds > 0)
+					{
+						littleApril16FansCtrl(dataStore.realtimeData.workingVentilators,VENTILATION_TASK_WD);
+					}
 					isFanWorking = true;
 					logPrintf(Debug,"D:ventilation_task.c::ventilation_task()->20%d.%d.%d %d:%d:%d\r\n",
 								RTC_DateStruct.RTC_Year,RTC_DateStruct.RTC_Month,RTC_DateStruct.RTC_Date,

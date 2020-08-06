@@ -74,7 +74,8 @@ void temperatureCtrl(uint8_t dev_id)
 			{
 				set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle];
 			}
-			pidControlTemperature((set_temperature+dataStore.realtimeData.deltaTemperature),temp,dev_id);
+			//pidControlTemperature((set_temperature+dataStore.realtimeData.deltaTemperature),temp,dev_id);
+			pidControlTemperature((set_temperature+dataStore.ctrlParameter.systemOptions.deltaTemperature),temp,dev_id);
 		}
 		else if (dataStore.realtimeData.realDataToSave.isStarted == HEATING_STARTED)
 		{
@@ -174,16 +175,17 @@ void EnvParameter_task(void *p_arg)
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours,
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds);
+			OS_CRITICAL_ENTER();
+			updateData();
+			OS_CRITICAL_EXIT();
 			OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
 			ask_dev_id = 0x00;
 		}
-		ts_start = OS_TS_GET();
-		//OS_CRITICAL_ENTER();
-		updateData();
-		//OS_CRITICAL_EXIT();
-		ts_end = OS_TS_GET();
-		logPrintf(Verbose,"V:envctrl_task.c::EnvParameter_task()->It took %dns to get temperature.\r\n",
-							(ts_end-ts_start)*14);
+		//ts_start = OS_TS_GET();
+		
+		//ts_end = OS_TS_GET();
+		//logPrintf(Verbose,"V:envctrl_task.c::EnvParameter_task()->It took %dns to get temperature.\r\n",
+		//					(ts_end-ts_start)*14);
 		
 		order_ptr->type = ask_status;
 		pMsg = OSTaskQPend ((OS_TICK        )0,

@@ -144,7 +144,7 @@ void littleApril16FansCtrl(uint32_t relayCtrlGroup,uint8_t whichTask)
 			if (fansOutputCtrl & j)
 			{
 				currentFansOutput |= j;
-				OSTimeDlyHMSM(0,0,0,200,OS_OPT_TIME_DLY,&err);
+				OSTimeDlyHMSM(0,0,0,500,OS_OPT_TIME_DLY,&err);
 				feedWatchDog(whichTask);
 			}
 		}

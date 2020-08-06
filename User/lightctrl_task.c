@@ -26,11 +26,11 @@ void enLighting(uint8_t isEnable)
 {
 	if (isEnable)
 	{
-		littleAprilGroup3Ctrl(Lighting_Group3,On);
+//		littleAprilGroup3Ctrl(Lighting_Group3,On);
 	}
 	else
 	{
-		littleAprilGroup3Ctrl(Lighting_Group3,Off);
+	//	littleAprilGroup3Ctrl(Lighting_Group3,Off);
 	}
 }
 

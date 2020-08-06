@@ -31,14 +31,14 @@ typedef enum{
 }WhichGroup;
 
 typedef enum{
-	FanShaft_Group3      = 0x01,
-	CirculatePump_Group3 = 0x02,
-	Lighting_Group3	     = 0x04,
+	CirculatePump_Group3      = 0x01,
+	FanShaft_Group3 = 0x02,
+	Reserved0_Group3	     = 0x04,
 	Reserved1_Group3     = 0x08,
-	Reserved2_Group3     = 0x10,
-	Reserved3_Group3	 = 0x20,
-	Reserved4_Group3	 = 0x40,
-	Reserved5_Group3	 = 0x80
+	Warning_Group3    = 0x10,
+	Reserved2_Group3	 = 0x20,
+	Reserved3_Group3	 = 0x40,
+	Reserved4_Group3	 = 0x80
 }Group3Define;
 
 typedef enum{

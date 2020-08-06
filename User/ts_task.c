@@ -140,7 +140,8 @@ void ts_task(void *p_arg)
 						}
 						else if (addr_offset >= 0x7FF && addr_offset < 0x8FF)
 						{
-							header = (int8_t *)&dataStore.realtimeData.deltaTemperature;
+							//header = (int8_t *)&dataStore.realtimeData.deltaTemperature;
+							header = (int8_t *)&dataStore.ctrlParameter.systemOptions.deltaTemperature;
 							*(buf_rec+3) = *(header + 3);
 							*(buf_rec+4) = *(header + 2);
 							*(buf_rec+5) = *(header + 1);
@@ -285,12 +286,12 @@ void ts_task(void *p_arg)
 								memcpy(&dataStore.realtimeData.realDataToSave.rtcDateStart,&RTC_DateStruct,sizeof(RTC_DateStruct));
 								memcpy(&dataStore.realtimeData.realDataToSave.rtcTimeStart,&RTC_TimeStruct,sizeof(RTC_TimeStruct));
 								sysCtrlConfigFileWrite(&dataStore.realtimeData.realDataToSave,sizeof(RealDataStore));
-								dataStore.realtimeData.deltaTemperature = 0.0f;
+								/*dataStore.realtimeData.deltaTemperature = 0.0f;
 								//OS_CRITICAL_ENTER();
 								i = 0x89;
 								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
 								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
-								//OS_CRITICAL_EXIT();
+								//OS_CRITICAL_EXIT();*/
 								break;
 							case 0x13:
 								dataStore.realtimeData.realDataToSave.isStarted = REARING_STOPPED;
@@ -299,18 +300,18 @@ void ts_task(void *p_arg)
 								break;
 							case 0x15:
 								//Dec temperature
-								dataStore.realtimeData.deltaTemperature -= 0.05;
+								/*dataStore.realtimeData.deltaTemperature -= 0.05;
 								i = 0x89;
 								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
 								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
-								AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
+								AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));*/
 								break;
 							case 0x16:
 								//Inc temperature
-								dataStore.realtimeData.deltaTemperature += 0.05;
+								/*dataStore.realtimeData.deltaTemperature += 0.05;
 								i = 0x89;
 								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
+								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));*/
 								break;
 							case 0x7FF:
 								break;
@@ -382,16 +383,18 @@ void ts_task(void *p_arg)
 								read_len = write_len;
 								break;
 							case 0x7FF:
-								header = (uint8_t *)&dataStore.realtimeData.deltaTemperature;
+								//header = (uint8_t *)&dataStore.realtimeData.deltaTemperature;
+								header = (uint8_t *)&dataStore.ctrlParameter.systemOptions.deltaTemperature;
 								write_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
+								eeprom_addr = ADDR_CFG_FILE+abs((char *)&dataStore.ctrlParameter - (char *)&dataStore.ctrlParameter.systemOptions.deltaTemperature);
 								for (i=0;i<write_len;i++)
 								{
 									*(header + i) = *(buf_rec + 6 + write_len - i);
 									*(buf_rec+3+i) = *(buf_rec+6+i);
 								}
-								i = 0x89;
+								/*i = 0x89;
 								AT24C02_Write(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));
+								AT24C02_Write(104,(uint8_t *)&i,sizeof(uint8_t));*/
 								read_len = write_len;
 								break;
 							case 0x0B02:

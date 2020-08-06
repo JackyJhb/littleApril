@@ -101,7 +101,7 @@ typedef struct {
 
 	float stopColdingCondition;
 	
-	float barometricPressureCondition;
+	float deltaTemperature;//barometricPressureCondition;
 	
 	float startHeatingBoilerPipeTemperature;
 	float stopHeatingBoilerPipeTemperature;
@@ -158,7 +158,7 @@ typedef struct{
 	float 	 insideTemperature[3][2];
 	float    outsideTemperature;
 	float    boilerPipeTemperature;
-	float		 boilerInsideTemperature;
+	float	 boilerInsideTemperature;
 	float 	 illumination[3];
 	float    pressureInside;
 	uint16_t dayCycle;

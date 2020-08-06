@@ -3,7 +3,7 @@ const SystemOptions systemOptionsDefault = {
 	-0.3,//float startHeatingCondition;
 	0.15,//float stopHeatingCondition;
 	0.15,//float stopColdingCondition;
-	-20,//float barometricPressureCondition;
+	0.0,//float deltaTemperature;
 	58,//float startHeatingBoilerPipeTemperature;
 	55,//float stopHeatingBoilerPipeTemperature;
 	60,//float startFanShaftTemperature;
@@ -13,7 +13,6 @@ const SystemOptions systemOptionsDefault = {
 	70,//
 	110,
 	15,//uint16_t sideWindowDefaultAngle;
-	
 	3.0,
 	2.0,
 	30,

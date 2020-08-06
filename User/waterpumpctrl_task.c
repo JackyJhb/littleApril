@@ -33,25 +33,26 @@ void waterpump_task(void *p_arg)
 		}
 		average_temperature /= 6;
 		
-		if ((isRunning == true) && 
-			(average_temperature < 
-				dataStore.ctrlParameter.systemOptions.waterPumpStopTemperature))
+		if (isRunning == false)
 		{
-			isRunning = false;
-			littleAprilHCWCtrl(Colding,Off);
-			logPrintf(Info,"I:waterpumpctrl_task.c::waterpump_task()->Pump disable,stopTemperature = %.1f!\r\n",
-							dataStore.ctrlParameter.systemOptions.waterPumpStopTemperature);
-		}
-		else if ((isRunning == false) &&
-			(average_temperature > 
-				dataStore.ctrlParameter.systemOptions.waterPumpStartTemperature))
-		{
-			isRunning = true;
-			pumpStatus = true;
-			counter = 0x00;
-			littleAprilHCWCtrl(Colding,On);
-			logPrintf(Info,"I:waterpumpctrl_task.c::waterpump_task()->Pump enable,startTemperature = %.1f!\r\n",
+			if (average_temperature > 
+				dataStore.ctrlParameter.systemOptions.waterPumpStartTemperature)
+			{
+				isRunning = true;
+				pumpStatus = true;
+				counter = 0x00;
+				littleAprilHCWCtrl(Colding,On);
+				logPrintf(Info,"I:waterpumpctrl_task.c::waterpump_task()->Pump enable,startTemperature = %.1f!\r\n",
 							dataStore.ctrlParameter.systemOptions.waterPumpStartTemperature);
+			}
+			else
+			{
+				pumpStatus = false;
+				counter = 0x00;
+				littleAprilHCWCtrl(Colding,Off);
+				logPrintf(Info,"I:waterpumpctrl_task.c::waterpump_task()->Pump disable,stopTemperature = %.1f!\r\n",
+							dataStore.ctrlParameter.systemOptions.waterPumpStartTemperature);
+			}
 		}
 		
 		if (isRunning == true)
@@ -60,18 +61,20 @@ void waterpump_task(void *p_arg)
 			if ((pumpStatus == false) && 
 					(counter > dataStore.ctrlParameter.systemOptions.waterPumpStoppedTime))
 			{
-				littleAprilHCWCtrl(Colding,On);
 				counter = 0x00;
-				pumpStatus = true;
+				isRunning = false;
 				logPrintf(Info,"I:waterpumpctrl_task.c::waterpump_task()->Pump working!Working delay=%f\r\n",
 								dataStore.ctrlParameter.systemOptions.waterPumpRunningTime);
 			}
 			else if ((pumpStatus == true) && 
 					(counter > dataStore.ctrlParameter.systemOptions.waterPumpRunningTime))
 			{
-				littleAprilHCWCtrl(Colding,Off);
+				if (dataStore.ctrlParameter.systemOptions.waterPumpStoppedTime != 0)
+				{
+					littleAprilHCWCtrl(Colding,Off);
+					pumpStatus = false;
+				}
 				counter = 0x00;
-				pumpStatus = false;
 				logPrintf(Info,"I:waterpumpctrl_task.c::waterpump_task()->Pump stopped!Stopped delay=%f\r\n",
 								dataStore.ctrlParameter.systemOptions.waterPumpStoppedTime);
 			}
