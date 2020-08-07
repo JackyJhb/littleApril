@@ -158,19 +158,31 @@ void protocolAnalyze(char *buf,uint16_t len)
 			{
 				if (temp == REARING_STARTED)
 				{
+					//Start system
 					dataStore.realtimeData.realDataToSave.isStarted = REARING_STARTED;
 					dataStore.realtimeData.realDataToSave.cycleDays = 49;
 					dataStore.realtimeData.realDataToSave.key = INIT_KEY;
+					//Save date and time of system start.
 					memcpy(&dataStore.realtimeData.realDataToSave.rtcDateStart,&RTC_DateStruct,sizeof(RTC_DateStruct));
 					memcpy(&dataStore.realtimeData.realDataToSave.rtcTimeStart,&RTC_TimeStruct,sizeof(RTC_TimeStruct));
 					rep_res = sysCtrlConfigFileWrite(&dataStore.realtimeData.realDataToSave,sizeof(RealDataStore));
+					//Count days of cycle without reboot.
+					dataStore.realtimeData.dayCycle = calDaysBettweenTwoDate(&dataStore.realtimeData.realDataToSave.rtcDateStart,
+																 &dataStore.realtimeData.realDataToSave.rtcTimeStart);
+					//Set alarm time to raise days of cycle up.
+					RTC_SetAlarmA(dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_WeekDay,
+					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours,
+					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,
+					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds);
 				}
 				else if (temp == REARING_STOPPED)
 				{
 					dataStore.realtimeData.realDataToSave.isStarted = REARING_STOPPED;
 				}
-				else
+				else if (temp == REBOOT_SYSTEM)
 				{
+				}
+				else{
 					if (dataStore.realtimeData.realDataToSave.isStarted == REARING_STARTED)
 					{
 						rep_res = 0x01;
@@ -189,6 +201,10 @@ void protocolAnalyze(char *buf,uint16_t len)
 			break;
 		case ServerSetDate:
 			err = RTC_SetTimes(*(buf+1),*(buf+2),*(buf+3),*(buf+4),*(buf+5),*(buf+6));
+			RTC_GetTimes(RTC_Format_BIN);
+			dataStore.realtimeData.dayCycle = calDaysBettweenTwoDate(&dataStore.realtimeData.realDataToSave.rtcDateStart,
+																 &dataStore.realtimeData.realDataToSave.rtcTimeStart);
+		
 			if (err == ERROR)
 			{
 				rep_res = 0x01;

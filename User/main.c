@@ -50,8 +50,8 @@ int main()
 		logPrintf(Info,"#############################################################\r\n");
 		logPrintf(Info,"#                      littleApril core                     #\r\n");
 		logPrintf(Info,"#Branch:beta                                                #\r\n");
-		logPrintf(Info,"#Version:V2.1.0 (0620)                                      #\r\n");
-		logPrintf(Info,"#Change date:2020/06/20                                     #\r\n");
+		logPrintf(Info,"#Version:V2.2.0 (0807)                                      #\r\n");
+		logPrintf(Info,"#Change date:2020/08/07                                     #\r\n");
 		logPrintf(Info,"#Ventilation cycle changed.                                 #\r\n");
 		logPrintf(Info,"#############################################################\r\n");
 		logPrintf(Info,"Info:main.c::System start date:%d year %d month %d day\r\n",

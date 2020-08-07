@@ -59,7 +59,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 		{
 			littleAprilHCWCtrl((1<<which_one),Off);
 			dataStore.realtimeData.heatingColdingStatus &= ~(1<<which_one);
-			littleAprilHCWCtrl(Colding,Off);
+			//littleAprilHCWCtrl(Colding,Off);
 			#ifdef ENABLE_OUTPUT_LOG
 			logPrintf(Verbose,"V:pid.c::pidControlTemperature()->Fine tuning.Area %d heating stopped.\r\n",which_one);
 			#endif

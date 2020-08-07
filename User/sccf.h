@@ -21,6 +21,7 @@ The meaning of sccf is System Control Configuration File.
 #define REARING_STARTED 0xA6
 #define REARING_STOPPED 0xA8
 #define HEATING_STARTED 0x68
+#define REBOOT_SYSTEM 0x88
 #define WIFI_REF_SET    0x18
 
 #define STM32_UNIQUE_ID_SIZE 12
