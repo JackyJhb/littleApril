@@ -106,6 +106,7 @@ uint8_t sysCtrlConfigFileInit(void)
 	uint8_t err_code = 0,i;
 	AT24C02_Init();
 	memset(&dataStore.realtimeData,0x00,sizeof(RealDataStore));
+	memset(&dataStore.sensorStatusCounter,0x00,sizeof(SensorStatusCounter));
 	readCtrlConfigFile(&dataStore.realtimeData.realDataToSave,sizeof(RealDataToSave));
 	if (dataStore.realtimeData.realDataToSave.key != INIT_KEY)
 	{

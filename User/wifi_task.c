@@ -168,7 +168,7 @@ void protocolAnalyze(char *buf,uint16_t len)
 					rep_res = sysCtrlConfigFileWrite(&dataStore.realtimeData.realDataToSave,sizeof(RealDataStore));
 					//Count days of cycle without reboot.
 					dataStore.realtimeData.dayCycle = calDaysBettweenTwoDate(&dataStore.realtimeData.realDataToSave.rtcDateStart,
-																 &dataStore.realtimeData.realDataToSave.rtcTimeStart);
+																 &dataStore.realtimeData.realDataToSave.rtcTimeStart)+1;
 					//Set alarm time to raise days of cycle up.
 					RTC_SetAlarmA(dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_WeekDay,
 					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours,
@@ -203,7 +203,7 @@ void protocolAnalyze(char *buf,uint16_t len)
 			err = RTC_SetTimes(*(buf+1),*(buf+2),*(buf+3),*(buf+4),*(buf+5),*(buf+6));
 			RTC_GetTimes(RTC_Format_BIN);
 			dataStore.realtimeData.dayCycle = calDaysBettweenTwoDate(&dataStore.realtimeData.realDataToSave.rtcDateStart,
-																 &dataStore.realtimeData.realDataToSave.rtcTimeStart);
+																 &dataStore.realtimeData.realDataToSave.rtcTimeStart)+1;
 		
 			if (err == ERROR)
 			{

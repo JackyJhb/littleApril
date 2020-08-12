@@ -17,7 +17,7 @@ void alarm_task(void *p_arg)
 	OS_ERR err;
 	OS_MSG_SIZE    msg_size;
 	CPU_INT32U     cpu_clk_freq;
-	char alarm_status,* pMsg,beep_status = 0x00;
+	char alarm_status,* pMsg,beep_status = 0x00,i;
 	uint32_t alarm_bits = 0x00;
 	float average_temperature;
 	p_arg = p_arg;
@@ -28,73 +28,114 @@ void alarm_task(void *p_arg)
 	while(1)
 	{
 		feedWatchDog(ALARM_TASK_WD);
-		average_temperature = (dataStore.realtimeData.insideTemperature[0][0] + dataStore.realtimeData.insideTemperature[0][1])/2;
-		if (average_temperature > (dataStore.realtimeData.currentSetTemperature + dataStore.ctrlParameter.alarmThresholdOptions.henhouseTemperatureHighThreshold) || 
-			average_temperature < (dataStore.realtimeData.currentSetTemperature - dataStore.ctrlParameter.alarmThresholdOptions.henhouseTemperatureLowThreshold))
+		
+		average_temperature = 0;
+		for(i = 0;i < 6;i++)
 		{
-			alarm_bits |= AREA1_TEMPERATURE_ALARM;
+			average_temperature += *((float *)dataStore.realtimeData.insideTemperature +i);
+		}
+		average_temperature /= 6;
+		if (average_temperature > (dataStore.realtimeData.currentSetTemperature + dataStore.ctrlParameter.alarmThresholdOptions.henhouseTemperatureHighThreshold))
+		{
+			alarm_bits |= INSIDE_TEMPER_HIGH_ALARM;
+		}
+		else if (average_temperature < (dataStore.realtimeData.currentSetTemperature - dataStore.ctrlParameter.alarmThresholdOptions.henhouseTemperatureLowThreshold))
+		{
+			alarm_bits |= INSIDE_TEMPER_LOW_ALARM;
 		}
 		else
 		{
-			alarm_bits &= ~AREA1_TEMPERATURE_ALARM;
+			alarm_bits &= ~INSIDE_TEMPER_HIGH_ALARM;
+			alarm_bits &= ~INSIDE_TEMPER_LOW_ALARM;
 		}
 		
-		average_temperature = (dataStore.realtimeData.insideTemperature[1][0] + dataStore.realtimeData.insideTemperature[1][1])/2;
-		if (average_temperature > (dataStore.realtimeData.currentSetTemperature + dataStore.ctrlParameter.alarmThresholdOptions.henhouseTemperatureHighThreshold) || 
-			average_temperature < (dataStore.realtimeData.currentSetTemperature - dataStore.ctrlParameter.alarmThresholdOptions.henhouseTemperatureLowThreshold))
+		if (dataStore.realtimeData.boilerPipeTemperature < dataStore.ctrlParameter.alarmThresholdOptions.boilerTemperatureLowThreshold)
 		{
-			alarm_bits |= AREA2_TEMPERATURE_ALARM;
+			alarm_bits |= BOILER_TEMPER_LOW_ALARM;
+		}
+		else if (dataStore.realtimeData.boilerPipeTemperature > dataStore.ctrlParameter.alarmThresholdOptions.boilerTemperatureHighThreshold)
+		{
+			alarm_bits |= BOILER_TEMPER_LOW_ALARM;
 		}
 		else
 		{
-			alarm_bits &= ~AREA2_TEMPERATURE_ALARM;
-		}
-		
-		average_temperature = (dataStore.realtimeData.insideTemperature[2][0] + dataStore.realtimeData.insideTemperature[2][1])/2;
-		if (average_temperature > (dataStore.realtimeData.currentSetTemperature + dataStore.ctrlParameter.alarmThresholdOptions.henhouseTemperatureHighThreshold) || 
-			average_temperature < (dataStore.realtimeData.currentSetTemperature - dataStore.ctrlParameter.alarmThresholdOptions.henhouseTemperatureLowThreshold))
-		{
-			alarm_bits |= AREA3_TEMPERATURE_ALARM;
-		}
-		else
-		{
-			alarm_bits &= ~AREA3_TEMPERATURE_ALARM;
-		}
-		
-		if ((dataStore.realtimeData.boilerPipeTemperature < dataStore.ctrlParameter.alarmThresholdOptions.boilerTemperatureLowThreshold) || 
-			(dataStore.realtimeData.boilerPipeTemperature > dataStore.ctrlParameter.alarmThresholdOptions.boilerTemperatureHighThreshold))
-		{
-			alarm_bits |= BOILER_TEMPERATURE_ALARM;
-		}
-		else
-		{
-			alarm_bits &= ~BOILER_TEMPERATURE_ALARM;
-		}
-		
-		if ((dataStore.realtimeData.humidityInside[1] > dataStore.ctrlParameter.alarmThresholdOptions.humidityHighThreshold) ||
-			(dataStore.realtimeData.humidityInside[1] < dataStore.ctrlParameter.alarmThresholdOptions.humidityLowThreshold) )
-		{
-			alarm_bits |= AREA2_HUMIDITY_ALARM;
-		}
-		else
-		{
-			alarm_bits &= ~AREA2_HUMIDITY_ALARM;
+			alarm_bits &= ~BOILER_TEMPER_HIGH_ALARM;
+			alarm_bits &= ~BOILER_TEMPER_LOW_ALARM;
 		}
 		
 		#ifdef ENABLE_PIRACY_TRAP
 		if ((RTC_DateStruct.RTC_Year > 20) || (RTC_DateStruct.RTC_Month > 7)) 
 		{
-			alarm_bits |= AREA2_HUMIDITY_ALARM;
+			alarm_bits |= PIRACY_ALARM;
 		}
 		#endif
 		
+		for (i = 0;i < 3;i++)
+		{
+			if (dataStore.sensorStatusCounter.clientDeviceErrCounter[i] > ERR_TIMES_LIMIT)
+			{
+				alarm_bits |= (CLIENT_CONNECT_ERR<<i);
+			}
+			else
+			{
+				alarm_bits &= ~(CLIENT_CONNECT_ERR<<i);
+			}
+			
+			if (dataStore.sensorStatusCounter.areaHeatingErrCounter[i] > ERR_TIMES_LIMIT)
+			{
+				alarm_bits |= (AREA_HEATING_ERR << i);
+			}
+			else
+			{
+				alarm_bits &= ~(AREA_HEATING_ERR << i);
+			}
+			
+			if ((dataStore.sensorStatusCounter.areaLeftSensorErrCounter[i] >ERR_TIMES_LIMIT) ||
+				(dataStore.sensorStatusCounter.areaRightSensorErrCounter[i] > ERR_TIMES_LIMIT))
+			{
+				alarm_bits |= (AREA_SENSOR_ERR << i);
+			}
+			else
+			{
+				alarm_bits &= ~(AREA_SENSOR_ERR << i);
+			}
+		}
+		
+		if (dataStore.sensorStatusCounter.outsideSensorErrCounter > ERR_TIMES_LIMIT)
+		{
+			alarm_bits |= OUTSIDE_SENSOR_ERR;
+		}
+		else
+		{
+			alarm_bits &= ~OUTSIDE_SENSOR_ERR;
+		}
+		
+		if (dataStore.sensorStatusCounter.pipeSensorErrCounter > ERR_TIMES_LIMIT)
+		{
+			alarm_bits |= PIPE_SENSOR_ERR;
+		}
+		else
+		{
+			alarm_bits &= ~PIPE_SENSOR_ERR;
+		}
+		
+		if (dataStore.sensorStatusCounter.boilerSensorErrCounter > ERR_TIMES_LIMIT)
+		{
+			alarm_bits |= BOILER_SENSOR_ERR;
+		}
+		else
+		{
+			alarm_bits &= ~BOILER_SENSOR_ERR;
+		}
+		
+		dataStore.realtimeData.sensorErrStatus = alarm_bits;
 		if (alarm_bits)
 		{
 			if (beep_status)
 			{
 				//GPIO_ResetBits(BEEP_Port,BEEP_Pin);
 				littleAprilGroup3Ctrl(Warning_Group3,On);
-				logPrintf(Info,"I:alarm_task.c::alarm_task!Alarm code = %d\r\n",beep_status);
+				logPrintf(Info,"I:alarm_task.c::alarm_task!Alarm code = %d\r\n",dataStore.realtimeData.sensorErrStatus);
 				beep_status = 0x00;
 			}
 			else

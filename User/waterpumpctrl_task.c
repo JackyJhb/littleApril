@@ -42,6 +42,7 @@ void waterpump_task(void *p_arg)
 				pumpStatus = true;
 				counter = 0x00;
 				littleAprilHCWCtrl(Colding,On);
+				dataStore.realtimeData.isSideWindowMotorRunning |= COLDING_PUMP_WORKING;
 				logPrintf(Info,"I:waterpumpctrl_task.c::waterpump_task()->Pump enable,startTemperature = %.1f!\r\n",
 							dataStore.ctrlParameter.systemOptions.waterPumpStartTemperature);
 			}
@@ -50,6 +51,7 @@ void waterpump_task(void *p_arg)
 				pumpStatus = false;
 				counter = 0x00;
 				littleAprilHCWCtrl(Colding,Off);
+				dataStore.realtimeData.isSideWindowMotorRunning &= ~COLDING_PUMP_WORKING;
 				logPrintf(Info,"I:waterpumpctrl_task.c::waterpump_task()->Pump disable,stopTemperature = %.1f!\r\n",
 							dataStore.ctrlParameter.systemOptions.waterPumpStartTemperature);
 			}
@@ -72,6 +74,7 @@ void waterpump_task(void *p_arg)
 				if (dataStore.ctrlParameter.systemOptions.waterPumpStoppedTime != 0)
 				{
 					littleAprilHCWCtrl(Colding,Off);
+					dataStore.realtimeData.isSideWindowMotorRunning &= ~COLDING_PUMP_WORKING;
 					pumpStatus = false;
 				}
 				counter = 0x00;

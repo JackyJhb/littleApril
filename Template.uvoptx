@@ -860,8 +860,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\APP\PID\pid.c</PathWithFileName>
-      <FilenameWithoutPath>pid.c</FilenameWithoutPath>
+      <PathWithFileName>.\APP\stm32_flash\stm32_flash.c</PathWithFileName>
+      <FilenameWithoutPath>stm32_flash.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -872,8 +872,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\APP\stm32_flash\stm32_flash.c</PathWithFileName>
-      <FilenameWithoutPath>stm32_flash.c</FilenameWithoutPath>
+      <PathWithFileName>.\APP\24C02\24c02.c</PathWithFileName>
+      <FilenameWithoutPath>24c02.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -884,8 +884,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\APP\24C02\24c02.c</PathWithFileName>
-      <FilenameWithoutPath>24c02.c</FilenameWithoutPath>
+      <PathWithFileName>.\APP\PID\pid.c</PathWithFileName>
+      <FilenameWithoutPath>pid.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

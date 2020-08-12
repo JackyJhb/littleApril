@@ -27,7 +27,7 @@ void ventilation_task(void *p_arg)
 	p_arg = p_arg;
 	cpu_clk_freq = BSP_CPU_ClkFreq();
 	enableWatchDog(VENTILATION_TASK_WD);
-	ventilation_cycle_counter = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle].runningTime;
+	ventilation_cycle_counter = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle-1].runningTime;
 	while(1)
 	{
 		feedWatchDog(VENTILATION_TASK_WD);
@@ -35,24 +35,24 @@ void ventilation_task(void *p_arg)
 		if (dataStore.realtimeData.realDataToSave.isStarted == REARING_STARTED)
 		{
 			OS_CRITICAL_ENTER();
-			if (dataStore.realtimeData.dayCycle > 49)
+			if (dataStore.realtimeData.dayCycle > 50)
 			{
-				dataStore.realtimeData.dayCycle = 49;
+				dataStore.realtimeData.dayCycle = 50;
 			}
 			OS_CRITICAL_EXIT();
 			if (dataStore.realtimeData.isColding == true)
 			{
-				ventilation_cycle_counter = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle].runningTime;
+				ventilation_cycle_counter = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle-1].runningTime;
 				isFanWorking = false;
 				//logPrintf("-------------->isColding now,do not use ventilation.\r\n");
 			}
 			++ventilation_cycle_counter;
-			if (ventilation_cycle_counter >= dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle].ventilationCycle)
+			if (ventilation_cycle_counter >= dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle-1].ventilationCycle)
 			{
-				level = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle].grade;
+				level = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle-1].grade;
 				if (isFanWorking == false)
 				{
-					fan_work_seconds = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle].runningTime;
+					fan_work_seconds = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle-1].runningTime;
 					//logPrintf("############Manual control ventilation###########\r\n");
 					//logPrintf("Info:ventilation_task.c::ventilation_task :\r\n");
 					//logPrintf("dayCycle = %d\r\n",dataStore.realtimeData.dayCycle);

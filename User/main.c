@@ -42,7 +42,7 @@ int main()
 	if (dataStore.realtimeData.realDataToSave.isStarted == REARING_STARTED)
 	{
 		dataStore.realtimeData.dayCycle = calDaysBettweenTwoDate(&dataStore.realtimeData.realDataToSave.rtcDateStart,
-																 &dataStore.realtimeData.realDataToSave.rtcTimeStart);
+																 &dataStore.realtimeData.realDataToSave.rtcTimeStart)+1;
 		RTC_SetAlarmA(dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_WeekDay,
 					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours,
 					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,
@@ -50,8 +50,8 @@ int main()
 		logPrintf(Info,"#############################################################\r\n");
 		logPrintf(Info,"#                      littleApril core                     #\r\n");
 		logPrintf(Info,"#Branch:beta                                                #\r\n");
-		logPrintf(Info,"#Version:V2.2.0 (0807)                                      #\r\n");
-		logPrintf(Info,"#Change date:2020/08/07                                     #\r\n");
+		logPrintf(Info,"#Version:V2.2.1 (0812)                                      #\r\n");
+		logPrintf(Info,"#Change date:2020/08/12                                     #\r\n");
 		logPrintf(Info,"#Ventilation cycle changed.                                 #\r\n");
 		logPrintf(Info,"#############################################################\r\n");
 		logPrintf(Info,"Info:main.c::System start date:%d year %d month %d day\r\n",

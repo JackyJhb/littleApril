@@ -630,11 +630,6 @@
               <FilePath>.\APP\PhotoElectricIsolation\bsp_gpio.c</FilePath>
             </File>
             <File>
-              <FileName>pid.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\APP\PID\pid.c</FilePath>
-            </File>
-            <File>
               <FileName>stm32_flash.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\APP\stm32_flash\stm32_flash.c</FilePath>
@@ -643,6 +638,11 @@
               <FileName>24c02.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\APP\24C02\24c02.c</FilePath>
+            </File>
+            <File>
+              <FileName>pid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\APP\PID\pid.c</FilePath>
             </File>
             <File>
               <FileName>sccf.c</FileName>

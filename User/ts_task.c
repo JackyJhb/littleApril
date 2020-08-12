@@ -281,7 +281,7 @@ void ts_task(void *p_arg)
 							case 0x12:
 								dataStore.realtimeData.realDataToSave.isStarted = REARING_STARTED;
 								dataStore.realtimeData.realDataToSave.cycleDays = 49;
-								dataStore.realtimeData.dayCycle = 0;
+								dataStore.realtimeData.dayCycle = 1;
 								dataStore.realtimeData.realDataToSave.key = INIT_KEY;
 								memcpy(&dataStore.realtimeData.realDataToSave.rtcDateStart,&RTC_DateStruct,sizeof(RTC_DateStruct));
 								memcpy(&dataStore.realtimeData.realDataToSave.rtcTimeStart,&RTC_TimeStruct,sizeof(RTC_TimeStruct));

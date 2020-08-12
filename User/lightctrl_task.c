@@ -15,25 +15,6 @@ OS_TCB LightCtrlTaskTCB;
 CPU_STK LIGHTCTRL_TASK_STK[LIGHTCTRL_STK_SIZE];
 void lightctrl_task(void *p_arg);
 
-void setPluseWidth(uint8_t pluseWidth);
-
-void setPluseWidth(uint8_t pluseWidth)
-{
-
-}
-
-void enLighting(uint8_t isEnable)
-{
-	if (isEnable)
-	{
-//		littleAprilGroup3Ctrl(Lighting_Group3,On);
-	}
-	else
-	{
-	//	littleAprilGroup3Ctrl(Lighting_Group3,Off);
-	}
-}
-
 void lightctrl_task(void *p_arg)
 {
 	OS_ERR err;
@@ -51,11 +32,7 @@ void lightctrl_task(void *p_arg)
 	{
 		//feedWatchDog(LIGHTCTRL_TASK_WD);
 		OSSemPend(&zeroSem,200,OS_OPT_PEND_BLOCKING,0,&err);
-		if (err != OS_ERR_NONE)
-		{
-			logPrintf(Error,"E:lightctrl_task->lightctrl_task()::Wait Sem error :%d!\r\n",err);
-		}
-		else
+		if (err == OS_ERR_NONE)
 		{
 			delays_us(30);
 			GPIO_ResetBits(GPIOE,GPIO_Pin_6);
@@ -63,7 +40,7 @@ void lightctrl_task(void *p_arg)
 		
 		if (isLighting == true)
 		{
-			if (dataStore.ctrlParameter.illuminationStrength[dataStore.realtimeData.dayCycle].lightingOffTime ==
+			if (dataStore.ctrlParameter.illuminationStrength[dataStore.realtimeData.dayCycle-1].lightingOffTime ==
 					dataStore.realtimeData.hour)
 			{
 				if (dataStore.realtimeData.minute == 0x14)
@@ -80,10 +57,9 @@ void lightctrl_task(void *p_arg)
 			{
 				++offCounter;
 				lastMiniute = dataStore.realtimeData.minute;
-				if (offCounter >= dataStore.ctrlParameter.illuminationStrength[dataStore.realtimeData.dayCycle].lightingOffMinutes)
+				if (offCounter >= dataStore.ctrlParameter.illuminationStrength[dataStore.realtimeData.dayCycle-1].lightingOffMinutes)
 					isLighting = true;
 			}
-		}
-		
+		}	
 	}
 }

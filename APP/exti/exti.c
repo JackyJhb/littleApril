@@ -49,7 +49,7 @@ void EXTI3_IRQHandler(void)
 	{
 		if (isLighting == true)
 		{
-			level = dataStore.ctrlParameter.illuminationStrength[dataStore.realtimeData.dayCycle].pluseWidth*10;
+			level = dataStore.ctrlParameter.illuminationStrength[dataStore.realtimeData.dayCycle-1].pluseWidth*10;
 			if (level > 740)
 			{
 				GPIO_SetBits(GPIOE,GPIO_Pin_6);

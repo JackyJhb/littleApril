@@ -31,11 +31,11 @@ volatile uint16_t wifiBytesCount;
 char routerPasswd[]    = "lianke611";
 char serverIP[]        = "192.168.43.102";
 char serverPort[]      = "8080";*/
-char routerName[]      = "niuniu";
-char routerPasswd[]    = "niuniu20090317";
+//char routerName[]      = "niuniu";
+//char routerPasswd[]    = "niuniu20090317";
 
-//char routerName[]      = "ChinaNet-mWvK";
-//char routerPasswd[]    = "jtpsehgi";
+char routerName[]      = "ChinaNet-mWvK";
+char routerPasswd[]    = "jtpsehgi";
 
 char serverIP[]        = "121.36.75.193";
 //char serverIP[]        = "192.168.1.107";

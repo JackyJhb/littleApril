@@ -26,19 +26,42 @@ void updateData(void)
 	float temp;
 	if (ReadTemperature(&temp,CH1))
 	{
+		if (dataStore.sensorStatusCounter.outsideSensorErrCounter < 100)
+		{
+			++dataStore.sensorStatusCounter.outsideSensorErrCounter;
+		}
 		logPrintf(Error,"E:envctrl_task.c::updateData()->get outside temperature error!\r\n");
 	}
 	else
 	{
+		dataStore.sensorStatusCounter.outsideSensorErrCounter = 0x00;
 		dataStore.realtimeData.outsideTemperature = temp;
 	}
-	if (ReadTemperature(&dataStore.realtimeData.boilerPipeTemperature,CH2))
+	if (ReadTemperature(&temp,CH2))
 	{
+		if (dataStore.sensorStatusCounter.pipeSensorErrCounter < 100)
+		{
+			++dataStore.sensorStatusCounter.pipeSensorErrCounter;
+		}
 		logPrintf(Error,"E:envctrl_task.c::updateData()->get pipe temperature error!\r\n");
 	}
-	if (ReadTemperature(&dataStore.realtimeData.boilerInsideTemperature,CH3))
+	else
 	{
+		dataStore.sensorStatusCounter.pipeSensorErrCounter = 0x00;
+		dataStore.realtimeData.boilerPipeTemperature = temp;
+	}
+	if (ReadTemperature(&temp,CH3))
+	{
+		if (dataStore.sensorStatusCounter.boilerSensorErrCounter < 100)
+		{
+			++dataStore.sensorStatusCounter.boilerSensorErrCounter;
+		}
 		logPrintf(Error,"E:envctrl_task.c::updateData()->get boiler inside temperature error!\r\n");
+	}
+	else
+	{
+		dataStore.sensorStatusCounter.boilerSensorErrCounter = 0x00;
+		dataStore.realtimeData.boilerInsideTemperature = temp;
 	}
 }
 
@@ -48,11 +71,13 @@ void temperatureCtrl(uint8_t dev_id)
 	uint8_t valid_nums = 0,hours;
 	CPU_SR_ALLOC();
 	if (dataStore.realtimeData.insideTemperature[dev_id][0] != INVIAL)
+	//if (buf[dev_id*2] == 5)
 	{
 		temp = dataStore.realtimeData.insideTemperature[dev_id][0];
 		++valid_nums;
 	}
 	if (dataStore.realtimeData.insideTemperature[dev_id][1] != INVIAL)
+	//if (buf[dev_id*2 + 1] == 5)
 	{
 		temp += dataStore.realtimeData.insideTemperature[dev_id][1];
 		++valid_nums;
@@ -64,21 +89,21 @@ void temperatureCtrl(uint8_t dev_id)
 		if (dataStore.realtimeData.realDataToSave.isStarted == REARING_STARTED)
 		{
 			hours = calHoursInOneDay(&dataStore.realtimeData.realDataToSave.rtcTimeStart);
-			if (dataStore.realtimeData.dayCycle > 0)
+			if (dataStore.realtimeData.dayCycle < 50)
 			{
-					set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle - 1] - dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle];
+					set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle-1] - dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle];
 					set_temperature = (set_temperature/24) * hours;
-					set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle - 1] - set_temperature;
+					set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle-1] - set_temperature;
 					logPrintf(Verbose,"V:envctrl_task.c::temperatureCtrl()->hours:%d,base_temperature:%.2f,target_temperature:%.2f,set_temperature:%.2f\r\n",
 								hours,
 								dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle - 1],
 								dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle],
 								set_temperature);
 			}
-			else
-			{
-				set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle];
-			}
+			//else
+			//{
+				//set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle-1];
+			//}
 			//pidControlTemperature((set_temperature+dataStore.realtimeData.deltaTemperature),temp,dev_id);
 			pidControlTemperature((set_temperature+dataStore.ctrlParameter.systemOptions.deltaTemperature),temp,dev_id);
 		}
@@ -135,12 +160,10 @@ void EnvParameter_task(void *p_arg)
 	CPU_TS_TMR      ts_int;
 	CPU_INT32U      cpu_clk_freq;
 	OS_MSG_SIZE     msg_size;
-	char * pMsg,ask_status = SERVER_REQ_TEMPERATURE,ask_dev_id = 0x00,ch0_ok=0x00,ch1_ok=0x00;
+	char * pMsg,ask_status = SERVER_REQ_TEMPERATURE,ask_dev_id = 0x00,ch0_err = 0,ch1_err = 0;
 	ServerOrder *order_ptr;
-	#ifdef ENABLE_OUTPUT_LOG
-	unsigned int can_err_times = 0;
-	#endif
 	unsigned char buf[8] = {0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08};
+	//char score[6];
 	uint32_t sequenceID = 0x00000000;
 	CPU_SR_ALLOC();
 	p_arg = p_arg;
@@ -151,10 +174,11 @@ void EnvParameter_task(void *p_arg)
 	#ifdef ENABLE_PIRACY_TRAP
 	if ((RTC_DateStruct.RTC_Year > 20) || (RTC_DateStruct.RTC_Month > 8)) 
 	{
-		while(1);
+		//while(1);
 	}
 	#endif
 	dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
+	//memset(score,0x00,sizeof(score));
 	while(1)
 	{
 		if (((OS_MEM      *)&mymem)->NbrFree > 15)
@@ -217,6 +241,10 @@ void EnvParameter_task(void *p_arg)
 			if (err == OS_ERR_TIMEOUT)
 			{
 				++dataStore.blackBox.communicateTimeOutErrTimes[ask_dev_id];
+				if (dataStore.sensorStatusCounter.clientDeviceErrCounter[ask_dev_id] < 100)
+				{
+					++dataStore.sensorStatusCounter.clientDeviceErrCounter[ask_dev_id];
+				}
 			}
 			else
 			{
@@ -229,65 +257,74 @@ void EnvParameter_task(void *p_arg)
 		{
 			if (((DataPackage *)pMsg)->dev_id > 0x02)
 			{
+				++dataStore.blackBox.devIDErrTimes;
 				logPrintf(Error,"E:envctrl_task.c::EnvParameter_task()->CAN receive data->unknown dev_id = %d",((DataPackage *)pMsg)->dev_id);
 			}
 			else
 			{
+				dataStore.sensorStatusCounter.clientDeviceErrCounter[ask_dev_id] = 0x00;
 				switch (((DataPackage *)pMsg)->type)
 				{
 					case SERVER_REQ_TEMPERATURE:
-						#ifdef ENABLE_BLACK_BOX
-						if (((DataPackage *)pMsg)->dev_id > 0x02)
-						{
-							++dataStore.blackBox.devIDErrTimes;
-							break;
-						}
-						#endif
-						dataStore.realtimeData.sensorErrStatus = ((DataPackage *)pMsg)->err;
 						//Filter temperature value that out of range or not normal.
 						if (((((DataPackage *)pMsg)->err & DS18B20_LEFT_ERR) != DS18B20_LEFT_ERR) && 
-							((float)((DataPackage *)pMsg)->leftTemperature/100 > -5.0) &&
+							((float)((DataPackage *)pMsg)->leftTemperature/100 > 10.0) &&
 							((float)((DataPackage *)pMsg)->leftTemperature/100 < 50.0))
 						{
+							/*if ((fabs(dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0] -
+												((float)((DataPackage *)pMsg)->leftTemperature/100)) >= 2.0) && (score[ask_dev_id*2] > -2*FILTER_TIMES))
+							{
+								score[ask_dev_id*2] -= 2;
+							}
+							else if (score[ask_dev_id*2] < FILTER_TIMES)
+							{
+								++score[ask_dev_id*2];
+							}*/
 							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0] = (float)((DataPackage *)pMsg)->leftTemperature/100;
-							ch0_ok = 0;
-							//ch0_ok = 1;
+							dataStore.sensorStatusCounter.areaLeftSensorErrCounter[(((DataPackage *)pMsg)->dev_id)] = 0x00;
+							ch0_err = 0;
 						}
 						else
 						{
 							#ifdef ENABLE_BLACK_BOX
 							++dataStore.blackBox.sensorErrTimes[((DataPackage *)pMsg)->dev_id][0];
 							#endif
-							//Count times that temperature not normal continuity.
-							++ch0_ok;
-							//ch0_ok = 0;
+							ch0_err = 1;
+							if (dataStore.sensorStatusCounter.areaLeftSensorErrCounter[(((DataPackage *)pMsg)->dev_id)] < 100)
+							{
+								++dataStore.sensorStatusCounter.areaLeftSensorErrCounter[(((DataPackage *)pMsg)->dev_id)];
+							}
 						}
 						if (((((DataPackage *)pMsg)->err & DS18B20_RIGHT_ERR) != DS18B20_RIGHT_ERR) && 
-							((float)((DataPackage *)pMsg)->rightTemperature/100 > -5.0) &&
+							((float)((DataPackage *)pMsg)->rightTemperature/100 > 10.0) &&
 							((float)((DataPackage *)pMsg)->rightTemperature/100 < 50.0))
 						{
 							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][1] = (float)((DataPackage *)pMsg)->rightTemperature/100;
-							//ch1_ok = 1;
-							ch1_ok = 0;
+							dataStore.sensorStatusCounter.areaRightSensorErrCounter[(((DataPackage *)pMsg)->dev_id)] = 0x00;
+							ch1_err = 0;
 						}
 						else
 						{
 							#ifdef ENABLE_BLACK_BOX
 							++dataStore.blackBox.sensorErrTimes[((DataPackage *)pMsg)->dev_id][1];
 							#endif
-							++ch1_ok;
-							//ch1_ok = 0;
+							if (dataStore.sensorStatusCounter.areaRightSensorErrCounter[(((DataPackage *)pMsg)->dev_id)] < 100)
+							{
+								++dataStore.sensorStatusCounter.areaRightSensorErrCounter[(((DataPackage *)pMsg)->dev_id)];
+							}
+							ch1_err = 1;
 						}
-						/*if ((ch0_ok == 0) && ch1_ok)
+						if ((ch0_err == 1) && (ch1_err == 0))
 						{
-							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0] = 
-									dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][1];
+							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0]  = 
+													dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][1] ;
 						}
-						if ((ch1_ok == 0) && ch0_ok)
+						if ((ch0_err == 0) && (ch1_err == 1))
 						{
-							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][1] = 
-									dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0];
-						}*/
+							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][1]  = 
+													dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0] ;
+						}
+						
 						if (sequenceID > 10)
 						{
 							//Do temperaure control action after get more than 10 times client devices datas.
@@ -308,16 +345,14 @@ void EnvParameter_task(void *p_arg)
 						huimidityCtrl(((DataPackage *)pMsg)->dev_id);
 
 						logPrintf(Verbose,"V:envctrl_task.c::EnvParameter_task()->CAN receive data::");
-						logPrintf(Verbose,"V:dev_id = %d,tempCH0 = %.2f,tempCH1 = %.2f,humidity = %d,sequenceID = %d\r\n",((DataPackage *)pMsg)->dev_id,
+						logPrintf(Verbose,"V:dev_id = %d,tempCH0 = %.2f,tempCH1 = %.2f,humidity = %d,sequenceID = %ld\r\n",((DataPackage *)pMsg)->dev_id,
 								(float)((DataPackage *)pMsg)->leftTemperature/100,
 								(float)((DataPackage *)pMsg)->rightTemperature/100,
 								sequenceID,
 								dataStore.realtimeData.humidityInside[((DataPackage *)pMsg)->dev_id]);
-						logPrintf(Verbose,"V:using temperature:CH0 =%.2f,CH1 = %.2f,ch0_ok = %d,ch1_ok = %d\r\n",
+						logPrintf(Verbose,"V:using temperature:CH0 =%.2f,CH1 = %.2f\r\n",
 								dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0],
-								dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][1],
-								ch0_ok,
-								ch1_ok);
+								dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][1]);
 						ask_status = SERVER_REQ_TEMPERATURE;
 						break;
 					case SERVER_REQ_ILLUMINANCY:

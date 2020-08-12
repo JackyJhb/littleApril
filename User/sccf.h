@@ -26,6 +26,10 @@ The meaning of sccf is System Control Configuration File.
 
 #define STM32_UNIQUE_ID_SIZE 12
 
+#define FAN_SHAFT_WORKING      0x8000
+#define CIRCULATE_PUMP_WORKING 0x4000
+#define COLDING_PUMP_WORKING 0x2000
+
 #pragma pack(1)
 typedef enum{
 	NotFoundESP8266 = 0,
@@ -59,6 +63,9 @@ typedef struct{
 
 typedef struct{
 	uint32_t runningFansBits;
+	/*uint32_t runningTime;
+	uint32_t	ventilationCycle;
+	float gradeTemperature;*/
 }VentilateGrade;
 
 typedef struct{
@@ -177,7 +184,8 @@ typedef struct{
 	uint16_t volatageABC[3];
 	uint16_t workingVentilators;
 	uint16_t heatingColdingStatus;
-	uint16_t isSideWindowMotorRunning;
+	uint16_t isSideWindowMotorRunning;       // bit : 15  14   13   12    11   10    9     8     7     6      5    4    3     2      1    0
+	                                                             
 	uint32_t sensorErrStatus;
 	uint16_t isColding;
 	NetWorkStatus netWorkStatus;
@@ -200,13 +208,29 @@ typedef struct{
 	uint16_t ventilationTimes[16];
 }BlackBoxStore;
 #endif
-
+typedef struct{
+	char insideTemperatureHighCounter;
+	char insideTemperatureLowCounter;
+	char pipeTemperatureHighCounter;
+	char pipeTemperatureLowCounter;
+	
+	char clientDeviceErrCounter[3];
+	char areaLeftSensorErrCounter[3];
+	char areaRightSensorErrCounter[3];
+	char areaHeatingErrCounter[3];
+	
+	char circlePumpErrCounter;	
+	char pipeSensorErrCounter;
+	char boilerSensorErrCounter;
+	char outsideSensorErrCounter;
+}SensorStatusCounter;
 typedef struct{
 	ControlParameterStore ctrlParameter;
 	RealDataStore         realtimeData;
 	#ifdef ENABLE_BLACK_BOX
 	BlackBoxStore         blackBox;
 	#endif
+	SensorStatusCounter sensorStatusCounter;
 }DataStore;
 
 #pragma pack()
