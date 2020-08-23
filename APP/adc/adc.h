@@ -14,7 +14,7 @@
 #define RHEOSTAT_ADC        		ADC1
 #define RHEOSTAT_ADC_CLK    		RCC_APB2Periph_ADC1
 #define RHEOSTAT_ADC_DR_ADDR		((uint32_t)ADC1 + 0x4C)
-#define RHEOSTAT_NOFCHANEL      	5
+#define RHEOSTAT_NOFCHANEL      	4
 #define RHEOSTAT_ADC_DMA_CLK    	RCC_AHB1Periph_DMA2
 #define RHEOSTAT_ADC_DMA_CHANNEL	DMA_Channel_0
 #define RHEOSTAT_ADC_DMA_STREAM		DMA2_Stream0

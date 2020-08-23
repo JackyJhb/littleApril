@@ -11,5 +11,8 @@
 
 #define true  1
 #define false 0
+	
+#define IS_COLDING 0x8000
+#define LEVEL_MASK 0x7FFF
 
 #endif

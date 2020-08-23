@@ -4,7 +4,7 @@
 #include "bsp_gpio.h"
 #include "priolevel.h"
 
-#define WATERPUMP_STK_SIZE 		128
+#define WATERPUMP_STK_SIZE 		256
 
 extern OS_TCB WATERPUMPTaskTCB;	
 extern CPU_STK WATERPUMP_TASK_STK[WATERPUMP_STK_SIZE];

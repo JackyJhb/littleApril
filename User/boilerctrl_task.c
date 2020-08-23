@@ -16,6 +16,7 @@ void boilerctrl_task(void *p_arg)
 	p_arg = p_arg;
 	CPU_SR_ALLOC();
 	cpu_clk_freq = BSP_CPU_ClkFreq();
+	OSTimeDlyHMSM(0,0,5,0,OS_OPT_TIME_DLY,&err);
 	enableWatchDog(BOILERCTRL_TASK_WD);
 	while(1)
 	{
@@ -40,12 +41,12 @@ void boilerctrl_task(void *p_arg)
 			dataStore.realtimeData.isSideWindowMotorRunning |= CIRCULATE_PUMP_WORKING;
 		}
 
-		if ((dataStore.realtimeData.boilerInsideTemperature < dataStore.ctrlParameter.systemOptions.stopCirculatingPumpTemperature) && (circulatingPump == 1))
+/*		if ((dataStore.realtimeData.boilerInsideTemperature < dataStore.ctrlParameter.systemOptions.stopCirculatingPumpTemperature) && (circulatingPump == 1))
 		{
 			littleAprilGroup3Ctrl(CirculatePump_Group3,Off);
 			circulatingPump = 0;
 			dataStore.realtimeData.isSideWindowMotorRunning &= ~CIRCULATE_PUMP_WORKING;
-		}
+		}*/
 		OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
 	}
 }

@@ -91,10 +91,10 @@ void protocolAnalyze(char *buf,uint16_t len)
 																ClientRespondVentilationFansRunCtrl);
 			break;
 		case ServerRequestVentilate:
-			len_data = getDataPublish(bufWifi,ToServer,
+			/*len_data = getDataPublish(bufWifi,ToServer,
 																(char *)dataStore.ctrlParameter.ventilation.ventilationCoefficient,
 																 sizeof(dataStore.ctrlParameter.ventilation.ventilationCoefficient),
-																ClientRespondVentilate);
+																ClientRespondVentilate);*/
 			break;
 		case ServerRequestBlackBoxData:
 			len_data = getDataPublish(bufWifi,ToServer,
@@ -139,10 +139,10 @@ void protocolAnalyze(char *buf,uint16_t len)
 			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetRefVentilateFansRunCtrl);
 			break;
 		case ServerSetRefVentilate:
-			memcpy((char *)dataStore.ctrlParameter.ventilation.ventilationCoefficient,(buf+1),sizeof(dataStore.ctrlParameter.ventilation.ventilationCoefficient));
+			/*memcpy((char *)dataStore.ctrlParameter.ventilation.ventilationCoefficient,(buf+1),sizeof(dataStore.ctrlParameter.ventilation.ventilationCoefficient));
 			offset = abs((char *)&dataStore.ctrlParameter - (char *)dataStore.ctrlParameter.ventilation.ventilationCoefficient);
 			AT24C02_Write(ADDR_CFG_FILE+offset,(uint8_t *)dataStore.ctrlParameter.ventilation.ventilationCoefficient,sizeof(dataStore.ctrlParameter.ventilation.ventilationCoefficient));
-			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetRefVentilate);
+			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetRefVentilate);*/
 			break;
 		case ServerSetIlluminationStrength:
 			memcpy((char *)dataStore.ctrlParameter.illuminationStrength,(buf+1),sizeof(dataStore.ctrlParameter.illuminationStrength));
@@ -160,7 +160,6 @@ void protocolAnalyze(char *buf,uint16_t len)
 				{
 					//Start system
 					dataStore.realtimeData.realDataToSave.isStarted = REARING_STARTED;
-					dataStore.realtimeData.realDataToSave.cycleDays = 49;
 					dataStore.realtimeData.realDataToSave.key = INIT_KEY;
 					//Save date and time of system start.
 					memcpy(&dataStore.realtimeData.realDataToSave.rtcDateStart,&RTC_DateStruct,sizeof(RTC_DateStruct));

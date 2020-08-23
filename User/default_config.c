@@ -1,53 +1,54 @@
 #include "default_config.h"
 const SystemOptions systemOptionsDefault = {
 	-0.3,//float startHeatingCondition;
-	0.15,//float stopHeatingCondition;
-	0.15,//float stopColdingCondition;
+	0.5,//float stopHeatingCondition;
+	0.6,//float stopColdingCondition;
 	0.0,//float deltaTemperature;
 	58,//float startHeatingBoilerPipeTemperature;
-	55,//float stopHeatingBoilerPipeTemperature;
-	60,//float startFanShaftTemperature;
-	65,//float stopFanShaftTemperature;
-	60,//float startCirculatingPumpTemperature;
-	55,//float stopCirculatingPumpTemperature;
-	70,//
-	110,
+	57,//float stopHeatingBoilerPipeTemperature;
+	55,//float startFanShaftTemperature;
+	57,//float stopFanShaftTemperature;
+	65,//float startCirculatingPumpTemperature;
+	60,//float stopCirculatingPumpTemperature;
+	40,//
+	60,
 	15,//uint16_t sideWindowDefaultAngle;
-	3.0,
-	2.0,
-	30,
-	30
+	15,
+	35.0,
+	30.0,
+	30.0,
+	30.0
 };
 const AlarmThresholdStore alarmThresholdOptionsDefault = {
-	1.0,1.0,80.0,40.0,80,48,-20.0
+	1.5,1.0,80.0,40.0,80,48,-10.0
 };
 const CoolDownGrade coolDownGradeDefault[16] = {
-	{1.0,COOL_DOWN_DEFAULT_LEVEL_1},
-	{1.5,COOL_DOWN_DEFAULT_LEVEL_2},
-	{2.0,COOL_DOWN_DEFAULT_LEVEL_3},
-	{2.5,COOL_DOWN_DEFAULT_LEVEL_4},
-	{3.0,COOL_DOWN_DEFAULT_LEVEL_5},
-	{3.5,COOL_DOWN_DEFAULT_LEVEL_6},
-	{4.0,COOL_DOWN_DEFAULT_LEVEL_7},
-	{4.5,COOL_DOWN_DEFAULT_LEVEL_8},
-	{2.7,COOL_DOWN_DEFAULT_LEVEL_9},
-	{3.0,COOL_DOWN_DEFAULT_LEVEL_10},
-	{3.3,COOL_DOWN_DEFAULT_LEVEL_11},
-	{3.6,COOL_DOWN_DEFAULT_LEVEL_12},
-	{3.9,COOL_DOWN_DEFAULT_LEVEL_13},
-	{4.2,COOL_DOWN_DEFAULT_LEVEL_14},
-	{4.5,COOL_DOWN_DEFAULT_LEVEL_15},
-	{4.8,COOL_DOWN_DEFAULT_LEVEL_16}
+	{1.6,COOL_DOWN_DEFAULT_LEVEL_1},
+	{2.5,COOL_DOWN_DEFAULT_LEVEL_2},
+	{3.0,COOL_DOWN_DEFAULT_LEVEL_3},
+	{3.2,COOL_DOWN_DEFAULT_LEVEL_4},
+	{3.6,COOL_DOWN_DEFAULT_LEVEL_5},
+	{4.2,COOL_DOWN_DEFAULT_LEVEL_6},
+	{4.8,COOL_DOWN_DEFAULT_LEVEL_7},
+	{5.5,COOL_DOWN_DEFAULT_LEVEL_8},
+	{5.7,COOL_DOWN_DEFAULT_LEVEL_9},
+	{5.9,COOL_DOWN_DEFAULT_LEVEL_10},
+	{6.1,COOL_DOWN_DEFAULT_LEVEL_11},
+	{6.3,COOL_DOWN_DEFAULT_LEVEL_12},
+	{6.5,COOL_DOWN_DEFAULT_LEVEL_13},
+	{6.7,COOL_DOWN_DEFAULT_LEVEL_14},
+	{6.9,COOL_DOWN_DEFAULT_LEVEL_15},
+	{7.1,COOL_DOWN_DEFAULT_LEVEL_16}
 };
 
 const float ambientTemperatureDefault[50] = {
-	34.0,33.5,33.0,32.5,32.0,31.5,31.0,  //-0.5
-	30.5,30.3,30.1,29.9,29.7,29.5,29.3,  //-0.2
-	29.1,28.9,28.7,28.5,28.3,28.1,27.9,  //-0.2
-	27.7,27.3,26.9,26.5,26.1,25.7,25.3,  //-0.4
-	24.9,24.5,24.1,23.7,23.3,22.9,22.5,  //-0.4
-	22.1,21.7,21.3,20.9,20.5,20.1,20.0,  //-0.4
-	20.0,20.0,20.0,20.0,20.0,20.0,20.0,
+	34.5,33.8,33.1,32.4,31.7,31.0,30.3,  //-0.5
+	29.8,29.6,29.4,29.2,29.0,28.8,28.6,  //-0.2
+	28.4,28.2,28.0,27.8,27.6,27.4,27.2,  //-0.2
+	26.9,26.6,26.3,26.0,25.7,25.4,25.1,  //-0.4
+	24.8,24.5,24.2,23.9,23.6,23.3,23.0,  //-0.4
+	22.7,22.4,22.1,21.8,21.5,21.2,20.8,  //-0.4
+	20.5,20.2,20.0,20.0,20.0,20.0,20.0,
 	20.0
 };
 const LightingControl illuminationStrengthDefault[50] = {
@@ -107,7 +108,7 @@ const LightingControl illuminationStrengthDefault[50] = {
 	{20,60,100},
 };
 
-const VentilationCoefficient ventilationCoefficientDefault[50] = {
+/*const VentilationCoefficient ventilationCoefficientDefault[50] = {
 	{0,180,0},//0  1
 	{30,180,0},//1
 	{30,180,0},//2
@@ -158,7 +159,13 @@ const VentilationCoefficient ventilationCoefficientDefault[50] = {
 	{45,180,2},//45
 	{45,180,2},//45
 	{45,180,2}//
-};
+};*/
 const uint8_t humidityDefault[50];
 
-const VentilateGrade ventilateGradeDefault[5] = {0x01,0x06,0x07,0x17,0x67};
+const VentilateGrade ventilateGradeDefault[5] = {
+{0x0040,40,200,0.3},
+{0x0040,45,200,0.6},
+{0x0040,50,200,0.9},
+{0x0040,50,160,1.2},
+{0x0040,55,160,1.5}
+};

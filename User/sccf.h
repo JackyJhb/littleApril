@@ -12,8 +12,8 @@ The meaning of sccf is System Control Configuration File.
 #include "debug_config.h"
 
 #define AT24C128
-#define INIT_KEY        0x1111
-#define INIT_KEY_FLASH  0x1111
+#define INIT_KEY        0x1188
+#define INIT_KEY_FLASH  0x1188
 
 #define ADDR_RTD_FILE   0x0000      //Real time data
 #define ADDR_CFG_FILE   0x0400      //Config file data
@@ -63,19 +63,10 @@ typedef struct{
 
 typedef struct{
 	uint32_t runningFansBits;
-	/*uint32_t runningTime;
-	uint32_t	ventilationCycle;
-	float gradeTemperature;*/
+	uint16_t runningTime;
+	uint16_t	ventilationCycle;
+	float gradeTemperature;
 }VentilateGrade;
-
-typedef struct{
-	float setTemperature;
-	float temperatureErr;
-	float incrementTemperature;
-	float kP;
-	float kI;
-	float kD;
-}PIDParameter;
 
 typedef struct {
 	uint32_t runningTime;
@@ -84,12 +75,6 @@ typedef struct {
 }VentilationCoefficient;
 
 typedef struct {
-	float henhouseVolume;
-	float sterePerSecondOfFanRate;
-	float fanNumbers;
-	uint32_t chickNumbers;
-	uint32_t workTimeLimit; //20 + 450 + 20
-	VentilationCoefficient ventilationCoefficient[50];
 	VentilateGrade ventilateGrade[5];
 }Ventilation;
 
@@ -123,6 +108,7 @@ typedef struct {
 	float stoppedTimeOfVentilate;
 
 	uint16_t sideWindowDefaultAngle;
+	uint16_t waterPumpWindowAngle;
 	
 	float waterPumpStartTemperature;
 	float waterPumpStopTemperature;
@@ -143,7 +129,6 @@ typedef struct{
 	uint32_t humidity[50];
 	Ventilation ventilation;
 	CoolDownGrade coolDownGrade[16];
-	PIDParameter pidParameter;
 	float waterPumpStartTemperatureDifference;
 	AlarmThresholdStore alarmThresholdOptions;
 	SystemOptions systemOptions;
@@ -152,7 +137,7 @@ typedef struct{
 
 typedef struct{
 	uint16_t isStarted;
-	uint16_t cycleDays;           //
+	uint16_t rebootTimes;           //
 	RTC_DateTypeDef rtcDateStart; //Week Month Date Year
 	RTC_TimeTypeDef rtcTimeStart; //Hour Minute Second H12/H24
 	uint16_t key;
@@ -160,7 +145,8 @@ typedef struct{
 
 typedef struct{
 	RealDataToSave realDataToSave;
-	uint16_t realSideWindowsAngle[2];
+	uint16_t smallSideWindowsAngle;
+	uint16_t bigSideWindowsAngle;
 	uint16_t targetSideWindowsAngle;
 	uint16_t humidityInside[3];
 	float 	 insideTemperature[3][2];
@@ -184,13 +170,11 @@ typedef struct{
 	uint16_t volatageABC[3];
 	uint16_t workingVentilators;
 	uint16_t heatingColdingStatus;
-	uint16_t isSideWindowMotorRunning;       // bit : 15  14   13   12    11   10    9     8     7     6      5    4    3     2      1    0
-	                                                             
+	uint16_t isSideWindowMotorRunning;         
 	uint32_t sensorErrStatus;
 	uint16_t isColding;
 	NetWorkStatus netWorkStatus;
 	uint8_t stm32UniqueID[STM32_UNIQUE_ID_SIZE];
-	//float	 boilerInsideTemperature;
 }RealDataStore;
 
 #ifdef ENABLE_BLACK_BOX
@@ -213,12 +197,10 @@ typedef struct{
 	char insideTemperatureLowCounter;
 	char pipeTemperatureHighCounter;
 	char pipeTemperatureLowCounter;
-	
 	char clientDeviceErrCounter[3];
 	char areaLeftSensorErrCounter[3];
 	char areaRightSensorErrCounter[3];
 	char areaHeatingErrCounter[3];
-	
 	char circlePumpErrCounter;	
 	char pipeSensorErrCounter;
 	char boilerSensorErrCounter;
@@ -234,6 +216,7 @@ typedef struct{
 }DataStore;
 
 #pragma pack()
+
 extern DataStore dataStore;
 extern uint8_t saveControlParameters(uint32_t *ptr,uint32_t size);
 extern void readControlParameters(uint32_t *ptr,uint32_t size);

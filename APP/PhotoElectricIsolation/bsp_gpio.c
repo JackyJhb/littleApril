@@ -6,6 +6,7 @@
 #include "debug_config.h"
 #include "circleBuffer.h"
 #include "task_monitor.h"
+#include "sccf.h"
 
 uint8_t hcwOutputCtrl,group3OutputCtrl;
 uint16_t fansOutputCtrl;
@@ -148,6 +149,8 @@ void littleApril16FansCtrl(uint32_t relayCtrlGroup,uint8_t whichTask)
 				feedWatchDog(whichTask);
 			}
 		}
+		if (((dataStore.realtimeData.isColding & IS_COLDING) == IS_COLDING) && (whichTask == VENTILATION_TASK_WD))
+			return ;
 		littleAprilGroupOutput(FansGroup1,currentFansOutput&0xFF);
 		littleAprilGroupOutput(FansGroup2,(currentFansOutput&0xFF00)>>8);
 	}

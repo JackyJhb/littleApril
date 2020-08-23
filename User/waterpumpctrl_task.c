@@ -21,18 +21,17 @@ void waterpump_task(void *p_arg)
 	CPU_SR_ALLOC();
 	p_arg = p_arg;
 	cpu_clk_freq = BSP_CPU_ClkFreq();
+	OSTimeDlyHMSM(0,0,5,0,OS_OPT_TIME_DLY,&err);
 	enableWatchDog(WATERPUMP_TASK_WD);
 	while(1)
 	{
 		feedWatchDog(WATERPUMP_TASK_WD);
-		
 		average_temperature = 0;
 		for(i = 0;i < 6;i++)
 		{
 			average_temperature += *((float *)dataStore.realtimeData.insideTemperature +i);
 		}
 		average_temperature /= 6;
-		
 		if (isRunning == false)
 		{
 			if (average_temperature > 
@@ -41,6 +40,7 @@ void waterpump_task(void *p_arg)
 				isRunning = true;
 				pumpStatus = true;
 				counter = 0x00;
+				dataStore.realtimeData.heatingColdingStatus |= Colding;
 				littleAprilHCWCtrl(Colding,On);
 				dataStore.realtimeData.isSideWindowMotorRunning |= COLDING_PUMP_WORKING;
 				logPrintf(Info,"I:waterpumpctrl_task.c::waterpump_task()->Pump enable,startTemperature = %.1f!\r\n",
@@ -50,6 +50,7 @@ void waterpump_task(void *p_arg)
 			{
 				pumpStatus = false;
 				counter = 0x00;
+				dataStore.realtimeData.heatingColdingStatus &= ~Colding;
 				littleAprilHCWCtrl(Colding,Off);
 				dataStore.realtimeData.isSideWindowMotorRunning &= ~COLDING_PUMP_WORKING;
 				logPrintf(Info,"I:waterpumpctrl_task.c::waterpump_task()->Pump disable,stopTemperature = %.1f!\r\n",
@@ -73,6 +74,7 @@ void waterpump_task(void *p_arg)
 			{
 				if (dataStore.ctrlParameter.systemOptions.waterPumpStoppedTime != 0)
 				{
+					dataStore.realtimeData.heatingColdingStatus &= ~Colding;
 					littleAprilHCWCtrl(Colding,Off);
 					dataStore.realtimeData.isSideWindowMotorRunning &= ~COLDING_PUMP_WORKING;
 					pumpStatus = false;

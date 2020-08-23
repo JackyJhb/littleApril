@@ -12,9 +12,9 @@ The meaning of sccf is System Control Configuration File.
 #include "sccf.h"
 
 
-#define COOL_DOWN_DEFAULT_LEVEL_1     0x00040//0B000 0000 000  0000 0  1  0x00041;
+#define COOL_DOWN_DEFAULT_LEVEL_1     0x000C0//0B000 0000 000  0000 0  1  0x00041;
 #define COOL_DOWN_DEFAULT_LEVEL_2     0x000C0//0B000 0000 0000 0000 0110
-#define COOL_DOWN_DEFAULT_LEVEL_3     0x040C0//0B000 0000 0000 0000 0111
+#define COOL_DOWN_DEFAULT_LEVEL_3     0x001C0//0B000 0000 0000 0000 0111
 #define COOL_DOWN_DEFAULT_LEVEL_4     0x0C0C0//0B000 0001 1000 0001 0110
 #define COOL_DOWN_DEFAULT_LEVEL_5     0x000C7//0B010 0001 1000 0001 1000
 #define COOL_DOWN_DEFAULT_LEVEL_6     0x03C18//0B000 0011 1100 0001 1000
@@ -36,19 +36,18 @@ The meaning of sccf is System Control Configuration File.
 #define STERE_PER_SECOND_DEFAULT            (38000/3600)
 
 #define DAY_CYCLE_DEFAULT                   0x00
-#define CYCLE_DAYS_DEFAULT                  49
+#define CYCLE_DAYS_DEFAULT                  50
 #define START_RTC_YEAR_DEFAULT           		20
 #define START_RTC_MONTH_DEFAULT             8
-#define START_RTC_DATE_DEFAULT              1
-#define START_RTC_WEEKDAY_DEFAULT           6
-#define START_RTC_HOURS_DEFAULT             5
-#define START_RTC_MINUTES_DEFAULT           18
-#define START_RTC_SECONDS_DEFAULT           00
+#define START_RTC_DATE_DEFAULT              7
+#define START_RTC_WEEKDAY_DEFAULT          5
+#define START_RTC_HOURS_DEFAULT             8
+#define START_RTC_MINUTES_DEFAULT           41
+#define START_RTC_SECONDS_DEFAULT           45
 
 extern const CoolDownGrade coolDownGradeDefault[16];
 extern const float ambientTemperatureDefault[50];
 extern const LightingControl illuminationStrengthDefault[50];
-extern const VentilationCoefficient ventilationCoefficientDefault[50] ;
 extern const uint8_t humidityDefault[50];
 extern const VentilateGrade ventilateGradeDefault[5];
 

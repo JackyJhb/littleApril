@@ -23,6 +23,7 @@ int main()
 {  	
 	OS_ERR err;
 	uint32_t offset;
+	littleAprilIOInit();
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	//SysTick_Init();
 	LED_Init();
@@ -31,7 +32,7 @@ int main()
 	USART1_Init(115200);
 	usartWifiInit(115200);
 	AT24C02_Init();
-	littleAprilIOInit();
+	//littleAprilIOInit();
 	getRstSrcType();
 	while (RTC_InitConfig());
 	RTC_GetTimes(RTC_Format_BIN);
@@ -50,8 +51,8 @@ int main()
 		logPrintf(Info,"#############################################################\r\n");
 		logPrintf(Info,"#                      littleApril core                     #\r\n");
 		logPrintf(Info,"#Branch:beta                                                #\r\n");
-		logPrintf(Info,"#Version:V2.2.1 (0812)                                      #\r\n");
-		logPrintf(Info,"#Change date:2020/08/12                                     #\r\n");
+		logPrintf(Info,"#Version:V2.2.2 (0813)                                      #\r\n");
+		logPrintf(Info,"#Change date:2020/08/13                                     #\r\n");
 		logPrintf(Info,"#Ventilation cycle changed.                                 #\r\n");
 		logPrintf(Info,"#############################################################\r\n");
 		logPrintf(Info,"Info:main.c::System start date:%d year %d month %d day\r\n",

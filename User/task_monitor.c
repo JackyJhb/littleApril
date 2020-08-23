@@ -109,7 +109,7 @@ void feedWatchDog(uint8_t whichTask)
 uint8_t needToFeedWatchDog(void)
 {
 	uint8_t i,watch_dog_couter=0,dead_task_nums=0;
-	for (i = 0;i < 16;i++)
+	for (i = 0;i < 32;i++)
 	{
 		if (enableWatchDogBits & (1<<i))
 		{

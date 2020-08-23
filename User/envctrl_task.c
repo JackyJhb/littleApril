@@ -85,7 +85,6 @@ void temperatureCtrl(uint8_t dev_id)
 	if (valid_nums != 0)
 	{
 		temp /= valid_nums;
-		//This function that called is main PID control function.
 		if (dataStore.realtimeData.realDataToSave.isStarted == REARING_STARTED)
 		{
 			hours = calHoursInOneDay(&dataStore.realtimeData.realDataToSave.rtcTimeStart);
@@ -100,11 +99,6 @@ void temperatureCtrl(uint8_t dev_id)
 								dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle],
 								set_temperature);
 			}
-			//else
-			//{
-				//set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle-1];
-			//}
-			//pidControlTemperature((set_temperature+dataStore.realtimeData.deltaTemperature),temp,dev_id);
 			pidControlTemperature((set_temperature+dataStore.ctrlParameter.systemOptions.deltaTemperature),temp,dev_id);
 		}
 		else if (dataStore.realtimeData.realDataToSave.isStarted == HEATING_STARTED)
@@ -183,6 +177,7 @@ void EnvParameter_task(void *p_arg)
 	{
 		if (((OS_MEM      *)&mymem)->NbrFree > 15)
 		{
+			logPrintf(Error,"E:envctrl_task.c::EnvParameter_task()->device id = %d\r\n",ask_dev_id);
 			feedWatchDog(ENVCTRL_TASK_WD);
 		}
 		else
@@ -211,11 +206,6 @@ void EnvParameter_task(void *p_arg)
 			OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
 			ask_dev_id = 0x00;
 		}
-		//ts_start = OS_TS_GET();
-		
-		//ts_end = OS_TS_GET();
-		//logPrintf(Verbose,"V:envctrl_task.c::EnvParameter_task()->It took %dns to get temperature.\r\n",
-		//					(ts_end-ts_start)*14);
 		
 		order_ptr->type = ask_status;
 		pMsg = OSTaskQPend ((OS_TICK        )0,
@@ -257,7 +247,6 @@ void EnvParameter_task(void *p_arg)
 		{
 			if (((DataPackage *)pMsg)->dev_id > 0x02)
 			{
-				++dataStore.blackBox.devIDErrTimes;
 				logPrintf(Error,"E:envctrl_task.c::EnvParameter_task()->CAN receive data->unknown dev_id = %d",((DataPackage *)pMsg)->dev_id);
 			}
 			else

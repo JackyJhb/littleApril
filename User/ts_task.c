@@ -98,7 +98,7 @@ void ts_task(void *p_arg)
 			send_len = 0;
 			if (crc_result == rec_crc)
 			{
-				++dataStore.blackBox.requestTimes;
+//				++dataStore.blackBox.requestTimes;
 				addr_offset = *(buf_rec + 2) * 256 + *(buf_rec + 3);
 				switch (*(buf_rec+1))
 				{
@@ -280,7 +280,6 @@ void ts_task(void *p_arg)
 								break;
 							case 0x12:
 								dataStore.realtimeData.realDataToSave.isStarted = REARING_STARTED;
-								dataStore.realtimeData.realDataToSave.cycleDays = 49;
 								dataStore.realtimeData.dayCycle = 1;
 								dataStore.realtimeData.realDataToSave.key = INIT_KEY;
 								memcpy(&dataStore.realtimeData.realDataToSave.rtcDateStart,&RTC_DateStruct,sizeof(RTC_DateStruct));

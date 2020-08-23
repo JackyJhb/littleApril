@@ -164,6 +164,10 @@ void RTC_Alarm_IRQHandler(void)
 		if (dataStore.realtimeData.realDataToSave.isStarted == REARING_STARTED)
 		{
 			++dataStore.realtimeData.dayCycle;
+			if (dataStore.realtimeData.dayCycle > 50)
+			{
+				dataStore.realtimeData.dayCycle = 50;
+			}
 		}
 	}
 	EXTI_ClearITPendingBit(EXTI_Line17);

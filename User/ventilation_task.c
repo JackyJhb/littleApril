@@ -14,74 +14,114 @@ OS_TCB VentilationTaskTCB;
 CPU_STK VENTILATION_TASK_STK[VENTILATION_STK_SIZE];
 char buf[20];
 
+uint8_t getGrade(void)
+{
+	uint8_t i,grade=0;
+	float average_temperature;
+	average_temperature = 0;
+	for(i = 0;i < 6;i++)
+	{
+		average_temperature += *((float *)dataStore.realtimeData.insideTemperature +i);
+	}
+	average_temperature /= 6;
+	logPrintf(Verbose,"V:average_temperature = %.2f\r\n",average_temperature);
+	for (i =0;i < (sizeof(dataStore.ctrlParameter.ventilation.ventilateGrade)/sizeof(VentilateGrade));i++)
+	{
+		if (average_temperature < (dataStore.realtimeData.currentSetTemperature + dataStore.ctrlParameter.ventilation.ventilateGrade[i].gradeTemperature))
+		{
+			logPrintf(Verbose,"V:break at i = %d\r\n",i);
+			grade = i;
+			break;
+		}
+	}
+	if (i >=5)
+	{
+		grade = 4;
+	}
+	logPrintf(Verbose,"V:ventilation_task.c::--->getGrade():grade=%d.\r\n",grade);
+	return grade;
+}
+
 void ventilation_task(void *p_arg)
 {
 	OS_ERR         err;
 	CPU_TS_TMR     ts_int;
 	CPU_INT32U     cpu_clk_freq;
 	OS_MSG_SIZE    msg_size;
-	char * pMsg,isFanWorking=0,level;
-	float ventilation_volume = 0.0f,cmf_per_minute;
-	uint16_t ventilation_cycle_counter,fan_work_seconds,work_timer_counter;
+	char * pMsg,isFanWorking=false,level = 0,hours,isGetGradeCycle = true;
+	float ventilation_volume = 0.0f,set_temperature;
+	uint16_t ventilation_cycle_counter=0x0000,fan_work_seconds,work_timer_counter;
 	CPU_SR_ALLOC();
 	p_arg = p_arg;
 	cpu_clk_freq = BSP_CPU_ClkFreq();
+	
+	hours = calHoursInOneDay(&dataStore.realtimeData.realDataToSave.rtcTimeStart);
+	set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle-1] - dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle];
+	set_temperature = (set_temperature/24) * hours;
+	set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle-1] - set_temperature;
+	dataStore.realtimeData.currentSetTemperature = set_temperature;
+	OSTimeDlyHMSM(0,0,5,0,OS_OPT_TIME_DLY,&err);
 	enableWatchDog(VENTILATION_TASK_WD);
-	ventilation_cycle_counter = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle-1].runningTime;
 	while(1)
 	{
 		feedWatchDog(VENTILATION_TASK_WD);
 		OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);		
+		logPrintf(Debug,"D:ventilation_task.c::ventilation_task()->main loop.\r\n");
 		if (dataStore.realtimeData.realDataToSave.isStarted == REARING_STARTED)
 		{
-			OS_CRITICAL_ENTER();
-			if (dataStore.realtimeData.dayCycle > 50)
+			if ((dataStore.realtimeData.isColding & IS_COLDING) == IS_COLDING)
 			{
-				dataStore.realtimeData.dayCycle = 50;
+				isGetGradeCycle = true;
+				logPrintf(Verbose,"V:ventilation_task.c::ventilation_task()->do not use ventilation.\r\n");
 			}
-			OS_CRITICAL_EXIT();
-			if (dataStore.realtimeData.isColding == true)
+			else
 			{
-				ventilation_cycle_counter = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle-1].runningTime;
-				isFanWorking = false;
-				//logPrintf("-------------->isColding now,do not use ventilation.\r\n");
-			}
-			++ventilation_cycle_counter;
-			if (ventilation_cycle_counter >= dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle-1].ventilationCycle)
-			{
-				level = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle-1].grade;
+				if (isGetGradeCycle == true)
+				{
+					level = getGrade();
+					dataStore.realtimeData.isColding &= ~IS_COLDING;
+					dataStore.realtimeData.isColding &= ~LEVEL_MASK;
+					dataStore.realtimeData.isColding |= level;
+					isGetGradeCycle = false;
+					isFanWorking = false;
+					ventilation_cycle_counter = 0x0000;
+					logPrintf(Debug,"D:ventilation_task.c::ventilation_task()->isColding=%d\r\n",dataStore.realtimeData.isColding);
+				}
 				if (isFanWorking == false)
 				{
-					fan_work_seconds = dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle-1].runningTime;
-					//logPrintf("############Manual control ventilation###########\r\n");
-					//logPrintf("Info:ventilation_task.c::ventilation_task :\r\n");
-					//logPrintf("dayCycle = %d\r\n",dataStore.realtimeData.dayCycle);
-					//logPrintf("fan_work_seconds = %d\r\n",fan_work_seconds);
-					//logPrintf("ventilation_cycle = %d\r\n",dataStore.ctrlParameter.ventilation.ventilationCoefficient[dataStore.realtimeData.dayCycle].ventilationCycle);
-					//logPrintf("###############################################\r\n");
-					work_timer_counter = 0x00;
-					dataStore.realtimeData.workingVentilators = dataStore.ctrlParameter.ventilation.ventilateGrade[level].runningFansBits;
-					if (fan_work_seconds > 0)
+					++ventilation_cycle_counter;
+					if (ventilation_cycle_counter >= 
+								(dataStore.ctrlParameter.ventilation.ventilateGrade[level].ventilationCycle - 
+								dataStore.ctrlParameter.ventilation.ventilateGrade[level].runningTime))
 					{
-						littleApril16FansCtrl(dataStore.realtimeData.workingVentilators,VENTILATION_TASK_WD);
+						fan_work_seconds = dataStore.ctrlParameter.ventilation.ventilateGrade[level].runningTime;
+						work_timer_counter = 0x00;
+						if (fan_work_seconds > 0)
+						{
+							dataStore.realtimeData.workingVentilators = dataStore.ctrlParameter.ventilation.ventilateGrade[level].runningFansBits;
+							littleApril16FansCtrl(dataStore.realtimeData.workingVentilators,VENTILATION_TASK_WD);
+						}
+						isFanWorking = true;
+						logPrintf(Verbose,"V: run time is %d,cycle is %d,temp = %.2f,run_bits = %d,level = %d\r\n",
+													dataStore.ctrlParameter.ventilation.ventilateGrade[level].runningTime,
+													dataStore.ctrlParameter.ventilation.ventilateGrade[level].ventilationCycle,
+													dataStore.ctrlParameter.ventilation.ventilateGrade[level].gradeTemperature,
+													dataStore.ctrlParameter.ventilation.ventilateGrade[level].runningFansBits,
+													level);
 					}
-					isFanWorking = true;
-					logPrintf(Debug,"D:ventilation_task.c::ventilation_task()->20%d.%d.%d %d:%d:%d\r\n",
-								RTC_DateStruct.RTC_Year,RTC_DateStruct.RTC_Month,RTC_DateStruct.RTC_Date,
-								RTC_TimeStruct.RTC_Hours,RTC_TimeStruct.RTC_Minutes,RTC_TimeStruct.RTC_Seconds);
-					logPrintf(Debug,"D:ventilation_task.c::ventilation_task()->Start ventilate:workingVentilators=%d\r\n",dataStore.realtimeData.workingVentilators);
 				}
 				else
 				{
 					if (++work_timer_counter >= fan_work_seconds)
 					{
-						ventilation_cycle_counter = fan_work_seconds;
-						//dataStore.realtimeData.workingVentilators &= 
-						//          (~dataStore.ctrlParameter.ventilation.ventilateGrade[level].runningFansBits);
-						dataStore.realtimeData.workingVentilators = 0x0000;
-						littleApril16FansCtrl(dataStore.realtimeData.workingVentilators,VENTILATION_TASK_WD);
-						isFanWorking = false;
-						logPrintf(Debug,"D:ventilation_task.c::ventilation_task()->Stop\r\n");
+						if (fan_work_seconds != dataStore.ctrlParameter.ventilation.ventilateGrade[level].ventilationCycle)
+						{
+							dataStore.realtimeData.workingVentilators = 0x0000;
+							littleApril16FansCtrl(dataStore.realtimeData.workingVentilators,VENTILATION_TASK_WD);
+							logPrintf(Debug,"D:ventilation_task.c::ventilation_task()->Stop\r\n");
+						}
+						isGetGradeCycle = true;
+						logPrintf(Debug,"D:ventilation_task.c::ventilation_task()->Next cycle!\r\n");
 					}
 				}
 			}

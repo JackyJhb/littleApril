@@ -24,6 +24,7 @@ void alarm_task(void *p_arg)
 	CPU_SR_ALLOC();
 	cpu_clk_freq = BSP_CPU_ClkFreq();
 	BEEP_Init();
+	OSTimeDlyHMSM(0,0,5,0,OS_OPT_TIME_DLY,&err);
 	enableWatchDog(ALARM_TASK_WD);
 	while(1)
 	{
