@@ -44,6 +44,8 @@ int main()
 	{
 		dataStore.realtimeData.dayCycle = calDaysBettweenTwoDate(&dataStore.realtimeData.realDataToSave.rtcDateStart,
 																 &dataStore.realtimeData.realDataToSave.rtcTimeStart)+1;
+		if (dataStore.realtimeData.dayCycle > 50)
+						dataStore.realtimeData.dayCycle = 50;
 		RTC_SetAlarmA(dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_WeekDay,
 					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours,
 					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,

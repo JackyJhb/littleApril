@@ -7,6 +7,9 @@
 #define INVIAL                      168
 #define EnvParameter_STK_SIZE 		512
 #define FILTER_TIMES          5
+#define OUTSIDE                  0
+#define BOILER_PIPE           1
+#define BOILER_INSIDE        2
 extern OS_TCB EnvParameterTaskTCB;
 extern CPU_STK EnvParameter_TASK_STK[EnvParameter_STK_SIZE];
 extern OS_MEM mymem;

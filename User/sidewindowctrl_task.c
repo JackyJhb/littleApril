@@ -35,7 +35,7 @@ void sidewindowctrl_task(void *p_arg)
 	{
 		feedWatchDog(SIDE_WINDOW_TASK_WD);
 		OSTimeDlyHMSM(0,0,0,500,OS_OPT_TIME_DLY,&err);
-		Get_ADC_Value();
+		
 		if (dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle & CTRLMODELEFTMASK)
 		{
 			//Manual control

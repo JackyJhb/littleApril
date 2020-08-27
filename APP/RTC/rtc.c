@@ -74,7 +74,7 @@ uint8_t RTC_Configuration(void)
   RTC_InitStructure.RTC_SynchPrediv  = 0xFF;
   RTC_InitStructure.RTC_HourFormat   = RTC_HourFormat_24;
   RTC_Init(&RTC_InitStructure);
-	RTC_SetTimes(20,7,18,11,42,30);
+	RTC_SetTimes(20,8,27,20,48,30);
 	return 0;
 }
 

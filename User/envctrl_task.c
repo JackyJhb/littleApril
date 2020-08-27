@@ -21,6 +21,28 @@ static void temperatureCtrl(uint8_t dev_id);
 static void huimidityCtrl(uint8_t dev_id);
 static void illuminancyCtrl(uint8_t dev_id);
 
+static float bufTemperature[3][FILTER_TIMES];
+static char loopCounter[3] = {0x00,0x00,0x00};
+
+float getMid(float *buf,char len)
+{
+	char i;
+	if (len < 3)
+		return 0.0;
+	float max = -128.0,min = +168.0,av=0.0;
+	for (i = 0;i < len;i++)
+	{
+		if (*(buf + i) < min)
+			min = *(buf + i);
+		if (*(buf + i) > max)
+			max = *(buf + i);
+		av += *(buf +  i);
+	}
+	av -= max;
+	av -= min;
+	return av /= (len - 2);
+}
+
 void updateData(void)
 {
 	float temp;
@@ -35,7 +57,20 @@ void updateData(void)
 	else
 	{
 		dataStore.sensorStatusCounter.outsideSensorErrCounter = 0x00;
-		dataStore.realtimeData.outsideTemperature = temp;
+		if (loopCounter[OUTSIDE] < FILTER_TIMES)
+		{
+			bufTemperature[OUTSIDE][loopCounter[OUTSIDE]] = temp;
+			++loopCounter[OUTSIDE];
+			if (loopCounter[OUTSIDE] == FILTER_TIMES)
+			{
+				dataStore.realtimeData.outsideTemperature = getMid(&bufTemperature[OUTSIDE][0],FILTER_TIMES);
+				loopCounter[OUTSIDE] = 0x00;
+			}
+		}
+		else
+		{
+			loopCounter[OUTSIDE] = 0x00;
+		}
 	}
 	if (ReadTemperature(&temp,CH2))
 	{
@@ -48,7 +83,20 @@ void updateData(void)
 	else
 	{
 		dataStore.sensorStatusCounter.pipeSensorErrCounter = 0x00;
-		dataStore.realtimeData.boilerPipeTemperature = temp;
+		if (loopCounter[BOILER_PIPE] < FILTER_TIMES)
+		{
+			bufTemperature[BOILER_PIPE][loopCounter[BOILER_PIPE]] = temp;
+			++loopCounter[BOILER_PIPE];
+			if (loopCounter[BOILER_PIPE] == FILTER_TIMES)
+			{
+				dataStore.realtimeData.boilerPipeTemperature = getMid(&bufTemperature[BOILER_PIPE][0],FILTER_TIMES);
+				loopCounter[BOILER_PIPE] = 0x00;
+			}
+		}
+		else
+		{
+			loopCounter[BOILER_PIPE] = 0x00;
+		}
 	}
 	if (ReadTemperature(&temp,CH3))
 	{
@@ -61,7 +109,20 @@ void updateData(void)
 	else
 	{
 		dataStore.sensorStatusCounter.boilerSensorErrCounter = 0x00;
-		dataStore.realtimeData.boilerInsideTemperature = temp;
+		if (loopCounter[BOILER_INSIDE] < FILTER_TIMES)
+		{
+			bufTemperature[BOILER_INSIDE][loopCounter[BOILER_INSIDE]] = temp;
+			++loopCounter[BOILER_INSIDE];
+			if (loopCounter[BOILER_INSIDE] == FILTER_TIMES)
+			{
+				dataStore.realtimeData.boilerInsideTemperature = getMid(&bufTemperature[BOILER_INSIDE][0],FILTER_TIMES);
+				loopCounter[BOILER_INSIDE] = 0x00;
+			}
+		}
+		else
+		{
+			loopCounter[BOILER_INSIDE] = 0x00;
+		}
 	}
 }
 
@@ -71,13 +132,11 @@ void temperatureCtrl(uint8_t dev_id)
 	uint8_t valid_nums = 0,hours;
 	CPU_SR_ALLOC();
 	if (dataStore.realtimeData.insideTemperature[dev_id][0] != INVIAL)
-	//if (buf[dev_id*2] == 5)
 	{
 		temp = dataStore.realtimeData.insideTemperature[dev_id][0];
 		++valid_nums;
 	}
 	if (dataStore.realtimeData.insideTemperature[dev_id][1] != INVIAL)
-	//if (buf[dev_id*2 + 1] == 5)
 	{
 		temp += dataStore.realtimeData.insideTemperature[dev_id][1];
 		++valid_nums;
@@ -154,10 +213,9 @@ void EnvParameter_task(void *p_arg)
 	CPU_TS_TMR      ts_int;
 	CPU_INT32U      cpu_clk_freq;
 	OS_MSG_SIZE     msg_size;
-	char * pMsg,ask_status = SERVER_REQ_TEMPERATURE,ask_dev_id = 0x00,ch0_err = 0,ch1_err = 0;
+	char * pMsg,ask_status = SERVER_REQ_TEMPERATURE,ask_dev_id = 0x00,ch0_err = 0,ch1_err = 0,cal_av;
 	ServerOrder *order_ptr;
 	unsigned char buf[8] = {0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08};
-	//char score[6];
 	uint32_t sequenceID = 0x00000000;
 	CPU_SR_ALLOC();
 	p_arg = p_arg;
@@ -172,7 +230,6 @@ void EnvParameter_task(void *p_arg)
 	}
 	#endif
 	dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
-	//memset(score,0x00,sizeof(score));
 	while(1)
 	{
 		if (((OS_MEM      *)&mymem)->NbrFree > 15)
@@ -206,7 +263,6 @@ void EnvParameter_task(void *p_arg)
 			OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
 			ask_dev_id = 0x00;
 		}
-		
 		order_ptr->type = ask_status;
 		pMsg = OSTaskQPend ((OS_TICK        )0,
 							(OS_OPT         )OS_OPT_PEND_NON_BLOCKING,
@@ -260,15 +316,6 @@ void EnvParameter_task(void *p_arg)
 							((float)((DataPackage *)pMsg)->leftTemperature/100 > 10.0) &&
 							((float)((DataPackage *)pMsg)->leftTemperature/100 < 50.0))
 						{
-							/*if ((fabs(dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0] -
-												((float)((DataPackage *)pMsg)->leftTemperature/100)) >= 2.0) && (score[ask_dev_id*2] > -2*FILTER_TIMES))
-							{
-								score[ask_dev_id*2] -= 2;
-							}
-							else if (score[ask_dev_id*2] < FILTER_TIMES)
-							{
-								++score[ask_dev_id*2];
-							}*/
 							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0] = (float)((DataPackage *)pMsg)->leftTemperature/100;
 							dataStore.sensorStatusCounter.areaLeftSensorErrCounter[(((DataPackage *)pMsg)->dev_id)] = 0x00;
 							ch0_err = 0;

@@ -39,11 +39,5 @@ void rtc_task(void *p_arg)
 		dataStore.realtimeData.hour = RTC_TimeStruct.RTC_Hours;
 		dataStore.realtimeData.minute = RTC_TimeStruct.RTC_Minutes;
 		dataStore.realtimeData.second = RTC_TimeStruct.RTC_Seconds;
-		 /*a =~a;
-		littleAprilGroupOutput(HCWGroup0,a);
-		littleAprilGroupOutput(FansGroup1,a);
-		littleAprilGroupOutput(FansGroup2,a);
-		littleAprilGroupOutput(Group3,a);
-		littleAprilGroupOutput(Group4,a);*/
 	}
 }
