@@ -247,8 +247,6 @@ void usartWifiInit(u32 bound)
 
 void WIFI_Server_Init(void)
 {
-	OS_ERR err;
-	char i=0;
 	if ((dataStore.ctrlParameter.esp8266Options.setByUser != WIFI_REF_SET)
 			&& (dataStore.realtimeData.netWorkStatus == NotFoundESP8266))
 	{
@@ -357,7 +355,7 @@ uint16_t sendDatas(char *buf,uint16_t len)
 	sendStr("\r\n");
 	if (waitForAnswer(">",100) != 0)
 		return 0;
-	sendChars(buf,len);
+	sendChars((uint8_t *)buf,len);
 	/*if (waitForAnswer("SEND OK",100,3) != 0)
 		return 0;
 	clearBuf();*/

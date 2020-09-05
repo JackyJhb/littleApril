@@ -16,7 +16,7 @@
 OS_TCB EnvParameterTaskTCB;
 CPU_STK EnvParameter_TASK_STK[EnvParameter_STK_SIZE];
 
-static void updateData(void);
+static void updateTemperatureData(void);
 static void temperatureCtrl(uint8_t dev_id);
 static void huimidityCtrl(uint8_t dev_id);
 static void illuminancyCtrl(uint8_t dev_id);
@@ -43,7 +43,7 @@ float getMid(float *buf,char len)
 	return av /= (len - 2);
 }
 
-void updateData(void)
+void updateTemperatureData(void)
 {
 	float temp;
 	if (ReadTemperature(&temp,CH1))
@@ -52,7 +52,7 @@ void updateData(void)
 		{
 			++dataStore.sensorStatusCounter.outsideSensorErrCounter;
 		}
-		logPrintf(Error,"E:envctrl_task.c::updateData()->get outside temperature error!\r\n");
+		logPrintf(Error,"E:envctrl_task.c::updateTemperatureData()->get outside temperature error!\r\n");
 	}
 	else
 	{
@@ -78,7 +78,7 @@ void updateData(void)
 		{
 			++dataStore.sensorStatusCounter.pipeSensorErrCounter;
 		}
-		logPrintf(Error,"E:envctrl_task.c::updateData()->get pipe temperature error!\r\n");
+		logPrintf(Error,"E:envctrl_task.c::updateTemperatureData()->get pipe temperature error!\r\n");
 	}
 	else
 	{
@@ -104,7 +104,7 @@ void updateData(void)
 		{
 			++dataStore.sensorStatusCounter.boilerSensorErrCounter;
 		}
-		logPrintf(Error,"E:envctrl_task.c::updateData()->get boiler inside temperature error!\r\n");
+		logPrintf(Error,"E:envctrl_task.c::updateTemperatureData()->get boiler inside temperature error!\r\n");
 	}
 	else
 	{
@@ -223,12 +223,6 @@ void EnvParameter_task(void *p_arg)
 	CAN1_Init();
 	order_ptr = (ServerOrder *)buf;
 	enableWatchDog(ENVCTRL_TASK_WD);
-	#ifdef ENABLE_PIRACY_TRAP
-	if ((RTC_DateStruct.RTC_Year > 20) || (RTC_DateStruct.RTC_Month > 8)) 
-	{
-		//while(1);
-	}
-	#endif
 	dataStore.realtimeData.targetSideWindowsAngle = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle;
 	while(1)
 	{
@@ -258,7 +252,7 @@ void EnvParameter_task(void *p_arg)
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds);
 			++sequenceID;
 			OS_CRITICAL_ENTER();
-			updateData();
+			updateTemperatureData();
 			OS_CRITICAL_EXIT();
 			OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
 			ask_dev_id = 0x00;

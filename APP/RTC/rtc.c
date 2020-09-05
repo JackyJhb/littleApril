@@ -248,9 +248,10 @@ uint16_t calDaysBettweenTwoDate(RTC_DateTypeDef *date,RTC_TimeTypeDef *time)
 	{
 		daysOfMonth(&temp.RTC_Year,&temp.RTC_Month,&temp.RTC_Date);
 		++days;
-		if (days > 50)
+		if (days >= 50)
 		{
 			//TODO:The number of the days is beyond the breeding cycle.
+			break;
 		}
 	}
 	seconds_start = time->RTC_Hours * 3600 + time->RTC_Minutes * 60 + time->RTC_Seconds;
@@ -261,7 +262,9 @@ uint16_t calDaysBettweenTwoDate(RTC_DateTypeDef *date,RTC_TimeTypeDef *time)
 		++days;
 	}
 	time->RTC_Seconds += 2;
-	return --days;
+	if (days > 50)
+		days = 50;
+	return days;
 }
 
 uint8_t calHoursInOneDay(RTC_TimeTypeDef *time)

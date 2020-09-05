@@ -63,7 +63,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 	average_temperature = 0;
 	for(i = 0;i < 6;i++)
 	{
-		average_temperature += *((float *)dataStore.realtimeData.insideTemperature +i);
+		average_temperature += dataStore.realtimeData.insideTemperature[i/2][i%2];
 	}
 	average_temperature /= 6;
 
@@ -81,7 +81,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 			dataStore.realtimeData.isColding &= ~IS_COLDING;
 			dataStore.realtimeData.isColding &= ~LEVEL_MASK;
 			dataStore.realtimeData.workingVentilators = 0x0000;
-			littleApril16FansCtrl(dataStore.realtimeData.workingVentilators,ENVCTRL_TASK_WD);
+			littleApril19FansCtrl(dataStore.realtimeData.workingVentilators,ENVCTRL_TASK_WD);
 			logPrintf(Debug,"D:pid.c::pidControlTemperature()->Stopped colding!\r\n");
 			return;
 		}
@@ -129,8 +129,7 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 	dataStore.realtimeData.workingVentilators = 0x0000;
 	cooding_down_fans =  dataStore.ctrlParameter.coolDownGrade[level].runningFansBits;
 	dataStore.realtimeData.workingVentilators = cooding_down_fans;
-	littleApril16FansCtrl(dataStore.realtimeData.workingVentilators,ENVCTRL_TASK_WD);
-	//dataStore.realtimeData.isColding = true;
+	littleApril19FansCtrl(dataStore.realtimeData.workingVentilators,ENVCTRL_TASK_WD);
 	dataStore.realtimeData.isColding |= IS_COLDING;
 	dataStore.realtimeData.isColding &= ~LEVEL_MASK;
 	dataStore.realtimeData.isColding |= level;

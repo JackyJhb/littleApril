@@ -6,6 +6,27 @@
 __IO uint16_t ADC_ConvertedValue[RHEOSTAT_NOFCHANEL*ADC_CONV_TIMES]={0};
 void Get_ADC_Value(KStore *kStorePtr);
 
+static float resultBuf[RHEOSTAT_NOFCHANEL][ADC_CONV_TIMES];
+static uint8_t convTimes=0;
+
+float getAveValue(float *buf,char len)
+{
+	float max=0x0000,min=0xFFFF,total = 0x0000;
+	uint8_t i;
+	for (i = 0;i < len;i++)
+	{
+		if (*(buf+i) > max)
+			max = *(buf+i);
+		if (*(buf+i) < min)
+			min = *(buf +i);
+		total += *(buf+i);
+	}
+	
+	total -= (max + min);
+	total /= (len - 2);
+	return total;
+}
+
 void ADCx_Init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -82,10 +103,10 @@ void ADCx_Init(void)
 
 void Get_ADC_Value(KStore *kStorePtr)
 {
-	uint16_t adc_value[RHEOSTAT_NOFCHANEL] = {0},i,j;
+	uint16_t adc_value[RHEOSTAT_NOFCHANEL] = {0};
+	uint8_t i,j;
 	//1.036V opened 3.232V closed
 	float temp;
-
 	while(DMA_GetFlagStatus(RHEOSTAT_ADC_DMA_STREAM,DMA_IT_TCIF0) == RESET);
 	DMA_ClearFlag(RHEOSTAT_ADC_DMA_STREAM,DMA_IT_TCIF0);
 	for (i = 0;i < ADC_CONV_TIMES;i++)
@@ -100,71 +121,80 @@ void Get_ADC_Value(KStore *kStorePtr)
 		adc_value[j] /= ADC_CONV_TIMES;
 	}
 	
+	if (++convTimes == 5)
+		convTimes = 0;
 	//1
+	//Because pressure sensor output 0~4.5V voltage and ADC Vref is 3.3V,so need to ...
 	temp = (float)(2*adc_value[PRESSURE_CH] * ADC_VDD_33V)/4095-kStorePtr->pressureSensor.y0;
 	temp /= kStorePtr->pressureSensor.k;
-	dataStore.realtimeData.pressureInside = temp;
+	temp += kStorePtr->pressureSensor.x0;
+	resultBuf[PRESSURE_CH][convTimes] = temp;
+	if (convTimes == 4)
+	{
+		temp = getAveValue(&resultBuf[PRESSURE_CH][0],sizeof(resultBuf[PRESSURE_CH])/sizeof(float));
+		if ((temp + 0.5) > temp)
+			temp += 1;
+		i = (uint8_t)temp;
+		dataStore.realtimeData.pressureInside = i;
+	}
+	
 	//2
-	temp =(float)(adc_value[SMALL_LEFT_WIN_CH] * ADC_VDD_33V)/4095;
-	temp -=3.236;
-	temp /= -0.036666667;
-	i = (uint16_t)temp;
-	dataStore.realtimeData.smallSideWindowsAngle &= 0x00FF;
-	dataStore.realtimeData.smallSideWindowsAngle |= (i<<8);
+	temp =(float)(adc_value[SMALL_LEFT_WIN_CH] * ADC_VDD_33V)/4095-kStorePtr->smallWin.y0;
+	temp /= kStorePtr->smallWin.k;
+	temp += kStorePtr->smallWin.x0;
+	resultBuf[SMALL_LEFT_WIN_CH][convTimes] = temp;
+	if (convTimes == 4)
+	{
+		temp = getAveValue(&resultBuf[SMALL_LEFT_WIN_CH][0] , sizeof(resultBuf[SMALL_LEFT_WIN_CH])/sizeof(float));
+		if ((temp + 0.5) > temp)
+			temp += 1;
+		i = (uint8_t)temp;
+		dataStore.realtimeData.smallSideWindowsAngle &= 0x00FF;
+		dataStore.realtimeData.smallSideWindowsAngle |= (i<<8);
+	}
+
 	//3
-	temp = (float)(adc_value[SMALL_RIGHT_WIN_CH] * ADC_VDD_33V)/4095;
-	temp -=3.236;
-	temp /= -0.036666667;
-	i = (uint16_t)temp;
-	dataStore.realtimeData.smallSideWindowsAngle &= 0xFF00;
-	dataStore.realtimeData.smallSideWindowsAngle |= (i&0xFF);
+	temp =(float)(adc_value[SMALL_RIGHT_WIN_CH] * ADC_VDD_33V)/4095-kStorePtr->smallWin.y0;
+	temp /= kStorePtr->smallWin.k;
+	temp += kStorePtr->smallWin.x0;
+	resultBuf[SMALL_RIGHT_WIN_CH][convTimes] = temp;
+	if (convTimes == 4)
+	{
+		temp = getAveValue(&resultBuf[SMALL_RIGHT_WIN_CH][0] , sizeof(resultBuf[SMALL_RIGHT_WIN_CH])/sizeof(float));
+		if ((temp + 0.5) > temp)
+			temp += 1;
+		i = (uint8_t)temp;
+		dataStore.realtimeData.smallSideWindowsAngle &= 0xFF00;
+		dataStore.realtimeData.smallSideWindowsAngle |= i;
+	}
 	
 	//4
-	temp = (float)(adc_value[BIG_LEFT_WIN_CH] * ADC_VDD_33V)/4095;
+	temp =(float)(adc_value[BIG_LEFT_WIN_CH] * ADC_VDD_33V)/4095-kStorePtr->bigWin.y0;
+	temp /= kStorePtr->bigWin.k;
+	temp += kStorePtr->bigWin.x0;
+	resultBuf[BIG_LEFT_WIN_CH][convTimes] = temp;
+	if (convTimes == 4)
+	{
+		temp = getAveValue(&resultBuf[BIG_LEFT_WIN_CH][0] , sizeof(resultBuf[BIG_LEFT_WIN_CH])/sizeof(float));
+		if ((temp + 0.5) > temp)
+			temp += 1;
+		i = (uint8_t)temp;
+		dataStore.realtimeData.bigSideWindowsAngle &= 0x00FF;
+		dataStore.realtimeData.bigSideWindowsAngle |= (i<<8);
+	}
 	
 	//5
-	temp = (float)(adc_value[BIG_RIGHT_WIN_CH] * ADC_VDD_33V)/4095;
-	
-	
-
-	/*temp = (adc_value[1]*ADC_VDD_33V)/4095;
-	logPrintf(Debug,"D:adc.c->Get_ADC_Value()::Small window of left:%0.2f",temp);
-	dataStore.realtimeData.smallSideWindowsAngle &= 0xFF00;
-	dataStore.realtimeData.smallSideWindowsAngle |= 0x0005;
-	
-	dataStore.realtimeData.smallSideWindowsAngle &= 0x00FF;
-	dataStore.realtimeData.smallSideWindowsAngle |= 0x0A00;
-	if (temp < SIDE_WIN_OPEN) 
+	temp =(float)(adc_value[BIG_RIGHT_WIN_CH] * ADC_VDD_33V)/4095-kStorePtr->bigWin.y0;
+	temp /= kStorePtr->bigWin.k;
+	temp += kStorePtr->bigWin.x0;
+	resultBuf[BIG_RIGHT_WIN_CH][convTimes] = temp;
+	if (convTimes == 4)
 	{
-		//dataStore.realtimeData.realSideWindowsAngle[0] = OPEN_ABSOLUTE_ANGLE;
+		temp = getAveValue(&resultBuf[BIG_RIGHT_WIN_CH][0] , sizeof(resultBuf[BIG_RIGHT_WIN_CH])/sizeof(float));
+		if ((temp + 0.5) > temp)
+			temp += 1;
+		i = (uint8_t)temp;
+		dataStore.realtimeData.bigSideWindowsAngle &= 0xFF00;
+		dataStore.realtimeData.bigSideWindowsAngle |= i;
 	}
-	else if (temp > SIDE_WIN_CLOSE)
-	{
-		//dataStore.realtimeData.realSideWindowsAngle[0] = CLOSE_ABSOLUTE_ANGLE;
-	}
-	else
-	{
-		//dataStore.realtimeData.realSideWindowsAngle[0] = ((ADC_VDD_33V - temp) * OPEN_ABSOLUTE_ANGLE)/(SIDE_WIN_CLOSE-SIDE_WIN_OPEN);
-	}
-	
-	temp = (adc_value[1]*ADC_VDD_33V)/4095;
-	logPrintf(Debug,"D:adc.c->Get_ADC_Value()::Small window of right:%0.2f",temp);
-	dataStore.realtimeData.bigSideWindowsAngle &= 0xFF00;
-	dataStore.realtimeData.bigSideWindowsAngle |= 0x000F;
-	
-	dataStore.realtimeData.bigSideWindowsAngle &= 0x00FF;
-	dataStore.realtimeData.bigSideWindowsAngle |= 0x1400;
-	dataStore.realtimeData.pressureInside = 18;
-    if (temp < SIDE_WIN_OPEN)
-	{
-		//dataStore.realtimeData.realSideWindowsAngle[1] = OPEN_ABSOLUTE_ANGLE;
-	}
-	else if (temp > SIDE_WIN_CLOSE)
-	{
-		//dataStore.realtimeData.realSideWindowsAngle[1] = CLOSE_ABSOLUTE_ANGLE;
-	}
-	else
-	{
-		//dataStore.realtimeData.realSideWindowsAngle[1] = ((ADC_VDD_33V - temp) * OPEN_ABSOLUTE_ANGLE)/(SIDE_WIN_CLOSE-SIDE_WIN_OPEN);
-	}*/
 } 

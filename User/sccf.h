@@ -12,8 +12,8 @@ The meaning of sccf is System Control Configuration File.
 #include "debug_config.h"
 
 #define AT24C128
-#define INIT_KEY        0x1188
-#define INIT_KEY_FLASH  0x1188
+#define INIT_KEY        0x1111
+#define INIT_KEY_FLASH  0x1122
 
 #define ADDR_RTD_FILE   0x0000      //Real time data
 #define ADDR_CFG_FILE   0x0400      //Config file data
@@ -29,6 +29,14 @@ The meaning of sccf is System Control Configuration File.
 #define FAN_SHAFT_WORKING      0x8000
 #define CIRCULATE_PUMP_WORKING 0x4000
 #define COLDING_PUMP_WORKING 0x2000
+#define SMALL_LEFT_OPEN_WORKING 0x0001
+#define SMALL_LEFT_CLOSE_WORKING 0x0002
+#define SMALL_RIGHT_OPEN_WORKING 0x0004
+#define SMALL_RIGHT_CLOSE_WORKING 0x0008
+#define BIG_LEFT_OPEN_WORKING 0x0010
+#define BIG_LEFT_CLOSE_WORKING 0x0020
+#define BIG_RIGHT_OPEN_WORKING 0x0040
+#define BIG_RIGHT_CLOSE_WORKING 0x0080
 
 #pragma pack(1)
 typedef enum{
@@ -68,11 +76,11 @@ typedef struct{
 	float gradeTemperature;
 }VentilateGrade;
 
-typedef struct {
+/*typedef struct {
 	uint32_t runningTime;
 	float	ventilationCycle;
 	uint8_t grade;
-}VentilationCoefficient;
+}VentilationCoefficient;*/
 
 typedef struct {
 	VentilateGrade ventilateGrade[5];
@@ -91,25 +99,18 @@ typedef struct{
 typedef struct {
 	float startHeatingCondition;
 	float stopHeatingCondition;
-
 	float stopColdingCondition;
-	
 	float deltaTemperature;//barometricPressureCondition;
-	
 	float startHeatingBoilerPipeTemperature;
 	float stopHeatingBoilerPipeTemperature;
-
 	float startFanShaftTemperature;
 	float stopFanShaftTemperature;
 	float startCirculatingPumpTemperature;
 	float stopCirculatingPumpTemperature;
-
 	float runningTimeOfVentilate;
 	float stoppedTimeOfVentilate;
-
 	uint16_t sideWindowDefaultAngle;
 	uint16_t waterPumpWindowAngle;
-	
 	float waterPumpStartTemperature;
 	float waterPumpStopTemperature;
 	float waterPumpRunningTime;
@@ -122,6 +123,24 @@ typedef struct {
 	uint8_t pluseWidth;
 }LightingControl;
 
+typedef struct {
+	float x0;
+	float y0;
+	float x1;
+	float y1;
+	float k;
+}KStruct;
+
+typedef struct {
+	KStruct smallWin;
+	KStruct bigWin;
+	KStruct pressureSensor;
+}KStore;
+typedef struct {
+	uint8_t fansSmallWinOpenAngle[19];
+	uint8_t fansBigWinOpenAngle[19];
+}NegativePressureCtrlAngle;
+
 typedef struct{
 	uint32_t keyCtrlParameter;
 	float ambientTemperature[50];
@@ -129,10 +148,11 @@ typedef struct{
 	uint32_t humidity[50];
 	Ventilation ventilation;
 	CoolDownGrade coolDownGrade[16];
-	float waterPumpStartTemperatureDifference;
 	AlarmThresholdStore alarmThresholdOptions;
 	SystemOptions systemOptions;
 	ESP8266Options esp8266Options;
+	KStore sensorKOptions;
+	NegativePressureCtrlAngle negativePressureCtrlAngle;
 }ControlParameterStore;
 
 typedef struct{
@@ -168,7 +188,7 @@ typedef struct{
 	short deltaActionTimeSpan;*/
 	uint32_t sequenceID;
 	uint16_t volatageABC[3];
-	uint16_t workingVentilators;
+	uint32_t workingVentilators;
 	uint16_t heatingColdingStatus;
 	uint16_t isSideWindowMotorRunning;         
 	uint32_t sensorErrStatus;

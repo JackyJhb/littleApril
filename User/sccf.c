@@ -51,8 +51,8 @@ uint8_t setControlParametersToDefault(void)
 	memcpy(dataStore.ctrlParameter.coolDownGrade,coolDownGradeDefault,sizeof(coolDownGradeDefault));
 	memcpy(&dataStore.ctrlParameter.alarmThresholdOptions,&alarmThresholdOptionsDefault,sizeof(AlarmThresholdStore));
 	memcpy(&dataStore.ctrlParameter.systemOptions,&systemOptionsDefault,sizeof(SystemOptions));
-	
-	dataStore.ctrlParameter.waterPumpStartTemperatureDifference = WATER_PUMP_START_TEMP_DIFF_DEFAULT;
+	memcpy(&dataStore.ctrlParameter.sensorKOptions,&sensorKOptionsDefault,sizeof(KStore));
+	memcpy(&dataStore.ctrlParameter.negativePressureCtrlAngle,&negativePressureCtrlAngleDefault,sizeof(NegativePressureCtrlAngle));
 	dataStore.ctrlParameter.keyCtrlParameter = INIT_KEY_FLASH;
 	AT24C02_Write(ADDR_CFG_FILE,(u8 *)&dataStore.ctrlParameter,sizeof(dataStore.ctrlParameter));
 	return 0;
@@ -68,24 +68,12 @@ uint8_t readCtrlConfigFile(void *ptr,unsigned int size)
 {
 	uint8_t temp;
 	AT24C02_Read(ADDR_RTD_FILE,(u8 *)ptr,size);
-	/*AT24C02_Read(104,&temp,sizeof(uint8_t));
-	if (temp == 0x89)
-	{
-		AT24C02_Read(100,(uint8_t *)&dataStore.realtimeData.deltaTemperature,sizeof(float));
-		logPrintf(Info,"I:sccf.c::readCtrlConfigFile -> deltaTemperature real value is %.2f.\r\n",
-						dataStore.realtimeData.deltaTemperature);
-	}
-	else
-	{
-		logPrintf(Info,"I:sccf.c::readCtrlConfigFile -> deltaTemperature real value is 0.0.\r\n");
-		dataStore.realtimeData.deltaTemperature = 0.0f;
-	}*/
 	return 0;
 }
 
 void persistConfigFileToDefault(RealDataStore *ptr)
 {
-	ptr->realDataToSave.isStarted = REARING_STARTED;
+	/*ptr->realDataToSave.isStarted = REARING_STARTED;
 	ptr->realDataToSave.rebootTimes = 0x0000;
 	ptr->realDataToSave.rtcDateStart.RTC_Year    = START_RTC_YEAR_DEFAULT;
 	ptr->realDataToSave.rtcDateStart.RTC_Month   = START_RTC_MONTH_DEFAULT;
@@ -93,7 +81,8 @@ void persistConfigFileToDefault(RealDataStore *ptr)
 	ptr->realDataToSave.rtcDateStart.RTC_WeekDay = START_RTC_WEEKDAY_DEFAULT;
 	ptr->realDataToSave.rtcTimeStart.RTC_Hours   = START_RTC_HOURS_DEFAULT;
 	ptr->realDataToSave.rtcTimeStart.RTC_Minutes = START_RTC_MINUTES_DEFAULT;
-	ptr->realDataToSave.rtcTimeStart.RTC_Seconds = START_RTC_SECONDS_DEFAULT;
+	ptr->realDataToSave.rtcTimeStart.RTC_Seconds = START_RTC_SECONDS_DEFAULT;*/
+	memcpy(&ptr->realDataToSave,&realDataToSaveDefault,sizeof(RealDataToSave));
 }
 
 uint8_t sysCtrlConfigFileInit(void)
@@ -107,7 +96,7 @@ uint8_t sysCtrlConfigFileInit(void)
 	if (dataStore.realtimeData.realDataToSave.key != INIT_KEY)
 	{
 		persistConfigFileToDefault(&dataStore.realtimeData);
-		dataStore.realtimeData.realDataToSave.key = INIT_KEY;
+		//dataStore.realtimeData.realDataToSave.key = INIT_KEY;
 		err_code = sysCtrlConfigFileWrite(&dataStore.realtimeData.realDataToSave,sizeof(RealDataToSave));
 		logPrintf(Info,"I:sccf.c::sysCtrlConfigFileInit() -> persistConfigFileToDefault\r\n");
 	}

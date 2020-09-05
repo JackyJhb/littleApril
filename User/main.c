@@ -18,14 +18,14 @@
 #include "sccf.h"
 #include "task_monitor.h"
 #include "circleBuffer.h"
+#include "wifi.h"
 
 int main()
 {  	
 	OS_ERR err;
-	uint32_t offset;
+	uint8_t res;
 	littleAprilIOInit();
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-	//SysTick_Init();
 	LED_Init();
 	BEEP_Init();
 	RS485_Init(115200);
@@ -36,14 +36,15 @@ int main()
 	getRstSrcType();
 	while (RTC_InitConfig());
 	RTC_GetTimes(RTC_Format_BIN);
-	while ((err = sysCtrlConfigFileInit()))
+	res = sysCtrlConfigFileInit();
+	while (res != 0)
 	{
 		logPrintf(Error,"Error:main.c::main() -> sysCtrlConfigFileInit error occurred! Error code is %d\r\n",err);
 	}
 	if (dataStore.realtimeData.realDataToSave.isStarted == REARING_STARTED)
 	{
 		dataStore.realtimeData.dayCycle = calDaysBettweenTwoDate(&dataStore.realtimeData.realDataToSave.rtcDateStart,
-																 &dataStore.realtimeData.realDataToSave.rtcTimeStart)+1;
+																 &dataStore.realtimeData.realDataToSave.rtcTimeStart);
 		if (dataStore.realtimeData.dayCycle > 50)
 						dataStore.realtimeData.dayCycle = 50;
 		RTC_SetAlarmA(dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_WeekDay,

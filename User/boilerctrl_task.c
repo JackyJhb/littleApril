@@ -41,12 +41,12 @@ void boilerctrl_task(void *p_arg)
 			dataStore.realtimeData.isSideWindowMotorRunning |= CIRCULATE_PUMP_WORKING;
 		}
 
-/*		if ((dataStore.realtimeData.boilerInsideTemperature < dataStore.ctrlParameter.systemOptions.stopCirculatingPumpTemperature) && (circulatingPump == 1))
+		if ((dataStore.realtimeData.boilerInsideTemperature < dataStore.ctrlParameter.systemOptions.stopCirculatingPumpTemperature) && (circulatingPump == 1))
 		{
 			littleAprilGroup3Ctrl(CirculatePump_Group3,Off);
 			circulatingPump = 0;
 			dataStore.realtimeData.isSideWindowMotorRunning &= ~CIRCULATE_PUMP_WORKING;
-		}*/
+		}
 		OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
 	}
 }

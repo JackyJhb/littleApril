@@ -1,4 +1,25 @@
 #include "default_config.h"
+
+#define COOL_DOWN_DEFAULT_LEVEL_1     0x100C0//0B000 0000 000  0000 0  1  0x00041;
+#define COOL_DOWN_DEFAULT_LEVEL_2     0x200C0//0B000 0000 0000 0000 0110
+#define COOL_DOWN_DEFAULT_LEVEL_3     0x401C0//0B000 0000 0000 0000 0111
+#define COOL_DOWN_DEFAULT_LEVEL_4     0x0C0C0//0B000 0001 1000 0001 0110
+#define COOL_DOWN_DEFAULT_LEVEL_5     0x000C7//0B010 0001 1000 0001 1000
+#define COOL_DOWN_DEFAULT_LEVEL_6     0x03C18//0B000 0011 1100 0001 1000
+#define COOL_DOWN_DEFAULT_LEVEL_7     0x23C18//0B010 0011 1100 0001 1000
+#define COOL_DOWN_DEFAULT_LEVEL_8     0x03C3C//0B000 0011 1100 0011 1100
+#define COOL_DOWN_DEFAULT_LEVEL_9     0x23C3C//0B010 0011 1100 0011 1100
+#define COOL_DOWN_DEFAULT_LEVEL_10    0x07E3C//0B000 0111 1110 0011 1100
+#define COOL_DOWN_DEFAULT_LEVEL_11    0x27E3C//0B010 0111 1110 0011 1100
+#define COOL_DOWN_DEFAULT_LEVEL_12    0x07E7E//0B000 0111 1110 0111 1110
+#define COOL_DOWN_DEFAULT_LEVEL_13    0x27E7E//0B010 0111 1110 0111 1110
+#define COOL_DOWN_DEFAULT_LEVEL_14    0x0FF7E//0B000 1111 1111 0111 1110
+#define COOL_DOWN_DEFAULT_LEVEL_15    0x2FF7E//0B010 1111 1111 0111 1110
+#define COOL_DOWN_DEFAULT_LEVEL_16    0x7FFFF//0B111 1111 1111 1111 1111
+
+const RealDataToSave realDataToSaveDefault = {
+	REARING_STARTED,0x0000,5,8,7,20,8,41,45,24,INIT_KEY
+};
 const SystemOptions systemOptionsDefault = {
 	-0.3,//float startHeatingCondition;
 	0.5,//float stopHeatingCondition;
@@ -108,64 +129,31 @@ const LightingControl illuminationStrengthDefault[50] = {
 	{20,60,100},
 };
 
-/*const VentilationCoefficient ventilationCoefficientDefault[50] = {
-	{0,180,0},//0  1
-	{30,180,0},//1
-	{30,180,0},//2
-	{50,180,0},//3
-	{55,180,0},//4
-	{55,180,0},//5
-	{55,180,0},//6
-	{55,180,0},//7
-	{55,180,0},//8
-	{60,180,0},//9
-	{65,180,0},//10
-	{65,180,0},//11
-	{60,240,0},//12
-	{60,240,0},//13
-	{60,240,0},//14
-	{60,240,0},//15
-	{60,240,0},//16
-	{60,240,1},//17
-	{60,240,1},//18
-	{60,240,1},//19
-	{60,240,1},//20
-	{60,240,1},//21
-	{60,240,1},//22
-	{70,220,1},//23
-	{70,220,1},//24
-	{70,220,1},//25
-	{70,220,1},//26 days
-	{70,220,1},//45
-	{70,220,1},//45
-	{70,220,1},//45
-	{70,180,1},//45
-	{70,180,1},//45
-	{70,180,1},//45
-	{70,180,1},//45 34 days
-	{70,180,2},//45
-	{70,180,2},//45
-	{70,180,2},//45
-	{70,180,2},//45
-	{45,180,2},//45
-	{45,180,2},//45
-	{45,180,2},//45
-	{45,180,2},//45
-	{45,180,2},//45
-	{45,180,2},//45
-	{45,180,2},//45
-	{45,180,2},//45
-	{45,180,2},//45
-	{45,180,2},//45
-	{45,180,2},//45
-	{45,180,2}//
-};*/
 const uint8_t humidityDefault[50];
 
 const VentilateGrade ventilateGradeDefault[5] = {
-{0x0040,40,200,0.3},
-{0x0040,45,200,0.6},
-{0x0040,50,200,0.9},
-{0x0040,50,160,1.2},
-{0x0040,55,160,1.5}
+{0x00020040,30,200,0.3},
+{0x00050040,40,200,0.6},
+{0x00040040,50,200,0.9},
+{0x00030040,50,160,1.2},
+{0x00070040,55,160,1.5}
+};
+/*#define SIDE_WIN_OPEN               1.036
+#define SIDE_WIN_CLOSE              3.236
+#define OPEN_ABSOLUTE_ANGLE         60
+#define CLOSE_ABSOLUTE_ANGLE        0
+
+	kStore.pressureSensor.x0 = 0.0f;
+	kStore.pressureSensor.x1 = -30.0f;
+	kStore.pressureSensor.y0 = 4.5f;
+	kStore.pressureSensor.y1 = 0.5f;*/
+const KStore sensorKOptionsDefault = {
+	0.0,1.036,60,3.236,0.0,
+	0.0,1.036,60,3.236,0.0,
+	0.0,4.5,-30.0,0.5,0.0
+};
+
+const NegativePressureCtrlAngle negativePressureCtrlAngleDefault = {
+	0,10,20,30,40,50,60,60,60,60,60,60,60,60,60,60,16,16,16,
+	0,0,  0,  0,  0, 0,  0, 5, 10, 15,20,25,30,35,40,45,45,45,45
 };

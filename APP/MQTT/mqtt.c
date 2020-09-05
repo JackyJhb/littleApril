@@ -125,7 +125,7 @@ int getDataDisconnect(char *buff)
 int getDataConnect(char *buff,char *userName,char *passwd)
 {
 	unsigned int i,len,lennum = 0;
-	unsigned char *msg;
+	char *msg;
 	buff[0] = getDataFixedHead(MQTT_TypeCONNECT,0,0,0);
 	buff[2] = 0x00;
 	buff[3] = 0x04;

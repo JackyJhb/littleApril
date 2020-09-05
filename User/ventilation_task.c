@@ -21,7 +21,7 @@ uint8_t getGrade(void)
 	average_temperature = 0;
 	for(i = 0;i < 6;i++)
 	{
-		average_temperature += *((float *)dataStore.realtimeData.insideTemperature +i);
+		average_temperature += dataStore.realtimeData.insideTemperature[i/2][i%2];
 	}
 	average_temperature /= 6;
 	logPrintf(Verbose,"V:average_temperature = %.2f\r\n",average_temperature);
@@ -99,7 +99,7 @@ void ventilation_task(void *p_arg)
 						if (fan_work_seconds > 0)
 						{
 							dataStore.realtimeData.workingVentilators = dataStore.ctrlParameter.ventilation.ventilateGrade[level].runningFansBits;
-							littleApril16FansCtrl(dataStore.realtimeData.workingVentilators,VENTILATION_TASK_WD);
+							littleApril19FansCtrl(dataStore.realtimeData.workingVentilators,VENTILATION_TASK_WD);
 						}
 						isFanWorking = true;
 						logPrintf(Verbose,"V: run time is %d,cycle is %d,temp = %.2f,run_bits = %d,level = %d\r\n",
@@ -116,8 +116,8 @@ void ventilation_task(void *p_arg)
 					{
 						if (fan_work_seconds != dataStore.ctrlParameter.ventilation.ventilateGrade[level].ventilationCycle)
 						{
-							dataStore.realtimeData.workingVentilators = 0x0000;
-							littleApril16FansCtrl(dataStore.realtimeData.workingVentilators,VENTILATION_TASK_WD);
+							dataStore.realtimeData.workingVentilators = 0x00000000;
+							littleApril19FansCtrl(dataStore.realtimeData.workingVentilators,VENTILATION_TASK_WD);
 							logPrintf(Debug,"D:ventilation_task.c::ventilation_task()->Stop\r\n");
 						}
 						isGetGradeCycle = true;
@@ -128,8 +128,8 @@ void ventilation_task(void *p_arg)
 		}
 		else
 		{
-			dataStore.realtimeData.workingVentilators = 0x0000;
-			littleApril16FansCtrl(dataStore.realtimeData.workingVentilators,VENTILATION_TASK_WD);
+			dataStore.realtimeData.workingVentilators = 0x00000000;
+			littleApril19FansCtrl(dataStore.realtimeData.workingVentilators,VENTILATION_TASK_WD);
 		}
 	}
 }

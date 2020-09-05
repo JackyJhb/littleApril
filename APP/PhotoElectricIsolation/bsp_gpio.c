@@ -8,8 +8,8 @@
 #include "task_monitor.h"
 #include "sccf.h"
 
-uint8_t hcwOutputCtrl,group3OutputCtrl;
-uint16_t fansOutputCtrl;
+uint8_t hcwOutputCtrl,group3OutputCtrl,group4OutputCtrl;
+uint32_t fansOutputCtrl;
 
 typedef struct
 {
@@ -32,6 +32,7 @@ void littleAprilIOInit(void);
 void clearOutput(void);
 void littleAprilGroupOutput(WhichGroup whichGroup,uint8_t outputData);
 void littleAprilGroup3Ctrl(Group3Define whichOne,OnOrOff onOrOff);
+void littleAprilGroup4Ctrl(Group4Define whichOne,OnOrOff onOrOff);
 
 void littleAprilIOInit(void)
 {
@@ -75,8 +76,9 @@ void clearOutput(void)
 {
 	uint8_t i,j;
 	hcwOutputCtrl = 0x00;
-	fansOutputCtrl = 0x0000;
+	fansOutputCtrl = 0x00000000;
 	group3OutputCtrl = 0x00;
+	group4OutputCtrl = 0x00;
 	for (i = 0;i < 5;i++)
 	{
 		GPIO_SetBits(littleAprilFanOutputGPIOCS[i].GPIOx,
@@ -125,19 +127,19 @@ void littleAprilHCWCtrl(WhichRelay whichOne,OnOrOff onOrOff)
 	littleAprilGroupOutput(HCWGroup0,hcwOutputCtrl);
 }
 
-void littleApril16FansCtrl(uint32_t relayCtrlGroup,uint8_t whichTask)
+void littleApril19FansCtrl(uint32_t relayCtrlGroup,uint8_t whichTask)
 {
 	OS_ERR err;
-	uint16_t currentFansOutput,i,j;
+	uint32_t currentFansOutput,i,j;
 	currentFansOutput = fansOutputCtrl;
-	fansOutputCtrl = relayCtrlGroup & 0xFFFF;
+	fansOutputCtrl = relayCtrlGroup & 0x0007FFFF;
 	if (currentFansOutput == fansOutputCtrl)
 	{
-		logPrintf(Verbose,"bsp_gpio.c::littleApril16FansCtrl()->State of output do not changed ,return!\r\n");
+		logPrintf(Verbose,"bsp_gpio.c::littleApril19FansCtrl()->State of output do not changed ,return!\r\n");
 		return;
 	}
 	currentFansOutput &= fansOutputCtrl;
-	for (i = 0;i < 16;i++)
+	for (i = 0;i < 19;i++)
 	{
 		j = (1 << i);
 		if ((currentFansOutput & j) == 0)
@@ -153,6 +155,21 @@ void littleApril16FansCtrl(uint32_t relayCtrlGroup,uint8_t whichTask)
 			return ;
 		littleAprilGroupOutput(FansGroup1,currentFansOutput&0xFF);
 		littleAprilGroupOutput(FansGroup2,(currentFansOutput&0xFF00)>>8);
+
+		if ((currentFansOutput&0x10000) != 0)
+			littleAprilGroup3Ctrl(Fan17_Group3,On);
+		else
+			littleAprilGroup3Ctrl(Fan17_Group3,Off);
+
+		if ((currentFansOutput&0x20000) != 0)
+			littleAprilGroup3Ctrl(Fan18_Group3,On);
+		else
+			littleAprilGroup3Ctrl(Fan18_Group3,Off);
+
+		if ((currentFansOutput&0x40000) != 0)
+			littleAprilGroup3Ctrl(Fan19_Group3,On);
+  	else
+			littleAprilGroup3Ctrl(Fan19_Group3,Off);
 	}
 	logPrintf(Verbose,"currentFansOutput = %d,fansOutputCtrl = %d\r\n",currentFansOutput,fansOutputCtrl);
 }
@@ -168,4 +185,17 @@ void littleAprilGroup3Ctrl(Group3Define whichOne,OnOrOff onOrOff)
 		group3OutputCtrl &= ~whichOne;
 	}
 	littleAprilGroupOutput(Group3,group3OutputCtrl);
+}
+
+void littleAprilGroup4Ctrl(Group4Define whichOne,OnOrOff onOrOff)
+{
+	if (onOrOff == On)
+	{
+		group4OutputCtrl |= whichOne;
+	}
+	else
+	{
+		group4OutputCtrl &= ~whichOne;
+	}
+	littleAprilGroupOutput(Group4,group4OutputCtrl);
 }

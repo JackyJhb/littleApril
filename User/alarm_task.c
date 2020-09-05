@@ -33,7 +33,7 @@ void alarm_task(void *p_arg)
 		average_temperature = 0;
 		for(i = 0;i < 6;i++)
 		{
-			average_temperature += *((float *)dataStore.realtimeData.insideTemperature +i);
+			average_temperature += dataStore.realtimeData.insideTemperature[i/2][i%2];
 		}
 		average_temperature /= 6;
 		if (average_temperature > (dataStore.realtimeData.currentSetTemperature + dataStore.ctrlParameter.alarmThresholdOptions.henhouseTemperatureHighThreshold))
