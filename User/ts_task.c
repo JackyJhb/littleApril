@@ -7,7 +7,7 @@
 #include "circleBuffer.h"
 
 #define HMI_ID  0x07
-#define ISME_ID 0xFF
+#define ISME_ID 0x01//0xFF
 OS_TCB TSTaskTCB;
 CPU_STK TS_TASK_STK[TS_STK_SIZE];
 

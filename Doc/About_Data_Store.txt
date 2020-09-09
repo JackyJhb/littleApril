@@ -7,7 +7,7 @@ datas those are used in this project.
 	*****************************************************************************
 	dataStore.realtimeData.realDataToSave
 	dataStore.realtimeData.realSideWindowsAngle[2]
-	dataStore.realtimeData.targetSideWindowsAngle
+	//dataStore.realtimeData.targetSideWindowsAngle
 	dataStore.realtimeData.humidityInside[3]
 	dataStore.realtimeData.insideTemperature[3][2]
 	dataStore.realtimeData.outsideTemperature
