@@ -20,7 +20,7 @@ void usart_task(void *p_arg)
 	{
 		feedWatchDog(USART_TASK_WD);
 		OSTimeDlyHMSM(0,0,0,5,OS_OPT_TIME_DLY,&err);
-		if (++usart_timer >= 2 && uart_byte_count)
+		if (++usart_timer >= 4 && uart_byte_count)
 		{	
 			p_mem_blk = OSMemGet((OS_MEM      *)&mymem,
 								(OS_ERR      *)&err);

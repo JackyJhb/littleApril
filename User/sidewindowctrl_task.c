@@ -9,14 +9,17 @@
 #define CTRLMODERIGHTMASK    0x0080
 #define LEFT				 1
 #define RIGHT				 0
-#define MOTOR_RUNNING_LIMIT  1
-#define MOTOR_STOPPED_LIMIT  1
+#define MOTOR_RUNNING_LIMIT  4
+#define MOTOR_STOPPED_LIMIT  4
 
 #define REDUCE   1
 #define INCREASE 2
 
+#define REDUCE_STEP  1
+#define INCREASE_STEP 1
 OS_TCB SideWindowCtrlTaskTCB;
 CPU_STK SIDEWINDOWCTRL_TASK_STK[SIDEWINDOWCTRL_STK_SIZE];
+uint8_t lastWorkingFanNumbers = 0;
 
 void adjustSmallWinAngleBase(uint8_t fansNumber,uint8_t reduceOrIncrease);
 uint8_t isSmallWinWorking(uint8_t whichOne);
@@ -29,16 +32,16 @@ void adjustSmallWinAngleBase(uint8_t fansNumber,uint8_t reduceOrIncrease)
 	switch (reduceOrIncrease)
 	{
 		case REDUCE:
-			if (dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[fansNumber] > 3)
-				dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[fansNumber] -= 3;
+			if (dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[fansNumber] > REDUCE_STEP)
+				dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[fansNumber] -= REDUCE_STEP;
 			else
-				dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[fansNumber] = 0;
+				dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[fansNumber] = SMALL_WIN_MIN;
 			break;
 		case INCREASE:
-			if (dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[fansNumber] < 57)
-				dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[fansNumber] += 3;
+			if (dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[fansNumber] < (SMALL_WIN_MAX-INCREASE_STEP))
+				dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[fansNumber] += INCREASE_STEP;
 			else
-				dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[fansNumber] = 60;
+				dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[fansNumber] = SMALL_WIN_MAX;
 			break;
 		default:
 			break;
@@ -79,7 +82,16 @@ uint8_t calSetBits(uint32_t fansGroup)
 			++bits;
 		temp <<= 1;
 	}
+	logPrintf(Debug,"D:sidewindowctrl_task.c::calSetBits()->Total number of funs is %d.\r\n",bits);
 	return bits;
+}
+
+uint8_t isWinWorking(void)
+{
+	if (dataStore.realtimeData.isSideWindowMotorRunning & WIN_WORKING_MASK)
+		return true;
+	else
+		return false;
 }
 
 void smallWinAngleTo(uint8_t whichOne,uint8_t angleTarget)
@@ -227,7 +239,7 @@ void sidewindowctrl_task(void *p_arg)
 {
 	OS_ERR err;
 	CPU_INT32U     cpu_clk_freq;
-	uint8_t angleLR[2],pressureLR[2],totalWorkingFans;
+	uint8_t angleLR[2],pressureLR[2],totalWorkingFans,adjustWaitTime = 0;
 	p_arg = p_arg;
 	CPU_SR_ALLOC();
 	cpu_clk_freq = BSP_CPU_ClkFreq();
@@ -238,9 +250,15 @@ void sidewindowctrl_task(void *p_arg)
 	while (1)
 	{
 		feedWatchDog(SIDE_WINDOW_TASK_WD);
-		OSTimeDlyHMSM(0,0,0,500,OS_OPT_TIME_DLY,&err);
-		if (dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle & CTRLMODELEFTMASK)
+		OSTimeDlyHMSM(0,0,0,100,OS_OPT_TIME_DLY,&err);
+		
+		if ((dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle & CTRLMODELEFTMASK) ||
+			(dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle & CTRLMODERIGHTMASK))
 		{
+			//Manual control
+			angleLR[RIGHT] = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle&0x7F;
+			logPrintf(Debug,"D:sidewindowctrl_task.c::sidewindowctrl_task()->Right small window arget angle is :%d\r\n",angleLR[RIGHT]);
+			smallWinAngleTo(RIGHT,angleLR[RIGHT]);
 			//Manual control
 			angleLR[LEFT] = (dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle&0x7F00) >> 8;
 			logPrintf(Debug,"D:sidewindowctrl_task.c::sidewindowctrl_task()->Left small window arget angle is :%d\r\n",angleLR[LEFT]);
@@ -249,45 +267,35 @@ void sidewindowctrl_task(void *p_arg)
 		else
 		{
 			//Auto control
-			totalWorkingFans = calSetBits(dataStore.realtimeData.workingVentilators);
-			smallWinAngleTo(LEFT,dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[totalWorkingFans]);
-			if (isSmallWinWorking(LEFT) == false)
+			if (lastWorkingFanNumbers != 0)
 			{
-				pressureLR[LEFT] = (dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle & 0x7F00)>>8;
-				if (dataStore.realtimeData.pressureInside > pressureLR[LEFT])
+				smallWinAngleTo(LEFT,dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[lastWorkingFanNumbers]);
+				smallWinAngleTo(RIGHT,dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[lastWorkingFanNumbers]);
+			}
+			totalWorkingFans = calSetBits(dataStore.realtimeData.workingVentilators);
+			++adjustWaitTime;
+			if ((totalWorkingFans > 0) && (adjustWaitTime >= 80))
+			{
+				adjustWaitTime = 80;
+				lastWorkingFanNumbers = totalWorkingFans;
+				if ((isSmallWinWorking(LEFT) == false) && (isSmallWinWorking(RIGHT) == false))
 				{
-					adjustSmallWinAngleBase(totalWorkingFans,INCREASE);
-				}
-				else if (dataStore.realtimeData.pressureInside < pressureLR[LEFT])
-				{
-					adjustSmallWinAngleBase(totalWorkingFans,REDUCE);
+					pressureLR[LEFT] = (dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle & 0x7F00)>>8;
+					if (dataStore.realtimeData.pressureInside > (pressureLR[LEFT] + 3))
+					{
+						logPrintf(Debug,"D:sidewindowctrl_task.c::sidewindowctrl_task()->Right small window increase :%d\r\n",INCREASE);
+						adjustSmallWinAngleBase(totalWorkingFans,INCREASE);
+					}
+					else if ((dataStore.realtimeData.pressureInside + 3)< pressureLR[LEFT])
+					{
+						logPrintf(Debug,"D:sidewindowctrl_task.c::sidewindowctrl_task()->Right small window reduce :%d\r\n",REDUCE);
+						adjustSmallWinAngleBase(totalWorkingFans,REDUCE);
+					}
 				}
 			}
-		}
-		
-		if (dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle & CTRLMODERIGHTMASK)
-		{
-			//Manual control
-			angleLR[RIGHT] = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle&0x7F;
-			logPrintf(Debug,"D:sidewindowctrl_task.c::sidewindowctrl_task()->Right small window arget angle is :%d\r\n",angleLR[RIGHT]);
-			smallWinAngleTo(RIGHT,angleLR[RIGHT]);
-		}
-		else
-		{
-			//Auto control
-			totalWorkingFans = calSetBits(dataStore.realtimeData.workingVentilators);
-			smallWinAngleTo(RIGHT,dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[totalWorkingFans]);
-			if (isSmallWinWorking(RIGHT) == false)
+			else if (totalWorkingFans == 0)
 			{
-				pressureLR[RIGHT] = dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle&0x7F;
-				if (dataStore.realtimeData.pressureInside > pressureLR[RIGHT])
-				{
-					adjustSmallWinAngleBase(totalWorkingFans,INCREASE);
-				}
-				else if (dataStore.realtimeData.pressureInside < pressureLR[RIGHT] )
-				{
-					adjustSmallWinAngleBase(totalWorkingFans,REDUCE);
-				}
+				adjustWaitTime = 0x00;
 			}
 		}
 	}

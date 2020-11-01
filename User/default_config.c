@@ -140,7 +140,7 @@ const VentilateGrade ventilateGradeDefault[5] = {
 };
 /*#define SIDE_WIN_OPEN               1.036
 #define SIDE_WIN_CLOSE              3.236
-#define OPEN_ABSOLUTE_ANGLE         60
+#define OPEN_ABSOLUTE_ANGLE         100
 #define CLOSE_ABSOLUTE_ANGLE        0
 
 	kStore.pressureSensor.x0 = 0.0f;
@@ -148,12 +148,12 @@ const VentilateGrade ventilateGradeDefault[5] = {
 	kStore.pressureSensor.y0 = 4.5f;
 	kStore.pressureSensor.y1 = 0.5f;*/
 const KStore sensorKOptionsDefault = {
-	0.0,1.036,60,3.236,0.0,
-	0.0,1.036,60,3.236,0.0,
-	0.0,4.5,-30.0,0.5,0.0
+	0.0,1.036,100,3.236,0.0,
+	0.0,1.036,100,3.236,0.0,
+	0.0,0.6,100,3.0,0.0         //150¦¸
 };
 
 const NegativePressureCtrlAngle negativePressureCtrlAngleDefault = {
-	0,10,20,30,40,50,60,60,60,60,60,60,60,60,60,60,16,16,16,
-	0,0,  0,  0,  0, 0,  0, 5, 10, 15,20,25,30,35,40,45,45,45,45
+	{0,37,70,96,96,96,96,96,96,96,96,96,96,96,96,96,96,96,96,96},
+	{0,0,  0,  0,  0, 0,   0,   0,    5,    10, 15,  20,  25,  30,  35,  40,  45,  45,  45 ,45},
 };

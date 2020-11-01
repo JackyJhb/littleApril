@@ -13,7 +13,7 @@ The meaning of sccf is System Control Configuration File.
 
 #define AT24C128
 #define INIT_KEY        0x1111
-#define INIT_KEY_FLASH  0x1122
+#define INIT_KEY_FLASH  0x1188
 
 #define ADDR_RTD_FILE   0x0000      //Real time data
 #define ADDR_CFG_FILE   0x0400      //Config file data
@@ -137,8 +137,8 @@ typedef struct {
 	KStruct pressureSensor;
 }KStore;
 typedef struct {
-	uint8_t fansSmallWinOpenAngle[19];
-	uint8_t fansBigWinOpenAngle[19];
+	uint8_t fansSmallWinOpenAngle[20];
+	uint8_t fansBigWinOpenAngle[20];
 }NegativePressureCtrlAngle;
 
 typedef struct{

@@ -116,6 +116,7 @@ void updateTemperatureData(void)
 			if (loopCounter[BOILER_INSIDE] == FILTER_TIMES)
 			{
 				dataStore.realtimeData.boilerInsideTemperature = getMid(&bufTemperature[BOILER_INSIDE][0],FILTER_TIMES);
+				dataStore.realtimeData.boilerInsideTemperature += 7.0f;
 				loopCounter[BOILER_INSIDE] = 0x00;
 			}
 		}

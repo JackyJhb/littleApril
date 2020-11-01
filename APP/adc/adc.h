@@ -15,7 +15,7 @@
 #define RIGHT_WINDOW_ANGLE          2
 #define ADC_VDD_33V                 3.3f
 
-#define SMALL_WIN_MAX          60
+#define SMALL_WIN_MAX          100
 #define SMALL_WIN_MIN            0
 
 #define RHEOSTAT_ADC        		ADC1

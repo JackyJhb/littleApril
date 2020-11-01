@@ -11,7 +11,7 @@ static uint8_t convTimes=0;
 
 float getAveValue(float *buf,char len)
 {
-	float max=0x0000,min=0xFFFF,total = 0x0000;
+	float max=-100.00,min=100.00,total = 0.00;
 	uint8_t i;
 	for (i = 0;i < len;i++)
 	{
@@ -105,8 +105,8 @@ void Get_ADC_Value(KStore *kStorePtr)
 {
 	uint16_t adc_value[RHEOSTAT_NOFCHANEL] = {0};
 	uint8_t i,j;
-	//1.036V opened 3.232V closed
 	float temp;
+
 	while(DMA_GetFlagStatus(RHEOSTAT_ADC_DMA_STREAM,DMA_IT_TCIF0) == RESET);
 	DMA_ClearFlag(RHEOSTAT_ADC_DMA_STREAM,DMA_IT_TCIF0);
 	for (i = 0;i < ADC_CONV_TIMES;i++)
@@ -121,18 +121,16 @@ void Get_ADC_Value(KStore *kStorePtr)
 		adc_value[j] /= ADC_CONV_TIMES;
 	}
 	
-	if (++convTimes == 5)
-		convTimes = 0;
 	//1
 	//Because pressure sensor output 0~4.5V voltage and ADC Vref is 3.3V,so need to ...
-	temp = (float)(2*adc_value[PRESSURE_CH] * ADC_VDD_33V)/4095-kStorePtr->pressureSensor.y0;
+	temp = (float)(adc_value[PRESSURE_CH] * ADC_VDD_33V)/4095-kStorePtr->pressureSensor.y0;
 	temp /= kStorePtr->pressureSensor.k;
 	temp += kStorePtr->pressureSensor.x0;
 	resultBuf[PRESSURE_CH][convTimes] = temp;
 	if (convTimes == 4)
 	{
 		temp = getAveValue(&resultBuf[PRESSURE_CH][0],sizeof(resultBuf[PRESSURE_CH])/sizeof(float));
-		if ((temp + 0.5) > temp)
+		if ((uint8_t)(temp + 0.5) > (uint8_t)temp)
 			temp += 1;
 		i = (uint8_t)temp;
 		dataStore.realtimeData.pressureInside = i;
@@ -146,7 +144,7 @@ void Get_ADC_Value(KStore *kStorePtr)
 	if (convTimes == 4)
 	{
 		temp = getAveValue(&resultBuf[SMALL_LEFT_WIN_CH][0] , sizeof(resultBuf[SMALL_LEFT_WIN_CH])/sizeof(float));
-		if ((temp + 0.5) > temp)
+		if ((uint8_t)(temp + 0.5) > (uint8_t)temp)
 			temp += 1;
 		i = (uint8_t)temp;
 		dataStore.realtimeData.smallSideWindowsAngle &= 0x00FF;
@@ -161,7 +159,7 @@ void Get_ADC_Value(KStore *kStorePtr)
 	if (convTimes == 4)
 	{
 		temp = getAveValue(&resultBuf[SMALL_RIGHT_WIN_CH][0] , sizeof(resultBuf[SMALL_RIGHT_WIN_CH])/sizeof(float));
-		if ((temp + 0.5) > temp)
+		if ((uint8_t)(temp + 0.5) > (uint8_t)temp)
 			temp += 1;
 		i = (uint8_t)temp;
 		dataStore.realtimeData.smallSideWindowsAngle &= 0xFF00;
@@ -176,7 +174,7 @@ void Get_ADC_Value(KStore *kStorePtr)
 	if (convTimes == 4)
 	{
 		temp = getAveValue(&resultBuf[BIG_LEFT_WIN_CH][0] , sizeof(resultBuf[BIG_LEFT_WIN_CH])/sizeof(float));
-		if ((temp + 0.5) > temp)
+		if ((uint8_t)(temp + 0.5) > (uint8_t)temp)
 			temp += 1;
 		i = (uint8_t)temp;
 		dataStore.realtimeData.bigSideWindowsAngle &= 0x00FF;
@@ -191,10 +189,13 @@ void Get_ADC_Value(KStore *kStorePtr)
 	if (convTimes == 4)
 	{
 		temp = getAveValue(&resultBuf[BIG_RIGHT_WIN_CH][0] , sizeof(resultBuf[BIG_RIGHT_WIN_CH])/sizeof(float));
-		if ((temp + 0.5) > temp)
+		if ((uint8_t)(temp + 0.5) > (uint8_t)temp)
 			temp += 1;
 		i = (uint8_t)temp;
 		dataStore.realtimeData.bigSideWindowsAngle &= 0xFF00;
 		dataStore.realtimeData.bigSideWindowsAngle |= i;
 	}
+
+	if (++convTimes == ADC_CONV_TIMES)
+		convTimes = 0;
 } 

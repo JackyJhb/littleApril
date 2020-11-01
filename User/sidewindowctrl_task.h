@@ -31,6 +31,8 @@ typedef enum {
 #define BIG_RIGHT_OPEN    ((uint32_t)0x00000040)
 #define BIG_RIGHT_CLOSE   ((uint32_t)0x00000080)
 
+#define WIN_WORKING_MASK ((uint32_t)0x00000FF)
+
 extern OS_TCB SideWindowCtrlTaskTCB;
 extern CPU_STK SIDEWINDOWCTRL_TASK_STK[SIDEWINDOWCTRL_STK_SIZE];
 extern void sidewindowctrl_task(void *p_arg);
