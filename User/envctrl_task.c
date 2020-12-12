@@ -16,6 +16,7 @@
 OS_TCB EnvParameterTaskTCB;
 CPU_STK EnvParameter_TASK_STK[EnvParameter_STK_SIZE];
 
+void currentTargetTemperature(void);
 static void updateTemperatureData(void);
 static void temperatureCtrl(uint8_t dev_id);
 static void huimidityCtrl(uint8_t dev_id);
@@ -127,11 +128,31 @@ void updateTemperatureData(void)
 	}
 }
 
+void currentTargetTemperature(void)
+{
+	float set_temperature;
+	uint8_t hours;
+	hours = calHoursInOneDay(&dataStore.realtimeData.realDataToSave.rtcTimeStart);
+	if (dataStore.realtimeData.dayCycle < 50)
+	{
+			set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle-1] - dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle];
+			set_temperature = (set_temperature/24) * hours;
+			set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle-1] - set_temperature;
+			logPrintf(Verbose,"V:envctrl_task.c::temperatureCtrl()->hours:%d,base_temperature:%.2f,target_temperature:%.2f,set_temperature:%.2f\r\n",
+						hours,
+						dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle - 1],
+						dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle],
+						set_temperature);
+	}
+	dataStore.realtimeData.currentSetTemperature = (set_temperature+dataStore.ctrlParameter.systemOptions.deltaTemperature);
+}
+
 void temperatureCtrl(uint8_t dev_id)
 {
-	float temp=0.0f,set_temperature;
-	uint8_t valid_nums = 0,hours;
-	CPU_SR_ALLOC();
+	float temp=0.0f/*,set_temperature*/;
+	uint8_t valid_nums = 0/*,hours*/;
+	//CPU_SR_ALLOC();
+			
 	if (dataStore.realtimeData.insideTemperature[dev_id][0] != INVIAL)
 	{
 		temp = dataStore.realtimeData.insideTemperature[dev_id][0];
@@ -147,23 +168,12 @@ void temperatureCtrl(uint8_t dev_id)
 		temp /= valid_nums;
 		if (dataStore.realtimeData.realDataToSave.isStarted == REARING_STARTED)
 		{
-			hours = calHoursInOneDay(&dataStore.realtimeData.realDataToSave.rtcTimeStart);
-			if (dataStore.realtimeData.dayCycle < 50)
-			{
-					set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle-1] - dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle];
-					set_temperature = (set_temperature/24) * hours;
-					set_temperature = dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle-1] - set_temperature;
-					logPrintf(Verbose,"V:envctrl_task.c::temperatureCtrl()->hours:%d,base_temperature:%.2f,target_temperature:%.2f,set_temperature:%.2f\r\n",
-								hours,
-								dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle - 1],
-								dataStore.ctrlParameter.ambientTemperature[dataStore.realtimeData.dayCycle],
-								set_temperature);
-			}
-			pidControlTemperature((set_temperature+dataStore.ctrlParameter.systemOptions.deltaTemperature),temp,dev_id);
+			pidControlTemperature(dataStore.realtimeData.currentSetTemperature,temp,dev_id);
 		}
 		else if (dataStore.realtimeData.realDataToSave.isStarted == HEATING_STARTED)
 		{
-			pidControlTemperature(dataStore.ctrlParameter.ambientTemperature[0],temp,dev_id);
+			dataStore.realtimeData.currentSetTemperature = (dataStore.ctrlParameter.ambientTemperature[0]+dataStore.ctrlParameter.systemOptions.deltaTemperature);
+			pidControlTemperature(dataStore.realtimeData.currentSetTemperature,temp,dev_id);
 		}
 	}
 	else
@@ -214,7 +224,7 @@ void EnvParameter_task(void *p_arg)
 	CPU_TS_TMR      ts_int;
 	CPU_INT32U      cpu_clk_freq;
 	OS_MSG_SIZE     msg_size;
-	char * pMsg,ask_status = SERVER_REQ_TEMPERATURE,ask_dev_id = 0x00,ch0_err = 0,ch1_err = 0,cal_av;
+	char * pMsg,ask_status = SERVER_REQ_TEMPERATURE,ask_dev_id = 0x00,ch0_err = 0,ch1_err = 0,counter_left = 0,counter_right=0;
 	ServerOrder *order_ptr;
 	unsigned char buf[8] = {0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08};
 	uint32_t sequenceID = 0x00000000;
@@ -252,12 +262,20 @@ void EnvParameter_task(void *p_arg)
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,
 				dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds);
 			++sequenceID;
+			currentTargetTemperature();
 			OS_CRITICAL_ENTER();
 			updateTemperatureData();
 			OS_CRITICAL_EXIT();
-			OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
 			ask_dev_id = 0x00;
 		}
+		OSTimeDlyHMSM(0,0,0,300,OS_OPT_TIME_DLY,&err);
+		feedWatchDog(ENVCTRL_TASK_WD);
+		OSTimeDlyHMSM(0,0,0,200,OS_OPT_TIME_DLY,&err);
+		feedWatchDog(ENVCTRL_TASK_WD);
+		OSTimeDlyHMSM(0,0,0,300,OS_OPT_TIME_DLY,&err);
+		feedWatchDog(ENVCTRL_TASK_WD);
+		OSTimeDlyHMSM(0,0,0,200,OS_OPT_TIME_DLY,&err);
+		feedWatchDog(ENVCTRL_TASK_WD);
 		order_ptr->type = ask_status;
 		pMsg = OSTaskQPend ((OS_TICK        )0,
 							(OS_OPT         )OS_OPT_PEND_NON_BLOCKING,
@@ -307,35 +325,36 @@ void EnvParameter_task(void *p_arg)
 				{
 					case SERVER_REQ_TEMPERATURE:
 						//Filter temperature value that out of range or not normal.
-						if (((((DataPackage *)pMsg)->err & DS18B20_LEFT_ERR) != DS18B20_LEFT_ERR) && 
+						if ((((((DataPackage *)pMsg)->err & DS18B20_LEFT_ERR) != DS18B20_LEFT_ERR) && 
 							((float)((DataPackage *)pMsg)->leftTemperature/100 > 10.0) &&
-							((float)((DataPackage *)pMsg)->leftTemperature/100 < 50.0))
-						{
+							((float)((DataPackage *)pMsg)->leftTemperature/100 < 50.0)) || (counter_left >= 3)) {
+							counter_left = 0;
 							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][0] = (float)((DataPackage *)pMsg)->leftTemperature/100;
 							dataStore.sensorStatusCounter.areaLeftSensorErrCounter[(((DataPackage *)pMsg)->dev_id)] = 0x00;
 							ch0_err = 0;
-						}
-						else
-						{
+						} else {
+							if ((((DataPackage *)pMsg)->err & DS18B20_LEFT_ERR) != DS18B20_LEFT_ERR) {
+								++counter_left;
+							}
 							#ifdef ENABLE_BLACK_BOX
 							++dataStore.blackBox.sensorErrTimes[((DataPackage *)pMsg)->dev_id][0];
 							#endif
 							ch0_err = 1;
-							if (dataStore.sensorStatusCounter.areaLeftSensorErrCounter[(((DataPackage *)pMsg)->dev_id)] < 100)
-							{
+							if (dataStore.sensorStatusCounter.areaLeftSensorErrCounter[(((DataPackage *)pMsg)->dev_id)] < 100) {
 								++dataStore.sensorStatusCounter.areaLeftSensorErrCounter[(((DataPackage *)pMsg)->dev_id)];
 							}
 						}
-						if (((((DataPackage *)pMsg)->err & DS18B20_RIGHT_ERR) != DS18B20_RIGHT_ERR) && 
+						if ((((((DataPackage *)pMsg)->err & DS18B20_RIGHT_ERR) != DS18B20_RIGHT_ERR) && 
 							((float)((DataPackage *)pMsg)->rightTemperature/100 > 10.0) &&
-							((float)((DataPackage *)pMsg)->rightTemperature/100 < 50.0))
-						{
+							((float)((DataPackage *)pMsg)->rightTemperature/100 < 50.0)) || (counter_right >= 3)) {
+							counter_right = 0;
 							dataStore.realtimeData.insideTemperature[(((DataPackage *)pMsg)->dev_id)][1] = (float)((DataPackage *)pMsg)->rightTemperature/100;
 							dataStore.sensorStatusCounter.areaRightSensorErrCounter[(((DataPackage *)pMsg)->dev_id)] = 0x00;
 							ch1_err = 0;
-						}
-						else
-						{
+						} else {
+							if ((((DataPackage *)pMsg)->err & DS18B20_RIGHT_ERR) != DS18B20_RIGHT_ERR) {
+								++counter_right;
+							}
 							#ifdef ENABLE_BLACK_BOX
 							++dataStore.blackBox.sensorErrTimes[((DataPackage *)pMsg)->dev_id][1];
 							#endif
@@ -406,13 +425,10 @@ void EnvParameter_task(void *p_arg)
 						break;
 				}
 			}
-			OSMemPut ((OS_MEM  *)&mymem,
-					(void    *)pMsg,
-					(OS_ERR  *)&err);
+			OSMemPut ((OS_MEM  *)&mymem,(void    *)pMsg,(OS_ERR  *)&err);
 			if (err != OS_ERR_NONE)
 			{
 				logPrintf(Error,"E:envctrl_task.c::EnvParameter_task()->OSMemPut() err = %d\r\n",err);
-				//printf("E:envctrl_task.c::EnvParameter_task()->OSMemPut() err = %d\r\n",err);
 			}
 		}
 		++ask_dev_id;

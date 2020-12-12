@@ -164,9 +164,9 @@ void RTC_Alarm_IRQHandler(void)
 		if (dataStore.realtimeData.realDataToSave.isStarted == REARING_STARTED)
 		{
 			++dataStore.realtimeData.dayCycle;
-			if (dataStore.realtimeData.dayCycle > 50)
+			if (dataStore.realtimeData.dayCycle > 49)
 			{
-				dataStore.realtimeData.dayCycle = 50;
+				dataStore.realtimeData.dayCycle = 49;
 			}
 		}
 	}
@@ -248,7 +248,7 @@ uint16_t calDaysBettweenTwoDate(RTC_DateTypeDef *date,RTC_TimeTypeDef *time)
 	{
 		daysOfMonth(&temp.RTC_Year,&temp.RTC_Month,&temp.RTC_Date);
 		++days;
-		if (days >= 50)
+		if (days > 49)
 		{
 			//TODO:The number of the days is beyond the breeding cycle.
 			break;
@@ -262,8 +262,8 @@ uint16_t calDaysBettweenTwoDate(RTC_DateTypeDef *date,RTC_TimeTypeDef *time)
 		++days;
 	}
 	time->RTC_Seconds += 2;
-	if (days > 50)
-		days = 50;
+	if (days > 49)
+		days = 49;
 	return days;
 }
 

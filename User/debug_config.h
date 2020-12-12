@@ -3,7 +3,7 @@
 
 #define ENABLE_OUTPUT_LOG
 #define ENABLE_BLACK_BOX
-#define ENABLE_PIRACY_TRAP
+//#define ENABLE_PIRACY_TRAP
 
 #ifdef ENABLE_OUTPUT_LOG
     //#define ENABLE_WIFI_LOG

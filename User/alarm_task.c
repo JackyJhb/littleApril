@@ -24,7 +24,9 @@ void alarm_task(void *p_arg)
 	CPU_SR_ALLOC();
 	cpu_clk_freq = BSP_CPU_ClkFreq();
 	BEEP_Init();
+	littleAprilGroup3Ctrl(Warning_Group3,On);
 	OSTimeDlyHMSM(0,0,5,0,OS_OPT_TIME_DLY,&err);
+	littleAprilGroup3Ctrl(Warning_Group3,Off);
 	enableWatchDog(ALARM_TASK_WD);
 	while(1)
 	{
@@ -129,26 +131,28 @@ void alarm_task(void *p_arg)
 			alarm_bits &= ~BOILER_SENSOR_ERR;
 		}
 		
+		if (dataStore.realtimeData.year == 20 && dataStore.realtimeData.month == 8 && dataStore.realtimeData.day == 27)
+		{
+			alarm_bits |= BAT_RTC_ERR;
+		}
+		
 		dataStore.realtimeData.sensorErrStatus = alarm_bits;
 		if (alarm_bits)
 		{
 			if (beep_status)
 			{
-				//GPIO_ResetBits(BEEP_Port,BEEP_Pin);
 				littleAprilGroup3Ctrl(Warning_Group3,On);
 				logPrintf(Info,"I:alarm_task.c::alarm_task!Alarm code = %d\r\n",dataStore.realtimeData.sensorErrStatus);
 				beep_status = 0x00;
 			}
 			else
 			{
-				//GPIO_SetBits(BEEP_Port,BEEP_Pin);
 				littleAprilGroup3Ctrl(Warning_Group3,Off);
 				beep_status = 0x01;
 			}
 		}
 		else
 		{
-			//GPIO_SetBits(BEEP_Port,BEEP_Pin);
 			littleAprilGroup3Ctrl(Warning_Group3,Off);
 		}
 		OSTimeDlyHMSM(0,0,0,300,OS_OPT_TIME_DLY,&err);

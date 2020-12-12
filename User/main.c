@@ -21,7 +21,7 @@
 #include "wifi.h"
 
 int main()
-{  	
+{
 	OS_ERR err;
 	uint8_t res;
 	littleAprilIOInit();
@@ -45,8 +45,6 @@ int main()
 	{
 		dataStore.realtimeData.dayCycle = calDaysBettweenTwoDate(&dataStore.realtimeData.realDataToSave.rtcDateStart,
 																 &dataStore.realtimeData.realDataToSave.rtcTimeStart);
-		if (dataStore.realtimeData.dayCycle > 50)
-						dataStore.realtimeData.dayCycle = 50;
 		RTC_SetAlarmA(dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_WeekDay,
 					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours,
 					dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,

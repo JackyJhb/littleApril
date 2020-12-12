@@ -73,15 +73,6 @@ uint8_t readCtrlConfigFile(void *ptr,unsigned int size)
 
 void persistConfigFileToDefault(RealDataStore *ptr)
 {
-	/*ptr->realDataToSave.isStarted = REARING_STARTED;
-	ptr->realDataToSave.rebootTimes = 0x0000;
-	ptr->realDataToSave.rtcDateStart.RTC_Year    = START_RTC_YEAR_DEFAULT;
-	ptr->realDataToSave.rtcDateStart.RTC_Month   = START_RTC_MONTH_DEFAULT;
-	ptr->realDataToSave.rtcDateStart.RTC_Date    = START_RTC_DATE_DEFAULT;
-	ptr->realDataToSave.rtcDateStart.RTC_WeekDay = START_RTC_WEEKDAY_DEFAULT;
-	ptr->realDataToSave.rtcTimeStart.RTC_Hours   = START_RTC_HOURS_DEFAULT;
-	ptr->realDataToSave.rtcTimeStart.RTC_Minutes = START_RTC_MINUTES_DEFAULT;
-	ptr->realDataToSave.rtcTimeStart.RTC_Seconds = START_RTC_SECONDS_DEFAULT;*/
 	memcpy(&ptr->realDataToSave,&realDataToSaveDefault,sizeof(RealDataToSave));
 }
 
@@ -96,7 +87,6 @@ uint8_t sysCtrlConfigFileInit(void)
 	if (dataStore.realtimeData.realDataToSave.key != INIT_KEY)
 	{
 		persistConfigFileToDefault(&dataStore.realtimeData);
-		//dataStore.realtimeData.realDataToSave.key = INIT_KEY;
 		err_code = sysCtrlConfigFileWrite(&dataStore.realtimeData.realDataToSave,sizeof(RealDataToSave));
 		logPrintf(Info,"I:sccf.c::sysCtrlConfigFileInit() -> persistConfigFileToDefault\r\n");
 	}

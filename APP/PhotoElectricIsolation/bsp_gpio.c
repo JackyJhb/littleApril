@@ -131,12 +131,17 @@ void littleApril19FansCtrl(uint32_t relayCtrlGroup,uint8_t whichTask)
 {
 	OS_ERR err;
 	uint32_t currentFansOutput,i,j;
+	if (((dataStore.realtimeData.isColding & IS_COLDING) == IS_COLDING) && (whichTask == VENTILATION_TASK_WD)) {
+		feedWatchDog(whichTask);
+		return;
+	}
+	
 	currentFansOutput = fansOutputCtrl;
 	fansOutputCtrl = relayCtrlGroup & 0x0007FFFF;
 	if (currentFansOutput == fansOutputCtrl)
 	{
 		logPrintf(Verbose,"bsp_gpio.c::littleApril19FansCtrl()->State of output do not changed ,return!\r\n");
-		return;
+		//return;
 	}
 	currentFansOutput &= fansOutputCtrl;
 	for (i = 0;i < 19;i++)
@@ -151,8 +156,7 @@ void littleApril19FansCtrl(uint32_t relayCtrlGroup,uint8_t whichTask)
 				feedWatchDog(whichTask);
 			}
 		}
-		if (((dataStore.realtimeData.isColding & IS_COLDING) == IS_COLDING) && (whichTask == VENTILATION_TASK_WD))
-			return ;
+		
 		littleAprilGroupOutput(FansGroup1,currentFansOutput&0xFF);
 		littleAprilGroupOutput(FansGroup2,(currentFansOutput&0xFF00)>>8);
 

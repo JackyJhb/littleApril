@@ -15,24 +15,12 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 	static uint16_t cooding_down_fans = 0x0000;
 	float temperature_difference,average_temperature;
 
-	dataStore.realtimeData.currentSetTemperature = set_temperature;
+	//dataStore.realtimeData.currentSetTemperature = (set_temperature+dataStore.ctrlParameter.systemOptions.deltaTemperature);
 	logPrintf(Verbose,"V:pid.c::pidControlTemperature()->%d's area set temperature is %.2f.\r\n",which_one,dataStore.realtimeData.currentSetTemperature);
 	logPrintf(Verbose,"V:pid.c::pidControlTemperature()->Real time temperature is %.2f\r\n",actual_temperature);
 	
 	if ((dataStore.realtimeData.currentSetTemperature + dataStore.ctrlParameter.systemOptions.startHeatingCondition) >= actual_temperature)
 	{
-		logPrintf(Warning,"W:pid.c::pidControlTemperature()->%d's area's temperature is lower than setting,need to heating.\r\n",which_one);
-		logPrintf(Warning,"W:pid.c::pidControlTemperature()->dataStore.realtimeData.boilerPipeTemperature=%.2f.\r\n",dataStore.realtimeData.boilerPipeTemperature);
-		logPrintf(Warning,"W:pid.c::pidControlTemperature()->dataStore.ctrlParameter.systemOptions.startHeatingBoilerPipeTemperature=%.2f.\r\n",dataStore.ctrlParameter.systemOptions.startHeatingBoilerPipeTemperature);
-		if ((dataStore.realtimeData.heatingColdingStatus & (1<<which_one)) &&
-			(dataStore.realtimeData.boilerPipeTemperature <= dataStore.ctrlParameter.systemOptions.stopHeatingBoilerPipeTemperature))
-		{
-				littleAprilHCWCtrl((1<<which_one),Off);
-				dataStore.realtimeData.heatingColdingStatus &= ~(1<<which_one);
-				logPrintf(Warning,"W:pid.c::pidControlTemperature()->Boiler's temperature is %.2f,It's lower than setting's value %.2f.Heating paused.\r\n",
-				         dataStore.realtimeData.boilerPipeTemperature,
-						  dataStore.ctrlParameter.systemOptions.stopHeatingBoilerPipeTemperature);
-		}
 		if (((dataStore.realtimeData.heatingColdingStatus & (1<<which_one)) == 0) &&
 			(dataStore.realtimeData.boilerPipeTemperature >= dataStore.ctrlParameter.systemOptions.startHeatingBoilerPipeTemperature))
 		{
@@ -44,8 +32,11 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 		
 	if ((dataStore.realtimeData.heatingColdingStatus & 0x0007) != 0)
 	{
-		if (((dataStore.realtimeData.currentSetTemperature + dataStore.ctrlParameter.systemOptions.stopHeatingCondition) <= actual_temperature) &&
-			(dataStore.realtimeData.heatingColdingStatus & (1<<which_one)))
+		if ((((dataStore.realtimeData.currentSetTemperature + dataStore.ctrlParameter.systemOptions.stopHeatingCondition) <= actual_temperature) 
+			||
+			(dataStore.realtimeData.boilerPipeTemperature <= dataStore.ctrlParameter.systemOptions.stopHeatingBoilerPipeTemperature))
+		  &&
+		  (dataStore.realtimeData.heatingColdingStatus & (1<<which_one)))
 		{
 			littleAprilHCWCtrl((1<<which_one),Off);
 			dataStore.realtimeData.heatingColdingStatus &= ~(1<<which_one);

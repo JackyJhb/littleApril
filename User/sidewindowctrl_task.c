@@ -245,7 +245,7 @@ void sidewindowctrl_task(void *p_arg)
 	cpu_clk_freq = BSP_CPU_ClkFreq();
 	windowCtrl(SmallLeftStop);
 	windowCtrl(SmallRightStop);
-	OSTimeDlyHMSM(0,0,1,0,OS_OPT_TIME_DLY,&err);
+	OSTimeDlyHMSM(0,0,10,0,OS_OPT_TIME_DLY,&err);
 	enableWatchDog(SIDE_WINDOW_TASK_WD);
 	while (1)
 	{
@@ -267,17 +267,17 @@ void sidewindowctrl_task(void *p_arg)
 		else
 		{
 			//Auto control
-			if (lastWorkingFanNumbers != 0)
+			totalWorkingFans = calSetBits(dataStore.realtimeData.workingVentilators);
+			if ((totalWorkingFans != 0) && (lastWorkingFanNumbers != totalWorkingFans))
 			{
+				lastWorkingFanNumbers = totalWorkingFans;
 				smallWinAngleTo(LEFT,dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[lastWorkingFanNumbers]);
 				smallWinAngleTo(RIGHT,dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[lastWorkingFanNumbers]);
 			}
-			totalWorkingFans = calSetBits(dataStore.realtimeData.workingVentilators);
 			++adjustWaitTime;
 			if ((totalWorkingFans > 0) && (adjustWaitTime >= 80))
 			{
 				adjustWaitTime = 80;
-				lastWorkingFanNumbers = totalWorkingFans;
 				if ((isSmallWinWorking(LEFT) == false) && (isSmallWinWorking(RIGHT) == false))
 				{
 					pressureLR[LEFT] = (dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle & 0x7F00)>>8;

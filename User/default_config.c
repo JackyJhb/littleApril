@@ -18,7 +18,7 @@
 #define COOL_DOWN_DEFAULT_LEVEL_16    0x7FFFF//0B111 1111 1111 1111 1111
 
 const RealDataToSave realDataToSaveDefault = {
-	REARING_STARTED,0x0000,5,8,7,20,8,41,45,24,INIT_KEY
+	REARING_STARTED,0x0000,3,12,2,20,8,0,0,24,INIT_KEY
 };
 const SystemOptions systemOptionsDefault = {
 	-0.3,//float startHeatingCondition;

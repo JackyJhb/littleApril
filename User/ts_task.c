@@ -124,9 +124,10 @@ void ts_task(void *p_arg)
 						break;
 					case 3:		//Multiple analogs input	
 						read_len = sizeof(uint16_t) * (*(buf_rec + 4) * 256 + *(buf_rec + 5));
-						if (addr_offset <= 0x1B)
+						if (addr_offset == 0x400)
 						{
-							header = (int8_t *)&dataStore.blackBox;
+							header = (int8_t *)&eeprom_addr;
+							addr_offset -= 0x400;
 						}
 						else if (addr_offset >= 0x32 && addr_offset < 0x1FF)
 						{
@@ -275,6 +276,15 @@ void ts_task(void *p_arg)
 					case 6:     //Signal analog output
 						switch (addr_offset)
 						{
+							case 0x400:
+								eeprom_addr = *(buf_rec + 4)*256 + *(buf_rec + 5);
+								/**(buf_rec + 2) = read_len;
+								send_len = read_len + 5;
+								crc_result = crc16(buf_rec,(read_len+3));
+								*(buf_rec+3+read_len) = (uint8_t)(crc_result>>8);
+								*(buf_rec+4+read_len) = (uint8_t)(crc_result & 0x00FF);*/
+								RS485_Send_Data(buf_rec,send_len);
+								break;
 							case 0x11:
 								dataStore.realtimeData.realDataToSave.isStarted = HEATING_STARTED;
 								break;
