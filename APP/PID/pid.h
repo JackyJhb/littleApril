@@ -4,4 +4,5 @@
 #include "sccf.h"
 
 extern void pidControlTemperature(float set_temperature,float actual_temperature,uint8_t which_one);
+extern void turnoffHCWOutput(void);
 #endif

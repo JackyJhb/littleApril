@@ -175,6 +175,10 @@ void temperatureCtrl(uint8_t dev_id)
 			dataStore.realtimeData.currentSetTemperature = (dataStore.ctrlParameter.ambientTemperature[0]+dataStore.ctrlParameter.systemOptions.deltaTemperature);
 			pidControlTemperature(dataStore.realtimeData.currentSetTemperature,temp,dev_id);
 		}
+		else if (dataStore.realtimeData.realDataToSave.isStarted == REARING_STOPPED)
+		{
+			turnoffHCWOutput();
+		}
 	}
 	else
 	{

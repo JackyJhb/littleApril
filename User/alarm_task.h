@@ -40,7 +40,7 @@
 #define LEFT_BGWIN_ERR                              0x00200000
 #define RIGHT_BGWIN_ERR                            0x00400000
 
-#define BAT_RTC_ERR                                     0x00800000
+#define BAT_RTC_ERR                                     0x01000000
 
 #define PIRACY_ALARM                  									0x80000000
 

@@ -1,7 +1,7 @@
 #include "rtc.h"
 #include "rtc_task.h"
 #include "sccf.h"
-//#include "SysTick.h"
+#include "alarm_task.h"
 #include "ds18b20.h"
 
 RTC_TimeTypeDef RTC_TimeStruct;
@@ -37,12 +37,15 @@ ErrorStatus RTC_SetTimes(uint8_t year,uint8_t month,uint8_t date,uint8_t hour,ui
 	RTC_TimeTypeInitStructure.RTC_Hours=hour;
 	RTC_TimeTypeInitStructure.RTC_Minutes=min;
 	RTC_TimeTypeInitStructure.RTC_Seconds=sec;
-
 	if(hour>12)
 		RTC_TimeTypeInitStructure.RTC_H12=RTC_H12_PM;
 	else 
 		RTC_TimeTypeInitStructure.RTC_H12=RTC_H12_AM;
-	
+	if (year >= 20)
+	{
+		dataStore.realtimeData.sensorErrStatus &= ~BAT_RTC_ERR;
+		RTC_WriteBackupRegister(RTC_BKP_DR0,0x0505);
+	}
 	return ( RTC_SetDate(RTC_Format_BIN,&RTC_DateTypeInitStructure) && RTC_SetTime(RTC_Format_BIN,&RTC_TimeTypeInitStructure) );
 }
 
@@ -60,7 +63,6 @@ uint8_t RTC_Configuration(void)
 	while (RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET)
 	{
 		wait++;
-		//delay_ms(5);
 		for (i = 0;i < 5;i++)
 		{
 			delays_us(1000);
@@ -74,7 +76,7 @@ uint8_t RTC_Configuration(void)
   RTC_InitStructure.RTC_SynchPrediv  = 0xFF;
   RTC_InitStructure.RTC_HourFormat   = RTC_HourFormat_24;
   RTC_Init(&RTC_InitStructure);
-	RTC_SetTimes(20,8,27,20,48,30);
+	RTC_SetTimes(0,1,1,0,0,0);
 	return 0;
 }
 
@@ -85,10 +87,10 @@ uint8_t RTC_InitConfig(void)
 	PWR_BackupAccessCmd(ENABLE);
 	if(RTC_ReadBackupRegister(RTC_BKP_DR0)!=0x0505)
 	{
+		dataStore.realtimeData.sensorErrStatus |= BAT_RTC_ERR;
 		i=RTC_Configuration();
 		if(i==1)
 			return 1;
-		RTC_WriteBackupRegister(RTC_BKP_DR0,0x0505);
 	}
 	RTC_SetWakeUp(RTC_WakeUpClock_CK_SPRE_16bits,0);
 	return 0;
@@ -168,6 +170,10 @@ void RTC_Alarm_IRQHandler(void)
 			{
 				dataStore.realtimeData.dayCycle = 49;
 			}
+		}
+		else if (dataStore.realtimeData.realDataToSave.isStarted == REARING_STOPPED)
+		{
+			dataStore.realtimeData.dayCycle = 0;
 		}
 	}
 	EXTI_ClearITPendingBit(EXTI_Line17);

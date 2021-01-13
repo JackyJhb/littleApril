@@ -129,3 +129,15 @@ void pidControlTemperature(float set_temperature,float actual_temperature,uint8_
 											level,
 											dataStore.realtimeData.isColding );
 }
+
+void turnoffHCWOutput(void)
+{
+	littleAprilHCWCtrl(1<<0,Off);
+	littleAprilHCWCtrl(1<<1,Off);
+	littleAprilHCWCtrl(1<<2,Off);
+	littleAprilHCWCtrl(1<<3,Off);
+	littleAprilHCWCtrl(1<<4,Off);
+	littleAprilHCWCtrl(1<<5,Off);
+	littleAprilHCWCtrl(1<<6,Off);
+	littleAprilHCWCtrl(1<<7,Off);
+}

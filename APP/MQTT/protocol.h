@@ -36,7 +36,8 @@ typedef enum {
 	ServerSetRefVentilateFansRunCtrl	 				= 0x10,
 	ServerSetRefVentilate				 							= 0x11,
 	ServerSetIlluminationStrength							= 0x19,
-	ServerSetDate																	= 0x1A,
+	ServerSetRefDate																	= 0x1A,
+	ServerSetRefStartDate															= 0x1B,
 
 	ClientBroadcastRealTimeStatus        			= 0x12,
 	ClientBroadcastLog                        = 0x50,

@@ -84,12 +84,12 @@ uint8_t sysCtrlConfigFileInit(void)
 	memset(&dataStore.realtimeData,0x00,sizeof(RealDataStore));
 	memset(&dataStore.sensorStatusCounter,0x00,sizeof(SensorStatusCounter));
 	readCtrlConfigFile(&dataStore.realtimeData.realDataToSave,sizeof(RealDataToSave));
-	if (dataStore.realtimeData.realDataToSave.key != INIT_KEY)
+/*	if (dataStore.realtimeData.realDataToSave.key != INIT_KEY)
 	{
 		persistConfigFileToDefault(&dataStore.realtimeData);
 		err_code = sysCtrlConfigFileWrite(&dataStore.realtimeData.realDataToSave,sizeof(RealDataToSave));
 		logPrintf(Info,"I:sccf.c::sysCtrlConfigFileInit() -> persistConfigFileToDefault\r\n");
-	}
+	}*/
 	dataStore.realtimeData.isColding &= ~IS_COLDING;
 	dataStore.realtimeData.isColding &= ~LEVEL_MASK;
 	++dataStore.realtimeData.realDataToSave.rebootTimes;
@@ -99,11 +99,11 @@ uint8_t sysCtrlConfigFileInit(void)
 												sizeof(dataStore.realtimeData.realDataToSave.rebootTimes));
 	dataStore.blackBox.rebootTimes = dataStore.realtimeData.realDataToSave.rebootTimes;
 	AT24C02_Read(ADDR_CFG_FILE,(u8 *)&dataStore.ctrlParameter,sizeof(dataStore.ctrlParameter));
-	if (dataStore.ctrlParameter.keyCtrlParameter != INIT_KEY_FLASH)
+/*	if (dataStore.ctrlParameter.keyCtrlParameter != INIT_KEY_FLASH)
 	{
 		memset(&dataStore.ctrlParameter,0x00,sizeof(ControlParameterStore));
 		err_code = setControlParametersToDefault();
-	}
+	}*/
 
 	dataStore.realtimeData.sequenceID =0x00000000;
 	err_code = 0;

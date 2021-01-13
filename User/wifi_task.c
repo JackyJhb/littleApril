@@ -55,7 +55,7 @@ void heartBeat(void)
 void protocolAnalyze(char *buf,uint16_t len)
 {
 	uint32_t offset = 0;
-	uint16_t len_data = 0;
+	uint16_t len_data = 0,crc16_result;
 	uint8_t order = *buf,temp;
 	ErrorStatus err;
 	char rep_res=0x00;
@@ -177,6 +177,7 @@ void protocolAnalyze(char *buf,uint16_t len)
 				else if (temp == REARING_STOPPED)
 				{
 					dataStore.realtimeData.realDataToSave.isStarted = REARING_STOPPED;
+					rep_res = sysCtrlConfigFileWrite(&dataStore.realtimeData.realDataToSave,sizeof(RealDataStore));
 				}
 				else if (temp == REBOOT_SYSTEM)
 				{
@@ -198,7 +199,7 @@ void protocolAnalyze(char *buf,uint16_t len)
 			}
 			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerCtrlSystem);
 			break;
-		case ServerSetDate:
+		case ServerSetRefDate:
 			err = RTC_SetTimes(*(buf+1),*(buf+2),*(buf+3),*(buf+4),*(buf+5),*(buf+6));
 			RTC_GetTimes(RTC_Format_BIN);
 			dataStore.realtimeData.dayCycle = calDaysBettweenTwoDate(&dataStore.realtimeData.realDataToSave.rtcDateStart,
@@ -207,7 +208,25 @@ void protocolAnalyze(char *buf,uint16_t len)
 			{
 				rep_res = 0x01;
 			}
-			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetDate);
+			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetRefDate);
+			break;
+		case ServerSetRefStartDate:
+			dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Year = *(buf+1);
+			dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Month = *(buf+2);
+			dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_Date = *(buf+3);
+			dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours = *(buf+4);
+			dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes = *(buf+5);
+			dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds = *(buf+6);
+			rep_res = sysCtrlConfigFileWrite(&dataStore.realtimeData.realDataToSave,sizeof(RealDataStore));
+			//Count days of cycle without reboot.
+			dataStore.realtimeData.dayCycle = calDaysBettweenTwoDate(&dataStore.realtimeData.realDataToSave.rtcDateStart,
+																 &dataStore.realtimeData.realDataToSave.rtcTimeStart);
+			//Set alarm time to raise days of cycle up.
+			RTC_SetAlarmA(dataStore.realtimeData.realDataToSave.rtcDateStart.RTC_WeekDay,
+						dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Hours,
+						dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Minutes,
+						dataStore.realtimeData.realDataToSave.rtcTimeStart.RTC_Seconds);
+			len_data = getDataPublish(bufWifi,ToServer,&rep_res,sizeof(rep_res),ServerSetRefStartDate);
 			break;
 		default:
 			break;

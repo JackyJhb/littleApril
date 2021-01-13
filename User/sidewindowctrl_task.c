@@ -19,7 +19,6 @@
 #define INCREASE_STEP 1
 OS_TCB SideWindowCtrlTaskTCB;
 CPU_STK SIDEWINDOWCTRL_TASK_STK[SIDEWINDOWCTRL_STK_SIZE];
-uint8_t lastWorkingFanNumbers = 0;
 
 void adjustSmallWinAngleBase(uint8_t fansNumber,uint8_t reduceOrIncrease);
 uint8_t isSmallWinWorking(uint8_t whichOne);
@@ -239,6 +238,7 @@ void sidewindowctrl_task(void *p_arg)
 {
 	OS_ERR err;
 	CPU_INT32U     cpu_clk_freq;
+	uint8_t lastWorkingFanNumbers = 0,isPressureOk = false;
 	uint8_t angleLR[2],pressureLR[2],totalWorkingFans,adjustWaitTime = 0;
 	p_arg = p_arg;
 	CPU_SR_ALLOC();
@@ -271,6 +271,7 @@ void sidewindowctrl_task(void *p_arg)
 			if ((totalWorkingFans != 0) && (lastWorkingFanNumbers != totalWorkingFans))
 			{
 				lastWorkingFanNumbers = totalWorkingFans;
+				isPressureOk = false;
 				smallWinAngleTo(LEFT,dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[lastWorkingFanNumbers]);
 				smallWinAngleTo(RIGHT,dataStore.ctrlParameter.negativePressureCtrlAngle.fansSmallWinOpenAngle[lastWorkingFanNumbers]);
 			}
@@ -278,7 +279,7 @@ void sidewindowctrl_task(void *p_arg)
 			if ((totalWorkingFans > 0) && (adjustWaitTime >= 80))
 			{
 				adjustWaitTime = 80;
-				if ((isSmallWinWorking(LEFT) == false) && (isSmallWinWorking(RIGHT) == false))
+				if ((isSmallWinWorking(LEFT) == false) && (isSmallWinWorking(RIGHT) == false) && (isPressureOk == false))
 				{
 					pressureLR[LEFT] = (dataStore.ctrlParameter.systemOptions.sideWindowDefaultAngle & 0x7F00)>>8;
 					if (dataStore.realtimeData.pressureInside > (pressureLR[LEFT] + 3))
@@ -290,6 +291,10 @@ void sidewindowctrl_task(void *p_arg)
 					{
 						logPrintf(Debug,"D:sidewindowctrl_task.c::sidewindowctrl_task()->Right small window reduce :%d\r\n",REDUCE);
 						adjustSmallWinAngleBase(totalWorkingFans,REDUCE);
+					}
+					else
+					{
+						isPressureOk = true;
 					}
 				}
 			}

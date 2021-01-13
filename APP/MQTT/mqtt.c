@@ -2,6 +2,7 @@
 #include "sccf.h"
 #include "mqtt.h"
 #include "circleBuffer.h"
+#include "utility.h"
 
 char getDataFixedHead(char mesType,char dupFlag,char qosLevel,char retain);
 int getLogDataPublish(char *buff,DataSource dataSrc,int lenOnePackage);
@@ -72,8 +73,14 @@ int getLogDataPublish(char *buff,DataSource dataSrc,int lenOnePackage)
 int getDataPublish(char *buff,DataSource dataSrc,char *msg,int msgLen,char dataType)
 {
 	SubscribeOrPublishTopic *ptr;
+	uint16_t crc16_result;
 	unsigned int i,len=0,lennum=0,offset=0;
-	len = (sizeof(SubscribeOrPublishTopic) + msgLen + 2 + 1);
+	
+	crc16_result = crc16((uint8_t *)msg,msgLen);
+	*(msg+msgLen) = (uint8_t)(crc16_result>>8);
+	*(msg+1+msgLen) = (uint8_t)(crc16_result & 0x00FF);
+	
+	len = (sizeof(SubscribeOrPublishTopic) + msgLen+ sizeof(uint16_t) + 2 + 1);
 	if (len > 1460)
 		return 0;
 	if (len > 127)
@@ -94,7 +101,7 @@ int getDataPublish(char *buff,DataSource dataSrc,char *msg,int msgLen,char dataT
 	}
 	ptr->sep1 = '/';
 	lennum = len;
-	len = msgLen;
+	len = msgLen+sizeof(uint16_t);
 	buff[4+lennum+offset] = dataType;
 	if (len > 0)
 	{
